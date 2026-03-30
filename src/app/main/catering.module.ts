@@ -10,6 +10,9 @@ import { ScannerComponent } from './scanner/scanner.component';
 import { ReportsComponent } from './reports/reports.component';
 import { BillingComponent } from './billing/billing.component';
 import { RouterModule } from '@angular/router';
+import { LocationComponent } from './Master/location/location.component';
+import { ItemsComponent } from './Master/items/items.component';
+
 
 const routes = [
   {
@@ -45,7 +48,10 @@ const routes = [
     DailyOrderComponent,
     ScannerComponent,
     ReportsComponent,
-    BillingComponent
+    BillingComponent,
+    LocationComponent,
+    ItemsComponent,
+    
   ],
   imports: [
     RouterModule.forChild(routes),
