@@ -79,6 +79,14 @@ export const menu: CoreMenu[] = [
         type: 'item',
         icon: 'file',
         url: 'master/items'
+      },      
+      {
+        id: 'cuisine',
+        title: 'Cuisine',
+        translate: 'MENU.SAMPLE',
+        type: 'item',
+        icon: 'file',
+        url: 'master/cuisine'
       }
     ]
   }
