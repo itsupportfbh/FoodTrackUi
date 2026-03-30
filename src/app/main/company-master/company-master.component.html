@@ -1,49 +1,184 @@
-<div class="page">
-  <div class="card">
-    <h2>Company Master</h2>
-    <div class="grid">
-      <input [(ngModel)]="form.companyCode" placeholder="Company Code" />
-      <input [(ngModel)]="form.companyName" placeholder="Company Name" />
-      <input [(ngModel)]="form.contactPerson" placeholder="Contact Person" />
-      <input [(ngModel)]="form.contactPhone" placeholder="Contact Phone" />
-      <input [(ngModel)]="form.contactEmail" placeholder="Contact Email" />
-      <select [(ngModel)]="form.billingType">
-        <option>Per Person</option>
-        <option>Monthly Contract</option>
-        <option>Fixed Meal Plan</option>
-      </select>
-      <input type="number" [(ngModel)]="form.breakfastRate" placeholder="Breakfast Rate" />
-      <input type="number" [(ngModel)]="form.lunchRate" placeholder="Lunch Rate" />
-      <input type="number" [(ngModel)]="form.dinnerRate" placeholder="Dinner Rate" />
-    </div>
+<div class="company-master-page" [class.sidebar-open]="showSidebar">
+  <div class="company-page-content">
+    <div class="content-wrapper container-xxl p-0">
+      <div class="content-body">
+        <section class="users-list-wrapper">
+          <!-- <div class="card">
+            <h5 class="card-header">Company Search Filter</h5>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12 col-md-4">
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="filterCompanyName"
+                    name="filterCompanyName"
+                    placeholder="Search Company Name"
+                    (keyup)="applyFilter()"
+                  />
+                </div>
 
-    <div class="actions">
-      <button (click)="save()">Save</button>
-      <button class="secondary" (click)="reset()">Reset</button>
+                <div class="col-12 col-md-4">
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="filterEmail"
+                    name="filterEmail"
+                    placeholder="Search Email"
+                    (keyup)="applyFilter()"
+                  />
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <ng-select
+                    [items]="statusOptions"
+                    [(ngModel)]="selectedStatus"
+                    name="selectedStatus"
+                    bindLabel="name"
+                    bindValue="value"
+                    placeholder="Select Status"
+                    (change)="applyFilter()"
+                  >
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+          </div> -->
+
+          <div class="card">
+             <h4
+              class="card-text"
+              style="margin-left:0.85rem;margin-top:0.75rem;font-size:1.25rem;font-weight:600;color:blueviolet;">
+              Company List
+            </h4>
+            <div class="row">
+              <div class="col-md-6 col-12">
+                <div class="d-flex justify-content-between align-items-center m-1">
+                  <label class="d-flex align-items-center">
+                    Show
+                    <select class="form-control mx-25" [(ngModel)]="selectedOption" name="selectedOption">
+                      <option [value]="10">10</option>
+                      <option [value]="25">25</option>
+                      <option [value]="50">50</option>
+                      <option [value]="100">100</option>
+                    </select>
+                    entries
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-12 d-flex justify-content-start justify-content-md-end">
+                <div class="d-flex align-items-center justify-content-end pr-1 pb-1 pb-md-0">
+                  <label class="d-flex align-items-center ml-1 ml-md-0">
+                    Search:
+                    <input
+                      [(ngModel)]="searchValue"
+                      name="searchValue"
+                      type="search"
+                      class="form-control ml-25"
+                      (keyup)="filterUpdate($event)"
+                    />
+                  </label>
+
+                  <button class="btn btn-primary ml-1" rippleEffect (click)="openCompanySidebar()">
+                    <i data-feather="plus" class="d-sm-none d-inline-block mr-0 mr-sm-1"></i>
+                    <span class="d-none d-sm-inline-block">Add New Company</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <ngx-datatable
+              [rows]="rows"
+              [rowHeight]="50"
+              class="bootstrap core-bootstrap"
+              [limit]="selectedOption"
+              [columnMode]="ColumnMode.force"
+              [headerHeight]="50"
+              [footerHeight]="50"
+              [scrollbarH]="true"
+            >
+              <ngx-datatable-column name="Company" prop="companyName" [width]="220">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  <div class="d-flex align-items-center">
+                    <div
+                      class="avatar mr-1 ml-0"
+                      [ngClass]="{
+                        'bg-light-success': row.isActive,
+                        'bg-light-secondary': !row.isActive
+                      }"
+                    >
+                      <div class="avatar-content">{{ getInitials(row.companyName) }}</div>
+                    </div>
+
+                    <div class="cell-line-height">
+                      <span class="font-weight-bold d-block">{{ row.companyName }}</span>
+                      <span class="text-muted font-small-2">{{ row.companyCode }}</span>
+                    </div>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Contact Person" prop="contactPerson" [width]="160"></ngx-datatable-column>
+              <ngx-datatable-column name="Contact No" prop="contactNo" [width]="140"></ngx-datatable-column>
+              <ngx-datatable-column name="Email" prop="email" [width]="220"></ngx-datatable-column>
+              <ngx-datatable-column name="City" prop="city" [width]="130"></ngx-datatable-column>
+              <ngx-datatable-column name="State" prop="stateName" [width]="130"></ngx-datatable-column>
+
+              <ngx-datatable-column name="Status" [width]="110">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  <div
+                    class="badge badge-pill"
+                    [ngClass]="{
+                      'badge-light-success': row.isActive,
+                      'badge-light-secondary': !row.isActive
+                    }"
+                  >
+                    {{ row.isActive ? 'Active' : 'Inactive' }}
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+<ngx-datatable-column name="Actions" [width]="200" [sortable]="false">
+  <ng-template ngx-datatable-cell-template let-row="row">
+    <div class="d-flex align-items-center">
+      <button
+        type="button"
+        class="btn btn-sm btn-primary mr-50"
+        (click)="editCompany(row)"
+      >
+        <i class="fa fa-edit mr-25"></i> 
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-danger"
+        (click)="deleteCompany(row)"
+      >
+        <i class="fa fa-trash mr-25"></i> 
+      </button>
+    </div>
+  </ng-template>
+</ngx-datatable-column>
+            </ngx-datatable>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>Company List</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Code</th>
-          <th>Name</th>
-          <th>Contact</th>
-          <th>Billing Type</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of companyList">
-          <td>{{ row.companyCode }}</td>
-          <td>{{ row.companyName }}</td>
-          <td>{{ row.contactPerson }}</td>
-          <td>{{ row.billingType }}</td>
-          <td><button (click)="edit(row)">Edit</button></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <div class="company-page-overlay" *ngIf="showSidebar" (click)="closeCompanySidebar()"></div>
+
+  <core-sidebar
+    *ngIf="showSidebar"
+    class="modal modal-slide-in sidebar-todo-modal"
+    name="new-company-sidebar"
+    overlayClass="company-sidebar-overlay"
+  >
+    <app-company-sidebar
+      [showSidebar]="showSidebar"
+      [editData]="model"
+      (saved)="loadCompanies(); closeCompanySidebar()"
+      (closed)="closeCompanySidebar()"
+    ></app-company-sidebar>
+  </core-sidebar>
 </div>

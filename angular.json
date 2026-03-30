@@ -57,7 +57,7 @@
               "./node_modules/@fullcalendar/list/main.css"
             ],
             "stylePreprocessorOptions": {
-              "includePaths": ["node_modules", "src/assets/"]
+              "includePaths": ["node_modules", "src"]
             },
             "scripts": ["./node_modules/katex/dist/katex.min.js", "./node_modules/quill/dist/quill.min.js"],
             "vendorChunk": true,

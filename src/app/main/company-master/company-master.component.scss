@@ -1,9 +1,56 @@
-.page { display: grid; gap: 16px; }
-.card { background:#fff; border-radius:16px; padding:16px; box-shadow:0 2px 10px rgba(0,0,0,.06); }
-.grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-.actions { margin-top:16px; display:flex; gap:8px; }
-input, select { padding:10px 12px; border:1px solid #d6d6d6; border-radius:10px; }
-button { background:#10243e; color:#fff; border:none; padding:10px 16px; border-radius:10px; cursor:pointer; }
-button.secondary { background:#e8eef8; color:#10243e; }
-table { width:100%; border-collapse:collapse; }
-th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; }
+@import '@core/scss/angular/libs/datatables.component.scss';
+
+.datatable-scroll {
+  width: auto !important;
+}
+
+.company-master-page {
+  position: relative;
+}
+
+.company-page-content {
+  position: relative;
+  z-index: 1;
+  transition: filter 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+}
+
+.company-master-page.sidebar-open .company-page-content {
+  filter: blur(2px);
+  transform: scale(0.995);
+  pointer-events: none;
+  user-select: none;
+}
+
+.company-page-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(34, 41, 47, 0.45);
+  z-index: 1040;
+}
+
+.company-sidebar-overlay,
+.modal-backdrop {
+  background: rgba(34, 41, 47, 0.45) !important;
+}
+
+.modal.modal-slide-in.sidebar-todo-modal {
+  z-index: 1055;
+}
+
+.modal-slide-in .modal-dialog,
+.modal-slide-in .modal-content,
+.modal-slide-in .modal-dialog-sidebar {
+  box-shadow: -8px 0 25px rgba(0, 0, 0, 0.18);
+}
+
+.sidebar-todo-modal .modal-content,
+.sidebar-todo-modal .content-wrapper,
+.sidebar-todo-modal .content-body {
+  background: #fff;
+}
+
+/* optional: smoother right panel look */
+.sidebar-todo-modal .modal-header,
+.sidebar-todo-modal .company-sidebar-header {
+  border-bottom: 1px solid #ebe9f1;
+}
