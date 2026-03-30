@@ -28,6 +28,10 @@ const appRoutes: Routes = [
     path: 'catering',
     loadChildren: () => import('./main/catering.module').then(m => m.CateringModule)
   },
+     {
+    path: 'master',
+    loadChildren: () => import('./main/Master/master.module').then(m => m.MasterModule)
+  },
   {
     path: '',
     redirectTo: '/home',
