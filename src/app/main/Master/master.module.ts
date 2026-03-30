@@ -5,9 +5,6 @@ import { ItemsComponent } from './items/items.component';
 import { RouterModule } from '@angular/router';
 import { CuisineComponent } from './cuisine/cuisine/cuisine.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { CoreSidebarModule } from '@core/components';
 
 const routes = [
   {
