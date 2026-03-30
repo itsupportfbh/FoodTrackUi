@@ -21,6 +21,7 @@ export class CompanyMasterComponent implements OnInit {
     dinnerRate: 0,
     userId: 1
   };
+  companyList: any;
 
   constructor(private srv: CateringService) {}
 
@@ -29,7 +30,16 @@ export class CompanyMasterComponent implements OnInit {
   }
 
   loadCompanies(): void {
-    this.srv.getCompanies().subscribe(res => this.companies = res || []);
+    this.srv.getCompanies().subscribe({
+    next: (res:any) => {
+      this.companyList = res.data || [];
+      console.log('API Response:', res);
+    },
+    error: (err) => {
+      console.error('API Error:', err);
+      this.companyList = [];
+    }
+  });
   }
 
   edit(row: any): void {
