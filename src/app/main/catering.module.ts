@@ -49,8 +49,7 @@ const routes = [
     ScannerComponent,
     ReportsComponent,
     BillingComponent,
-    LocationComponent,
-    ItemsComponent,
+
     
   ],
   imports: [
