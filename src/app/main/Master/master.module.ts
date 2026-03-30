@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LocationComponent } from './location/location.component';
-import { ItemsComponent } from './items/items.component';
+
 import { RouterModule } from '@angular/router';
 import { CuisineComponent } from './cuisine/cuisine/cuisine.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SessionComponent } from './session/session.component';
 
 const routes = [
   {
@@ -13,9 +14,9 @@ const routes = [
     data: { animation: 'location' }
   },
     {
-    path: 'items',
-    component: ItemsComponent,
-    data: { animation: 'items' }
+    path: 'session',
+    component: SessionComponent,
+    data: { animation: 'session' }
   },
   { path: 'cuisine', component: CuisineComponent ,data: { animation: 'cuisine' }},
  
@@ -24,7 +25,7 @@ const routes = [
 
 @NgModule({
   declarations: [    LocationComponent,
-    ItemsComponent,CuisineComponent],
+    CuisineComponent,SessionComponent],
   imports: [
     RouterModule.forChild(routes),
     CommonModule,

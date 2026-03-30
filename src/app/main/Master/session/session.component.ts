@@ -1,35 +1,37 @@
 import { AfterViewChecked, AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { SessionService } from './session.service';
 import * as feather from 'feather-icons';
-import { LocationService } from './location.service';
+
 import Swal from 'sweetalert2';
+
 @Component({
-  selector: 'app-location',
-  templateUrl: './location.component.html',
-  styleUrls: ['./location.component.scss']
+  selector: 'app-session',
+  templateUrl: './session.component.html',
+  styleUrls: ['./session.component.scss']
 })
-export class LocationComponent implements OnInit,AfterViewInit, AfterViewChecked  {
+export class SessionComponent implements OnInit ,AfterViewInit, AfterViewChecked {
 
   @ViewChild('addForm') addFormForm!: NgForm;
   public id = 0;
 
   isDisplay: boolean = false;
-  modeHeader: string = 'Add locations';
+  modeHeader: string = 'Add sessions';
   resetButton: boolean = true;
  rows: any[] = [];
   tempData: any;
   countryValue: any;
   isEditMode: boolean;
   customerName: string;
-  locationValue: any;
-  locationName: any;
+  sessionValue: any;
+  sessionName: any;
   description: any;
 
-  constructor(private _service : LocationService) { }
+  constructor(private _service : SessionService) { }
 
   ngOnInit(): void 
   {
-    this.getAlllocations();
+    this.getAllsessions();
   }
 
   ngAfterViewInit(): void {
@@ -55,36 +57,36 @@ export class LocationComponent implements OnInit,AfterViewInit, AfterViewChecked
     this.isEditMode = false;
   }
 
-  createlocations() {
+  createsessions() {
     this.isDisplay = true;
    
-    this.modeHeader = 'Add Location';
+    this.modeHeader = 'Add session';
     this.reset();
   }
 
 
     reset() {
-    this.modeHeader = "Create Location";
-    this.locationName = "";
+    this.modeHeader = "Create session";
+    this.sessionName = "";
     this.description = "";
     this.id = 0;
   }
 
 
-   getAlllocations() {
-    this._service.getLocation().subscribe((response: any) => {
+   getAllsessions() {
+    this._service.getSession().subscribe((response: any) => {
       this.rows = response.data;
       this.tempData = this.rows;
     })
   }
 
 
-  Createlocations(data: any) {
+  Createsessions(data: any) {
     debugger
    
   const obj = {
     id:this.id,
-    locationname: this.locationName,
+    sessionname: this.sessionName,
     description:this.description,
     createdBy: Number(localStorage.getItem('id') || 0),
     createdDate: new Date(),
@@ -93,7 +95,7 @@ export class LocationComponent implements OnInit,AfterViewInit, AfterViewChecked
     isActive: true,
   };
  if(this.id == 0){
-  this._service.insertLocation(obj).subscribe((res) => {
+  this._service.insertSession(obj).subscribe((res) => {
     if (res.isSuccess) {
       Swal.fire({
         title: "Hi",
@@ -102,14 +104,14 @@ export class LocationComponent implements OnInit,AfterViewInit, AfterViewChecked
         allowOutsideClick: false,
       });
 
-      this.getAlllocations();
+      this.getAllsessions();
       this.isDisplay = false;
       this.isEditMode=false;
     }
   });
 }
 else{
-   this._service.updateLocation(obj).subscribe((res) => {
+   this._service.updateSession(obj).subscribe((res) => {
     if (res.isSuccess) {
       Swal.fire({
         title: "Hi",
@@ -118,7 +120,7 @@ else{
         allowOutsideClick: false,
       });
 
-      this.getAlllocations();
+      this.getAllsessions();
       this.isDisplay = false;
       this.isEditMode=false;
     }
@@ -128,21 +130,21 @@ else{
 
 
 
-  getlocationsDetails(id: any) {
+  getsessionsDetails(id: any) {
     debugger
-    this._service.getLocationById(id).subscribe((arg: any) => {
-      this.locationValue = arg.data;
-      this.id = this.locationValue.id;
-      this.locationName = this.locationValue.locationName;
-      this.description = this.locationValue.description;
+    this._service.getSessionById(id).subscribe((arg: any) => {
+      this.sessionValue = arg.data;
+      this.id = this.sessionValue.id;
+      this.sessionName = this.sessionValue.sessionName;
+      this.description = this.sessionValue.description;
       this.isDisplay = true;
       this.resetButton = false;
-      this.modeHeader = "Edit locations";
+      this.modeHeader = "Edit sessions";
       this.isEditMode = true;
     });
   }
 
-  deletelocations(id) {
+  deletesessions(id) {
     const _self = this;
     Swal.fire({
       title: "Are you sure?",
@@ -159,7 +161,7 @@ else{
       allowOutsideClick: false,
     }).then(function (result) {
       if (result.value) {
-        _self._service.deleteLocation(id).subscribe((response: any) => {
+        _self._service.deleteSession(id).subscribe((response: any) => {
           if (response.isSuccess) {
             Swal.fire({
               icon: "success",
@@ -175,12 +177,11 @@ else{
               allowOutsideClick: false,
             });
           }
-          _self.getAlllocations();
+          _self.getAllsessions();
         });
       }
     });
   }
 
 }
-
 

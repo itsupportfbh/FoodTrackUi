@@ -1,20 +1,20 @@
-<div class="location-page container-fluid">
+<div class="session-page container-fluid">
   <div class="row">
-    <!-- LEFT : LOCATION LIST -->
+    <!-- LEFT : session LIST -->
     <div class="col-lg-6 col-md-12 mb-2">
-      <div class="location-card list-card">
+      <div class="session-card list-card">
         <div class="card-header-custom">
           <div class="title-block">
             <div class="title-icon">
               <i data-feather="map-pin"></i>
             </div>
             <div>
-              <h4 class="main-title">Location List</h4>
-              <p class="sub-title">Manage your locations here</p>
+              <h4 class="main-title">Session List</h4>
+              <p class="sub-title">Manage your sessions here</p>
             </div>
           </div>
 
-          <button type="button" class="btn-create" (click)="createlocations()">
+          <button type="button" class="btn-create" (click)="createsessions()">
             <i data-feather="plus"></i>
             Create
           </button>
@@ -25,20 +25,20 @@
             <div class="empty-icon">
               <i data-feather="map"></i>
             </div>
-            <h5>No locations found</h5>
-            <p>Click create button to add a new location.</p>
+            <h5>No sessions found</h5>
+            <p>Click create button to add a new session.</p>
           </div>
 
-          <div class="location-list" *ngIf="rows && rows.length > 0">
-            <div class="location-item" *ngFor="let item of rows">
+          <div class="session-list" *ngIf="rows && rows.length > 0">
+            <div class="session-item" *ngFor="let item of rows">
               <div class="item-left">
                 <div class="item-avatar">
                   <i data-feather="globe"></i>
                 </div>
 
                 <div class="item-content">
-                  <h5 class="location-name">{{ item.locationName }}</h5>
-                  <p class="location-desc">
+                  <h5 class="session-name">{{ item.sessionName }}</h5>
+                  <p class="session-desc">
                     {{ item.description || 'No description available' }}
                   </p>
                 </div>
@@ -48,7 +48,7 @@
                 <button
                   type="button"
                   class="icon-btn outline-btn outline-edit"
-                  (click)="getlocationsDetails(item.id)"
+                  (click)="getsessionsDetails(item.id)"
                   title="Edit"
                 >
                   <i data-feather="edit-2"></i>
@@ -57,7 +57,7 @@
                 <button
                   type="button"
                   class="icon-btn outline-btn outline-delete"
-                  (click)="deletelocations(item.id)"
+                  (click)="deletesessions(item.id)"
                   [disabled]="isEditMode"
                   title="Delete"
                 >
@@ -72,25 +72,25 @@
 
     <!-- RIGHT : FORM -->
     <div class="col-lg-6 col-md-12 mb-2" *ngIf="isDisplay">
-      <div class="location-card form-card">
+      <div class="session-card form-card">
         <div class="card-header-custom form-header">
           <div>
             <h4 class="main-title">{{ modeHeader }}</h4>
-            <p class="sub-title">Enter location details below</p>
+            <p class="sub-title">Enter session details below</p>
           </div>
         </div>
 
         <div class="card-body-custom">
-          <form class="location-form" #addForm="ngForm" (ngSubmit)="Createlocations()">
+          <form class="session-form" #addForm="ngForm" (ngSubmit)="Createsessions()">
             <div class="form-group-custom">
-              <label for="locationName">Location Name</label>
+              <label for="sessionName">Session Name</label>
               <input
                 type="text"
-                id="locationName"
-                name="locationName"
+                id="sessionName"
+                name="sessionName"
                 class="form-control-custom"
-                placeholder="Enter location name"
-                [(ngModel)]="locationName"
+                placeholder="Enter session name"
+                [(ngModel)]="sessionName"
                 maxlength="50"
                 required
               />
