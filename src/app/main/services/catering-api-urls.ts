@@ -1,6 +1,7 @@
 export const CateringApiUrls = {
   companyList: '/api/company/list',
   companySave: '/api/company/save',
+  companyDelete:(id:number) =>`/api/company/${id}`,
 
   mealPlanByCompany: (companyId: number) => `/api/mealplan/by-company/${companyId}`,
   mealPlanOverrides: (mealPlanId: number) => `/api/mealplan/overrides/${mealPlanId}`,

@@ -24,7 +24,9 @@ export class CateringService {
   getMealPlansByCompany(companyId: number): Observable<any[]> {
     return this.http.get<any[]>(this.url+CateringApiUrls.mealPlanByCompany(companyId));
   }
-
+deleteCompany(id: number):Observable<any[]>{
+  return this.http.delete<any[]>(this.url+ CateringApiUrls.companyDelete(id))
+}
   getOverrides(mealPlanId: number): Observable<any[]> {
     return this.http.get<any[]>(this.url+CateringApiUrls.mealPlanOverrides(mealPlanId));
   }

@@ -1,0 +1,26 @@
+.company-sidebar-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 100%;
+  height: 100vh;
+  background: #fff;
+  z-index: 1050;
+  box-shadow: -8px 0 20px rgba(0, 0, 0, 0.08);
+  overflow-y: auto;
+}
+
+.company-sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #eee;
+}
+
+.company-sidebar-body {
+  padding: 1.25rem;
+}
+.company-sidebar-container {
+  background: #fff;
+  height: 100%;
+  padding: 0;
+}

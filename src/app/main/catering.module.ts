@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { CateringRoutingModule } from './catering-routing.module';
 import { CompanyMasterComponent } from './company-master/company-master.component';
@@ -10,9 +10,14 @@ import { ScannerComponent } from './scanner/scanner.component';
 import { ReportsComponent } from './reports/reports.component';
 import { BillingComponent } from './billing/billing.component';
 import { RouterModule } from '@angular/router';
-import { LocationComponent } from './Master/location/location.component';
-import { ItemsComponent } from './Master/items/items.component';
-
+import { AppComponent } from 'app/app.component';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { CompanySidebarComponent } from './company-master/company-sidebar/company-sidebar.component';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { CoreSidebarModule } from '@core/components';
 
 const routes = [
   {
@@ -49,14 +54,26 @@ const routes = [
     ScannerComponent,
     ReportsComponent,
     BillingComponent,
-
+    CompanySidebarComponent,
     
   ],
   imports: [
     RouterModule.forChild(routes),
     CommonModule,
     FormsModule,
-    CateringRoutingModule
+    CateringRoutingModule,
+     CoreSidebarModule,
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    RouterModule,
+    NgxDatatableModule,
+    FormsModule,
+NgxDatatableModule,
+NgSelectModule,
+NgbDropdownModule
+    
+    
   ]
 })
 export class CateringModule {}
