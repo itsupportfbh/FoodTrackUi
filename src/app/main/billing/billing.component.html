@@ -1,0 +1,15 @@
+<div class="card">
+  <h2>Billing</h2>
+  <div class="grid">
+    <input type="number" [(ngModel)]="form.companyId" placeholder="Company Id" />
+    <input type="number" [(ngModel)]="form.billingMonth" placeholder="Month" />
+    <input type="number" [(ngModel)]="form.billingYear" placeholder="Year" />
+    <input type="date" [(ngModel)]="form.billingDate" />
+  </div>
+  <div class="actions">
+    <button (click)="generate()">Generate Monthly Billing</button>
+  </div>
+  <div class="result" *ngIf="response">
+    Billing Header Id: {{ response.billingHeaderId }}
+  </div>
+</div>

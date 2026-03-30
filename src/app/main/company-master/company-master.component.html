@@ -1,0 +1,49 @@
+<div class="page">
+  <div class="card">
+    <h2>Company Master</h2>
+    <div class="grid">
+      <input [(ngModel)]="form.companyCode" placeholder="Company Code" />
+      <input [(ngModel)]="form.companyName" placeholder="Company Name" />
+      <input [(ngModel)]="form.contactPerson" placeholder="Contact Person" />
+      <input [(ngModel)]="form.contactPhone" placeholder="Contact Phone" />
+      <input [(ngModel)]="form.contactEmail" placeholder="Contact Email" />
+      <select [(ngModel)]="form.billingType">
+        <option>Per Person</option>
+        <option>Monthly Contract</option>
+        <option>Fixed Meal Plan</option>
+      </select>
+      <input type="number" [(ngModel)]="form.breakfastRate" placeholder="Breakfast Rate" />
+      <input type="number" [(ngModel)]="form.lunchRate" placeholder="Lunch Rate" />
+      <input type="number" [(ngModel)]="form.dinnerRate" placeholder="Dinner Rate" />
+    </div>
+
+    <div class="actions">
+      <button (click)="save()">Save</button>
+      <button class="secondary" (click)="reset()">Reset</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Company List</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Contact</th>
+          <th>Billing Type</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of companies">
+          <td>{{ row.companyCode }}</td>
+          <td>{{ row.companyName }}</td>
+          <td>{{ row.contactPerson }}</td>
+          <td>{{ row.billingType }}</td>
+          <td><button (click)="edit(row)">Edit</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

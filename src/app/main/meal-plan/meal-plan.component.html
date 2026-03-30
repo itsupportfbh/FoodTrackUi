@@ -1,0 +1,83 @@
+<div class="page two-col">
+  <div class="card">
+    <h2>Meal Plan Master</h2>
+    <div class="grid">
+      <select [(ngModel)]="planForm.companyId" (change)="loadPlans()">
+        <option *ngFor="let c of companies" [ngValue]="c.id">{{ c.companyName }}</option>
+      </select>
+      <select [(ngModel)]="planForm.mealType">
+        <option>Breakfast</option>
+        <option>Lunch</option>
+        <option>Dinner</option>
+      </select>
+      <input type="date" [(ngModel)]="planForm.fromDate" />
+      <input type="date" [(ngModel)]="planForm.toDate" />
+      <input type="number" [(ngModel)]="planForm.qty" placeholder="Qty" />
+      <input [(ngModel)]="planForm.remarks" placeholder="Remarks" />
+    </div>
+    <div class="actions">
+      <button (click)="savePlan()">Save Base Plan</button>
+    </div>
+
+    <h3 class="mt">Bulk Override</h3>
+    <div class="grid">
+      <input type="number" [(ngModel)]="overrideForm.mealPlanId" placeholder="Meal Plan Id" />
+      <select [(ngModel)]="overrideForm.mealType">
+        <option>Breakfast</option>
+        <option>Lunch</option>
+        <option>Dinner</option>
+      </select>
+      <input type="date" [(ngModel)]="overrideForm.fromDate" />
+      <input type="date" [(ngModel)]="overrideForm.toDate" />
+      <input type="number" [(ngModel)]="overrideForm.qty" placeholder="Override Qty" />
+      <input [(ngModel)]="overrideForm.reason" placeholder="Reason" />
+    </div>
+    <div class="actions">
+      <button (click)="saveOverride()">Apply Override</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Plan List</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Meal</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Qty</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of plans">
+          <td>{{ row.mealType }}</td>
+          <td>{{ row.fromDate | date:'yyyy-MM-dd' }}</td>
+          <td>{{ row.toDate | date:'yyyy-MM-dd' }}</td>
+          <td>{{ row.qty }}</td>
+          <td><button (click)="editPlan(row)">Edit / Overrides</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="mt">Override List</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>From</th>
+          <th>To</th>
+          <th>Qty</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of overrides">
+          <td>{{ row.fromDate | date:'yyyy-MM-dd' }}</td>
+          <td>{{ row.toDate | date:'yyyy-MM-dd' }}</td>
+          <td>{{ row.qty }}</td>
+          <td>{{ row.reason }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

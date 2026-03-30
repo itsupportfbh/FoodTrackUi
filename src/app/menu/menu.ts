@@ -1,0 +1,60 @@
+import { CoreMenu } from '@core/types'
+
+export const menu: CoreMenu[] = [
+  {
+    id: 'home',
+    title: 'Home',
+    translate: 'MENU.HOME',
+    type: 'item',
+    icon: 'home',
+    url: 'home'
+  },
+  // {
+  //   id: 'sample',
+  //   title: 'Sample',
+  //   translate: 'MENU.SAMPLE',
+  //   type: 'item',
+  //   icon: 'file',
+  //   url: 'sample'
+  // },
+   {
+    id: 'CompanyMaster',
+    title: 'CompanyMaster',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'catering/CompanyMaster'
+  },
+   {
+    id: 'DailyOrder',
+    title: 'Order',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'catering/daily-order'
+  },
+   {
+    id: 'MealPlan',
+    title: 'MealPlan',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'catering/meal-plan'
+  },
+   {
+    id: 'Reports',
+    title: 'Reports',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'catering/reports'
+  },
+   {
+    id: 'Scanner',
+    title: 'Scanner',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'catering/scanner'
+  }
+]

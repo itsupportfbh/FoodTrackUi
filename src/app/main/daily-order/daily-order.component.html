@@ -1,0 +1,22 @@
+<div class="card">
+  <h2>Daily Final Order</h2>
+  <div class="grid">
+    <input type="number" [(ngModel)]="form.companyId" placeholder="Company Id" />
+    <input type="number" [(ngModel)]="form.locationId" placeholder="Location Id" />
+    <select [(ngModel)]="form.mealType">
+      <option>Breakfast</option>
+      <option>Lunch</option>
+      <option>Dinner</option>
+    </select>
+    <input type="date" [(ngModel)]="form.orderDate" />
+  </div>
+  <div class="actions">
+    <button (click)="loadFinalQty()">Get Final Qty</button>
+  </div>
+
+  <div class="result" *ngIf="result">
+    <div>Base Qty: {{ result.baseQty }}</div>
+    <div>Override Qty: {{ result.overrideQty || '-' }}</div>
+    <div>Final Qty: {{ result.finalQty }}</div>
+  </div>
+</div>

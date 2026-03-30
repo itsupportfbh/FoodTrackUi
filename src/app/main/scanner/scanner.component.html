@@ -1,0 +1,32 @@
+<div class="page two-col">
+  <div class="card">
+    <h2>Scanner Screen</h2>
+    <div class="grid">
+      <input [(ngModel)]="form.qrToken" placeholder="Scan or paste QR token" />
+      <input type="number" [(ngModel)]="form.companyId" placeholder="Company Id" />
+      <input type="number" [(ngModel)]="form.locationId" placeholder="Location Id" />
+      <select [(ngModel)]="form.mealType">
+        <option>Breakfast</option>
+        <option>Lunch</option>
+        <option>Dinner</option>
+      </select>
+      <input type="date" [(ngModel)]="form.mealDate" />
+      <input [(ngModel)]="form.deviceId" placeholder="Device Id" />
+    </div>
+    <div class="actions">
+      <button (click)="submit()">Validate & Save Scan</button>
+    </div>
+    <div class="error" *ngIf="error">{{ error }}</div>
+  </div>
+
+  <div class="card">
+    <h2>Scan Result</h2>
+    <div *ngIf="result" class="result">
+      <div>Employee Id: {{ result.employeeId }}</div>
+      <div>Employee Name: {{ result.employeeName }}</div>
+      <div>Meal Type: {{ result.mealType }}</div>
+      <div>Scan Time: {{ result.scanTime }}</div>
+    </div>
+    <div *ngIf="!result" class="muted">No scan result yet.</div>
+  </div>
+</div>
