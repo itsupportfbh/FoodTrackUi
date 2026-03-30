@@ -73,12 +73,12 @@ export const menu: CoreMenu[] = [
         url: 'master/location'
       },
        {
-        id: 'item',
-        title: 'Items',
+        id: 'session',
+        title: 'Session',
         translate: 'MENU.SAMPLE',
         type: 'item',
         icon: 'file',
-        url: 'master/items'
+        url: 'master/session'
       },      
       {
         id: 'cuisine',
