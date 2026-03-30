@@ -22,7 +22,7 @@ export class CuisineComponent implements OnInit {
   userId: any;
 
   constructor(private cuisineService: CuisineService) {
-    this.userId = localStorage.getItem('id');
+    this.userId = localStorage.getItem('id')||1;
   }
 
   ngOnInit(): void {
