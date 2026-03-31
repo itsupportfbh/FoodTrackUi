@@ -21,41 +21,43 @@ export class AuthenticationService {
 
   login(email: string, password: string): Observable<any> {
     const url = `${environment.apiUrl}/Auth/Login`;
-    console.log('Login URL =>', url);
-    console.log('Login Payload =>', { email, password });
 
-    return this._http
-      .post<any>(url, { email, password })
-      .pipe(
-        map((response: any) => {
-          if (response?.success && response?.data?.token) {
-            const user = {
-              id: response.data.id,
-              companyId: response.data.companyId,
-              roleId: response.data.roleId,
-              username: response.data.username,
-              email: response.data.email,
-              isActive: response.data.isActive,
-              token: response.data.token,
-              role: response.data.role ?? response.data.roleId
-            };
+    return this._http.post<any>(url, { email, password }).pipe(
+      map((response: any) => {
+        if (response?.success && response?.data) {
+          localStorage.setItem('currentUser', JSON.stringify(response.data));
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('id', response.data.id);
+          localStorage.setItem('companyId', response.data.companyId);
+          localStorage.setItem('email', response.data.email);
+          localStorage.setItem('username', response.data.username);
 
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            localStorage.setItem('token', response.data.token);
+          this.currentUserSubject.next(response.data);
+        }
+        return response;
+      })
+    );
+  }
 
-            this.currentUserSubject.next(user);
-          }
+  forgotPassword(payload: { email: string; mode: string }): Observable<any> {
+    return this._http.post(`${environment.apiUrl}/Auth/ForgotPassword`, payload);
+  }
 
-          return response;
-        })
-      );
+  resetPassword(payload: {
+    email: string;
+    token: string;
+    newPassword: string;
+    confirmPassword: string;
+  }): Observable<any> {
+    return this._http.post(`${environment.apiUrl}/Auth/ResetPassword`, payload);
+  }
+
+  changePassword(payload: any): Observable<any> {
+    return this._http.post(`${environment.apiUrl}/Auth/ChangePassword`, payload);
   }
 
   logout(): void {
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('token');
-    localStorage.removeItem('rememberedEmail');
-    localStorage.removeItem('rememberedPassword');
+    localStorage.clear();
     this.currentUserSubject.next(null);
   }
 }
