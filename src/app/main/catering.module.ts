@@ -16,7 +16,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { CompanySidebarComponent } from './company-master/company-sidebar/company-sidebar.component';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { CoreSidebarModule } from '@core/components';
 
 const routes = [
@@ -69,9 +69,9 @@ const routes = [
     RouterModule,
     NgxDatatableModule,
     FormsModule,
-NgxDatatableModule,
 NgSelectModule,
-NgbDropdownModule
+NgbDropdownModule,
+NgbTooltipModule
     
     
   ]
