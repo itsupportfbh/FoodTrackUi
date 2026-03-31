@@ -119,7 +119,7 @@
                 </ng-template>
               </ngx-datatable-column>
 
-           <ngx-datatable-column name="Contact Person" prop="contactPerson" [width]="160">
+           <ngx-datatable-column name="Name" prop="contactPerson" [width]="160">
   <ng-template ngx-datatable-cell-template let-value="value">
     <span
       class="contact-person-text"
@@ -139,7 +139,7 @@
     </ng-template>
   </ng-template>
 </ngx-datatable-column>
-              <ngx-datatable-column name="Contact No" prop="contactNo" [width]="140"></ngx-datatable-column>
+             
              <ngx-datatable-column name="Email" prop="email" [width]="220">
   <ng-template ngx-datatable-cell-template let-value="value">
     <span
@@ -160,8 +160,8 @@
     </ng-template>
   </ng-template>
 </ngx-datatable-column>
-
-              <ngx-datatable-column name="Status" [width]="110">
+ <ngx-datatable-column name="Contact No" prop="contactNo" [width]="140"></ngx-datatable-column>
+              <ngx-datatable-column name="Status" [width]="90">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   <div
                     class="badge badge-pill"
