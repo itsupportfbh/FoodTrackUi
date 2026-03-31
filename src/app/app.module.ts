@@ -33,6 +33,11 @@ const appRoutes: Routes = [
     loadChildren: () => import('./main/Master/master.module').then(m => m.MasterModule)
   },
   {
+  path: 'pages/authentication',
+  loadChildren: () =>
+    import('./main/pages/authentication/authentication.module').then(m => m.AuthenticationModule)
+},
+  {
     path: '',
     redirectTo: '/home',
     pathMatch: 'full'

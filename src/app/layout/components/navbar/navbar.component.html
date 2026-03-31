@@ -26,14 +26,14 @@
     <!--/ Menu Toggler -->
 
     <!-- Toggle skin -->
-    <li class="nav-item d-none d-lg-block">
+    <!-- <li class="nav-item d-none d-lg-block">
       <a type="button" class="nav-link nav-link-style btn" (click)="toggleDarkSkin()">
         <span
           [ngClass]="currentSkin === 'dark' ? 'icon-sun' : 'icon-moon'"
           class="ficon font-medium-5 feather"
         ></span>
       </a>
-    </li>
+    </li> -->
     <!--/ Toggle skin -->
   </div>
 
@@ -69,11 +69,10 @@
       </a>
 
       <div ngbDropdownMenu aria-labelledby="dropdown-user" class="dropdown-menu dropdown-menu-right">
-        <a ngbDropdownItem [routerLink]="['/']">
-          <span [data-feather]="'user'" class="mr-50"></span>
-          Change Password
-        </a>
-
+<a ngbDropdownItem [routerLink]="['/pages/authentication/change-password']">
+  <span [data-feather]="'user'" class="mr-50"></span>
+  Change Password
+</a>
        
 
      
