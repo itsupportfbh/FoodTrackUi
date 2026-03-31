@@ -2,93 +2,60 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 import { environment } from 'environments/environment';
-import { User, Role } from 'app/auth/models';
-import { ToastrService } from 'ngx-toastr';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
-  //public
-  public currentUser: Observable<User>;
+  public currentUser: Observable<any>;
+  private currentUserSubject: BehaviorSubject<any>;
 
-  //private
-  private currentUserSubject: BehaviorSubject<User>;
-
-  /**
-   *
-   * @param {HttpClient} _http
-   * @param {ToastrService} _toastrService
-   */
-  constructor(private _http: HttpClient, private _toastrService: ToastrService) {
-    this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
+  constructor(private _http: HttpClient) {
+    const savedUser = localStorage.getItem('currentUser');
+    this.currentUserSubject = new BehaviorSubject<any>(savedUser ? JSON.parse(savedUser) : null);
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
-  // getter: currentUserValue
-  public get currentUserValue(): User {
+  public get currentUserValue(): any {
     return this.currentUserSubject.value;
   }
 
-  /**
-   *  Confirms if user is admin
-   */
-  get isAdmin() {
-    return this.currentUser && this.currentUserSubject.value.role === Role.Admin;
-  }
+  login(email: string, password: string): Observable<any> {
+    const url = `${environment.apiUrl}/Auth/Login`;
+    console.log('Login URL =>', url);
+    console.log('Login Payload =>', { email, password });
 
-  /**
-   *  Confirms if user is client
-   */
-  get isClient() {
-    return this.currentUser && this.currentUserSubject.value.role === Role.Client;
-  }
-
-  /**
-   * User login
-   *
-   * @param email
-   * @param password
-   * @returns user
-   */
-  login(email: string, password: string) {
     return this._http
-      .post<any>(`${environment.apiUrl}/users/authenticate`, { email, password })
+      .post<any>(url, { email, password })
       .pipe(
-        map(user => {
-          // login successful if there's a jwt token in the response
-          if (user && user.token) {
-            // store user details and jwt token in local storage to keep user logged in between page refreshes
+        map((response: any) => {
+          if (response?.success && response?.data?.token) {
+            const user = {
+              id: response.data.id,
+              companyId: response.data.companyId,
+              roleId: response.data.roleId,
+              username: response.data.username,
+              email: response.data.email,
+              isActive: response.data.isActive,
+              token: response.data.token,
+              role: response.data.role ?? response.data.roleId
+            };
+
             localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('token', response.data.token);
 
-            // Display welcome toast!
-            setTimeout(() => {
-              this._toastrService.success(
-                'You have successfully logged in as an ' +
-                  user.role +
-                  ' user to Vuexy. Now you can start to explore. Enjoy! 🎉',
-                '👋 Welcome, ' + user.firstName + '!',
-                { toastClass: 'toast ngx-toastr', closeButton: true }
-              );
-            }, 2500);
-
-            // notify
             this.currentUserSubject.next(user);
           }
 
-          return user;
+          return response;
         })
       );
   }
 
-  /**
-   * User logout
-   *
-   */
-  logout() {
-    // remove user from local storage to log user out
+  logout(): void {
     localStorage.removeItem('currentUser');
-    // notify
+    localStorage.removeItem('token');
+    localStorage.removeItem('rememberedEmail');
+    localStorage.removeItem('rememberedPassword');
     this.currentUserSubject.next(null);
   }
 }
