@@ -1,0 +1,95 @@
+<div class="request-list-page">
+  <div class="request-list-card">
+    <div class="list-header">
+      <h2 class="list-title">Request List</h2>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <label class="entries-label">
+          Show
+          <select [(ngModel)]="selectedOption" (change)="onPageSizeChange()" class="entries-select">
+            <option [ngValue]="10">10</option>
+            <option [ngValue]="25">25</option>
+            <option [ngValue]="50">50</option>
+            <option [ngValue]="100">100</option>
+          </select>
+          entries
+        </label>
+      </div>
+
+      <div class="toolbar-right">
+        <label class="search-label">Search:</label>
+        <input
+          type="text"
+          class="search-input"
+          [(ngModel)]="searchText"
+          (input)="filterRequests()"
+          placeholder="Search"
+        />
+
+        <button type="button" class="btn-add" (click)="openCreate()">
+          Add New Request
+        </button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="request-table">
+        <thead>
+          <tr>
+            <th>COMPANY</th>
+            <th>SESSION</th>
+            <th>MENU</th>
+            <th>LOCATION</th>
+            <th>QTY</th>
+            <th>FROM DATE</th>
+            <th>TO DATE</th>
+            <th class="text-center">ACTION</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let row of pagedRows">
+            <td>
+              <div class="company-cell">
+                <div class="company-avatar">
+                  {{ (row.companyName || 'R').charAt(0) }}
+                </div>
+                <div class="company-info">
+                  <div class="company-name">{{ row.companyName }}</div>
+                  <div class="company-sub">{{ row.locationName }}</div>
+                </div>
+              </div>
+            </td>
+            <td>{{ row.sessionName }}</td>
+            <td>{{ row.cuisineName }}</td>
+            <td>{{ row.locationName }}</td>
+            <td>{{ row.qty }}</td>
+            <td>{{ row.fromDate | date:'dd-MM-yyyy' }}</td>
+            <td>{{ row.toDate | date:'dd-MM-yyyy' }}</td>
+            <td class="text-center">
+              <div class="action-buttons">
+                <button type="button" class="btn-icon edit" (click)="editRequest(row)">
+                  <i data-feather="edit-2"></i>
+                </button>
+
+                <button type="button" class="btn-icon delete" (click)="deleteRequest(row)">
+                  <i data-feather="trash-2"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="pagedRows.length === 0">
+            <td colspan="8" class="empty-row">No data available</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer">
+      {{ filteredRows.length }} total
+    </div>
+  </div>
+</div>
