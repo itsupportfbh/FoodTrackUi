@@ -26,4 +26,7 @@ export class SitesettingsService {
   deleteSiteSettings(id: number, userId: any) {
   return this.http.delete(`${this.apiUrl}/DeleteSiteSettings?id=${id}&userId=${userId}`);
 }
+getLatestSiteSetting() {
+  return this.http.get(`${this.apiUrl}/GetLatestSiteSetting`);
+}
 }
