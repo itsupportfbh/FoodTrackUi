@@ -54,3 +54,83 @@
 .sidebar-todo-modal .company-sidebar-header {
   border-bottom: 1px solid #ebe9f1;
 }
+.action-icon-btn {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 6px;
+  padding: 0 !important;
+}
+
+.action-icon {
+  width: 14px;
+  height: 14px;
+}
+.contact-person-text {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.modern-grid-tooltip .tooltip-inner {
+  background: #ffffff;
+  color: #4b4b4b;
+  border: 1px solid #e6e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(31, 41, 55, 0.12);
+  padding: 0;
+  max-width: 260px;
+  text-align: left;
+}
+
+.modern-grid-tooltip.bs-tooltip-top .arrow::before,
+.modern-grid-tooltip.bs-tooltip-auto[x-placement^='top'] .arrow::before,
+.modern-grid-tooltip.bs-tooltip-bottom .arrow::before,
+.modern-grid-tooltip.bs-tooltip-auto[x-placement^='bottom'] .arrow::before,
+.modern-grid-tooltip.bs-tooltip-left .arrow::before,
+.modern-grid-tooltip.bs-tooltip-auto[x-placement^='left'] .arrow::before,
+.modern-grid-tooltip.bs-tooltip-right .arrow::before,
+.modern-grid-tooltip.bs-tooltip-auto[x-placement^='right'] .arrow::before {
+  border-top-color: #ffffff !important;
+  border-bottom-color: #ffffff !important;
+  border-left-color: #ffffff !important;
+  border-right-color: #ffffff !important;
+}
+
+.tooltip-card {
+  min-width: 180px;
+}
+
+.modern-grid-tooltip .tooltip-inner {
+  background: #ffffff;
+  border: 1px solid #e6e8f0;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(31, 41, 55, 0.12);
+  padding: 0;
+  overflow: hidden;
+}
+
+.tooltip-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 8px 12px 4px;
+  border-bottom: 1px solid #f1f2f6;
+   background: linear-gradient(135deg, #9C8CFF, #6F61E8);
+}
+
+.tooltip-value {
+  font-size: 13px;
+  font-weight: 500;
+ // color: #ffffff;
+  padding: 10px 12px 12px;
+  word-break: break-word;
+  white-space: normal;
+ // background: linear-gradient(135deg, #9C8CFF, #6F61E8);
+}

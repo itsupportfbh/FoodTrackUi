@@ -1,3 +1,10 @@
+@import '@core/scss/base/pages/app-calendar.scss';
+@import '@core/scss/angular/libs/flatpickr.component.scss';
+@import '@core/scss/angular/libs/select.component.scss';
+
+@import '@core/scss/base/bootstrap-extended/include.scss'; // Bootstrap includes
+@import '~@fullcalendar/daygrid/main.css';
+@import "~@ng-select/ng-select/themes/default.theme.css";
 .company-sidebar-container {
   position: fixed;
   top: 0;
