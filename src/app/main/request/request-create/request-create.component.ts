@@ -10,7 +10,7 @@ import { RequestService } from '../request-service';
   styleUrls: ['./request-create.component.scss']
 })
 export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewChecked {
-  requestId = 0;
+  id = 0;
   isEditMode = false;
 
   userId = 0;
@@ -21,21 +21,15 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   menus: any[] = [];
   locations: any[] = [];
 
-  filteredSessions: any[] = [];
-  filteredMenus: any[] = [];
-  filteredLocations: any[] = [];
-
   model: any = {
-    RequestId: 0,
+    id: 0,
+    requestNo: '',
     companyId: null,
     fromDate: '',
     toDate: '',
-    sessionId: null,
-    CuisineId: null,
-    locationId: null,
-    qty: null,
+    totalQty: 0,
     isActive: true,
-    userId: 0
+    lines: []
   };
 
   constructor(
@@ -53,11 +47,9 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       this.companyId = Number(currentUser.companyId || 0);
     }
 
-    this.model.userId = this.userId;
-
     this.route.paramMap.subscribe(params => {
-      this.requestId = Number(params.get('id') || 0);
-      this.isEditMode = this.requestId > 0;
+      this.id = Number(params.get('id') || 0);
+      this.isEditMode = this.id > 0;
       this.loadMasters();
     });
   }
@@ -84,10 +76,10 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
           this.model.companyId = this.companies[0].id;
         }
 
-        this.applyCompanyFilters();
-
         if (this.isEditMode) {
           this.loadById();
+        } else {
+          this.addLine();
         }
       },
       error: (err) => {
@@ -98,25 +90,33 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   loadById(): void {
-    this.requestService.getRequestById(this.requestId).subscribe({
+    this.requestService.getRequestById(this.id).subscribe({
       next: (res: any) => {
         const row = res?.data;
         if (!row) return;
 
         this.model = {
-          RequestId: row.requestId,
+          id: row.id,
+          requestNo: row.requestNo,
           companyId: row.companyId,
           fromDate: this.toDateInput(row.fromDate),
           toDate: this.toDateInput(row.toDate),
-          sessionId: row.sessionId,
-          CuisineId: row.cuisineId,
-          locationId: row.locationId,
-          qty: row.qty,
+          totalQty: row.totalQty || 0,
           isActive: row.isActive ?? true,
-          userId: this.userId
+          lines: (row.lines || []).map((x: any) => ({
+            id: x.id,
+            sessionId: x.sessionId,
+            cuisineId: x.cuisineId,
+            locationId: x.locationId,
+            qty: x.qty
+          }))
         };
 
-        this.applyCompanyFilters(false);
+        if (!this.model.lines.length) {
+          this.addLine();
+        }
+
+        this.calculateTotalQty();
       },
       error: (err) => {
         console.error(err);
@@ -125,28 +125,36 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     });
   }
 
-  onCompanyChange(): void {
-    this.applyCompanyFilters();
+  addLine(): void {
+    this.model.lines.push({
+      id: 0,
+      sessionId: null,
+      cuisineId: null,
+      locationId: null,
+      qty: null
+    });
   }
 
-  applyCompanyFilters(resetValues: boolean = true): void {
-    const companyId = Number(this.model.companyId || 0);
+  removeLine(index: number): void {
+    this.model.lines.splice(index, 1);
 
-    this.filteredSessions = this.sessions.filter((x: any) => !companyId || Number(x.companyId) === companyId);
-    this.filteredMenus = this.menus.filter((x: any) => !companyId || Number(x.companyId) === companyId);
-    this.filteredLocations = this.locations.filter((x: any) => !companyId || Number(x.companyId) === companyId);
-
-    if (resetValues) {
-      this.model.sessionId = null;
-      this.model.CuisineId = null;
-      this.model.locationId = null;
+    if (this.model.lines.length === 0) {
+      this.addLine();
     }
+
+    this.calculateTotalQty();
+  }
+
+  calculateTotalQty(): void {
+    this.model.totalQty = (this.model.lines || []).reduce(
+      (sum: number, line: any) => sum + (Number(line.qty) || 0),
+      0
+    );
   }
 
   saveRequest(): void {
-    if (!this.model.companyId || !this.model.fromDate || !this.model.toDate ||
-        !this.model.sessionId || !this.model.CuisineId || !this.model.locationId || !this.model.qty) {
-      Swal.fire('Validation', 'Please fill all required fields', 'warning');
+    if (!this.model.companyId || !this.model.fromDate || !this.model.toDate) {
+      Swal.fire('Validation', 'Please fill header details', 'warning');
       return;
     }
 
@@ -155,17 +163,32 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       return;
     }
 
+    const validLines = (this.model.lines || []).filter((x: any) =>
+      x.sessionId && x.cuisineId && x.locationId && Number(x.qty) > 0
+    );
+
+    if (!validLines.length) {
+      Swal.fire('Validation', 'Please add at least one valid line', 'warning');
+      return;
+    }
+
+    this.calculateTotalQty();
+
     const payload = {
-      RequestId: this.model.RequestId || 0,
+      Id: this.model.id || 0,
       CompanyId: this.model.companyId,
-      SessionId: this.model.sessionId,
-      CuisineId: this.model.CuisineId,
-      LocationId: this.model.locationId,
       FromDate: this.model.fromDate,
       ToDate: this.model.toDate,
-      Qty: this.model.qty,
+      TotalQty: this.model.totalQty,
       IsActive: this.model.isActive,
-      UserId: this.userId
+      UserId: this.userId,
+      Lines: validLines.map((x: any) => ({
+        Id: x.id || 0,
+        SessionId: x.sessionId,
+        CuisineId: x.cuisineId,
+        LocationId: x.locationId,
+        Qty: x.qty
+      }))
     };
 
     this.requestService.saveRequest(payload).subscribe({
@@ -183,19 +206,17 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
   resetForm(): void {
     this.model = {
-      RequestId: this.isEditMode ? this.requestId : 0,
+      id: this.isEditMode ? this.id : 0,
+      requestNo: '',
       companyId: this.companyId,
       fromDate: '',
       toDate: '',
-      sessionId: null,
-      CuisineId: null,
-      locationId: null,
-      qty: null,
+      totalQty: 0,
       isActive: true,
-      userId: this.userId
+      lines: []
     };
 
-    this.applyCompanyFilters();
+    this.addLine();
   }
 
   goBack(): void {
@@ -204,10 +225,12 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
   private toDateInput(value: any): string {
     if (!value) return '';
+
     const d = new Date(value);
     const year = d.getFullYear();
     const month = ('0' + (d.getMonth() + 1)).slice(-2);
     const day = ('0' + d.getDate()).slice(-2);
+
     return `${year}-${month}-${day}`;
   }
 }
