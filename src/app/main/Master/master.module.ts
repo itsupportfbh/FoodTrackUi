@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { CuisineComponent } from './cuisine/cuisine/cuisine.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SessionComponent } from './session/session.component';
+import { SitesettingsComponent } from './sitesettings/sitesettings.component';
 
 const routes = [
   {
@@ -19,13 +20,15 @@ const routes = [
     data: { animation: 'session' }
   },
   { path: 'cuisine', component: CuisineComponent ,data: { animation: 'cuisine' }},
+   { path: 'site_settings', component: SitesettingsComponent ,data: { animation: 'site_settings' }},
+
  
 ]
 
 
 @NgModule({
   declarations: [    LocationComponent,
-    CuisineComponent,SessionComponent],
+    CuisineComponent,SessionComponent,SitesettingsComponent],
   imports: [
     RouterModule.forChild(routes),
     CommonModule,

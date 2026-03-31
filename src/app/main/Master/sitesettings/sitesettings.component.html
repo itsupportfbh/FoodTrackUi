@@ -1,0 +1,137 @@
+<div class="row">
+  <!-- Site Settings List -->
+  <div class="col-lg-6 col-md-6" *ngIf="isListView">
+    <div class="card">
+      <div class="card-body">
+        <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center"
+              *ngFor="let item of siteSettingsList">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center w-100">
+              
+              <!-- Left Content -->
+              <div style="display: flex; align-items: center; gap: 8px; padding: 4px 10px;">
+                <div class="avatar"
+                     style="background-color: #2E5F73; color: white; width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  <i class="fas fa-cog"></i>
+                </div>
+                <h6 style="margin: 0; font-weight: 600; font-size: 1rem;">
+                  {{ item.breakfastCutOffTime }} | {{ item.lunchCutOffTime }}
+                </h6>
+              </div>
+
+              <!-- Actions -->
+              <div class="mt-md-0 mt-1 d-flex justify-content-md-end">
+                 <button type="button"
+          class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center"
+          style="width: 28px; height: 28px;"
+          (click)="editSiteSettings(item)">
+    <i data-feather="edit" class="w-4 h-4"></i>
+  </button>
+                <button type="button"
+                        class="btn btn-outline-danger p-0 ml-1"
+                        style="width: 28px; height: 28px;"
+                        (click)="deleteSitesettings(item.id)">
+                  <i data-feather="trash"></i>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+
+       <!-- Go Back / Create Button -->
+<div class="mt-3" *ngIf="isListView">
+  <button type="button"
+          class="btn"
+          style="background-color:#2E5F73; color:white; padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;"
+          (click)="goBackToForm()">
+    <i data-feather="plus-circle" class="w-4 h-4"></i> GoBack
+  </button>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Site Settings Form -->
+  <div class="col-lg-6 col-md-6" *ngIf="isDisplay">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">{{ isEditMode ? 'Edit Site Settings' : 'Create Site Settings' }}</h4>
+      </div>
+
+      <div class="card-body">
+        <form #siteForm="ngForm" (ngSubmit)="onSubmit(siteForm)">
+          <!-- Breakfast -->
+          <div class="form-group">
+            <label for="breakfastCutOffTime">Breakfast Cut Off Time</label>
+            <input type="text" id="breakfastCutOffTime" name="breakfastCutOffTime"
+                   class="form-control" placeholder="Breakfast Cut Off Time"
+                   [(ngModel)]="breakfastCutOffTime" maxlength="100" required />
+          </div>
+
+          <!-- Lunch -->
+          <div class="form-group">
+            <label for="lunchCutOffTime">Lunch Cut Off Time</label>
+            <input type="text" id="lunchCutOffTime" name="lunchCutOffTime"
+                   class="form-control" placeholder="Lunch Cut Off Time"
+                   [(ngModel)]="lunchCutOffTime" maxlength="100" required />
+          </div>
+
+          <!-- Late Lunch -->
+          <div class="form-group">
+            <label for="lateLunchCutOffTime">Late Lunch Cut Off Time</label>
+            <input type="text" id="lateLunchCutOffTime" name="lateLunchCutOffTime"
+                   class="form-control" placeholder="Late Lunch Cut Off Time"
+                   [(ngModel)]="lateLunchCutOffTime" maxlength="100" required />
+          </div>
+
+          <!-- Dinner -->
+          <div class="form-group">
+            <label for="dinnerCutOffTime">Dinner Cut Off Time</label>
+            <input type="text" id="dinnerCutOffTime" name="dinnerCutOffTime"
+                   class="form-control" placeholder="Dinner Cut Off Time"
+                   [(ngModel)]="dinnerCutOffTime" maxlength="100" required />
+          </div>
+
+          <!-- Late Dinner -->
+          <div class="form-group">
+            <label for="lateDinnerCutOffTime">Late Dinner Cut Off Time</label>
+            <input type="text" id="lateDinnerCutOffTime" name="lateDinnerCutOffTime"
+                   class="form-control" placeholder="Late Dinner Cut Off Time"
+                   [(ngModel)]="lateDinnerCutOffTime" maxlength="100" required />
+          </div>
+
+          <!-- Form Buttons -->
+         <div class="row justify-content-start p-1" style="gap: 12px;">
+  <button type="submit"
+          class="btn"
+          [disabled]="!siteForm.form.valid"
+          style="background-color:#2E5F73; color:white; padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;">
+    <i data-feather="check-circle" class="w-4 h-4"></i> Submit
+  </button>
+
+  <button type="button"
+          class="btn btn-danger"
+          (click)="cancel()"
+          style="padding:5px 12px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;">
+    <i data-feather="x-circle" class="w-4 h-4"></i> Cancel
+  </button>
+
+  <button type="button"
+          class="btn btn-secondary"
+          (click)="clearFields()"
+          style="padding:5px 12px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;">
+    <i data-feather="rotate-ccw" class="w-4 h-4"></i> Clear
+  </button>
+
+  <button type="button"
+          class="btn btn-secondary"
+          (click)="showSiteSettingsList()"
+          style="padding:5px 12px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;">
+    <i data-feather="eye" class="w-4 h-4"></i> View
+  </button>
+</div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
