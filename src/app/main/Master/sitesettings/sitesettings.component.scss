@@ -1,0 +1,61 @@
+.btn-submit {
+  border: none;
+  outline: none;
+  background: #7367f0;
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.58rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.25s ease;
+  box-shadow: 0 6px 16px rgba(115, 103, 240, 0.22);
+}
+
+.btn-submit:hover {
+  transform: translateY(-1px);
+  background: #5e50ee;
+}
+.btn-cancel {
+  border: none;
+  outline: none;
+  background:red;
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.58rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.25s ease;
+  box-shadow: 0 6px 16px rgba(115, 103, 240, 0.22);
+}
+
+.btn-cancel:hover {
+  transform: translateY(-1px);
+  background:red;
+}
+
+.btn-clear {
+  border: none;
+  outline: none;
+  background: #2E5F73;
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.58rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.25s ease;
+  box-shadow: 0 6px 16px rgba(60, 60, 66, 0.22);
+}
+
+.btn-clear:hover {
+  transform: translateY(-1px);
+   background: #274f60;
+}
