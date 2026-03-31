@@ -3,17 +3,14 @@ import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import * as feather from 'feather-icons';
 import { RequestService } from '../request-service';
-import { debug } from 'console';
-
 
 @Component({
   selector: 'app-request-list',
   templateUrl: './request-list.component.html',
   styleUrls: ['./request-list.component.scss']
 })
-export class RequestListComponent implements OnInit {
-
-   rows: any[] = [];
+export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChecked {
+  rows: any[] = [];
   filteredRows: any[] = [];
 
   searchText = '';
@@ -32,10 +29,9 @@ export class RequestListComponent implements OnInit {
     const currentUserRaw = localStorage.getItem('currentUser');
 
     if (currentUserRaw) {
-    const currentUser = JSON.parse(currentUserRaw);
-    this.userId = Number(currentUser.id || 0);
-    this.companyId = Number(currentUser.companyId || 0);
-   
+      const currentUser = JSON.parse(currentUserRaw);
+      this.userId = Number(currentUser.id || 0);
+      this.companyId = Number(currentUser.companyId || 0);
     }
 
     const role = (localStorage.getItem('role') || '').toLowerCase();
@@ -72,7 +68,6 @@ export class RequestListComponent implements OnInit {
   }
 
   filterRequests(): void {
-    debugger
     const text = (this.searchText || '').trim().toLowerCase();
 
     if (!text) {
@@ -81,26 +76,22 @@ export class RequestListComponent implements OnInit {
     }
 
     this.filteredRows = this.rows.filter((x: any) =>
+      (x.requestNo || '').toLowerCase().includes(text) ||
       (x.companyName || '').toLowerCase().includes(text) ||
-      (x.sessionName || '').toLowerCase().includes(text) ||
-      (x.cuisineName || '').toLowerCase().includes(text) ||
-      (x.locationName || '').toLowerCase().includes(text) ||
-      (x.qty || '').toString().toLowerCase().includes(text) ||
+      (x.totalQty || '').toString().toLowerCase().includes(text) ||
       (x.fromDate || '').toString().toLowerCase().includes(text) ||
       (x.toDate || '').toString().toLowerCase().includes(text)
     );
   }
 
-  onPageSizeChange(): void {
-    // placeholder if later using pagination lib
-  }
+  onPageSizeChange(): void {}
 
   openCreate(): void {
     this.router.navigate(['/catering/request-create']);
   }
 
   editRequest(row: any): void {
-    this.router.navigate(['/catering/request-edit', row.requestId]);
+    this.router.navigate(['/catering/request-edit', row.id]);
   }
 
   deleteRequest(row: any): void {
@@ -130,7 +121,4 @@ export class RequestListComponent implements OnInit {
   get pagedRows(): any[] {
     return this.filteredRows.slice(0, this.selectedOption);
   }
-
 }
-
-

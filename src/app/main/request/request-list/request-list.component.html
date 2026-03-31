@@ -38,11 +38,9 @@
       <table class="request-table">
         <thead>
           <tr>
+            <th>REQUEST NO</th>
             <th>COMPANY</th>
-            <th>SESSION</th>
-            <th>MENU</th>
-            <th>LOCATION</th>
-            <th>QTY</th>
+            <th>TOTAL QTY</th>
             <th>FROM DATE</th>
             <th>TO DATE</th>
             <th class="text-center">ACTION</th>
@@ -51,6 +49,8 @@
 
         <tbody>
           <tr *ngFor="let row of pagedRows">
+            <td>{{ row.requestNo }}</td>
+
             <td>
               <div class="company-cell">
                 <div class="company-avatar">
@@ -58,16 +58,14 @@
                 </div>
                 <div class="company-info">
                   <div class="company-name">{{ row.companyName }}</div>
-                  <div class="company-sub">{{ row.locationName }}</div>
                 </div>
               </div>
             </td>
-            <td>{{ row.sessionName }}</td>
-            <td>{{ row.cuisineName }}</td>
-            <td>{{ row.locationName }}</td>
-            <td>{{ row.qty }}</td>
+
+            <td>{{ row.totalQty }}</td>
             <td>{{ row.fromDate | date:'dd-MM-yyyy' }}</td>
             <td>{{ row.toDate | date:'dd-MM-yyyy' }}</td>
+
             <td class="text-center">
               <div class="action-buttons">
                 <button type="button" class="btn-icon edit" (click)="editRequest(row)">
@@ -82,7 +80,7 @@
           </tr>
 
           <tr *ngIf="pagedRows.length === 0">
-            <td colspan="8" class="empty-row">No data available</td>
+            <td colspan="6" class="empty-row">No data available</td>
           </tr>
         </tbody>
       </table>
