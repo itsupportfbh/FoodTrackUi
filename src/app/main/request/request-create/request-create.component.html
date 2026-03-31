@@ -1,0 +1,139 @@
+<div class="request-form-page">
+  <div class="request-form-card">
+    <div class="form-header">
+      <div class="header-left">
+        <button type="button" class="btn-back" (click)="goBack()">
+          <i data-feather="arrow-left"></i>
+        </button>
+
+        <div>
+          <h2 class="form-title">
+            {{ isEditMode ? 'Edit Request' : 'Create Request' }}
+          </h2>
+          <p class="form-subtitle">Manage request details here</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-body">
+      <form #requestForm="ngForm" class="request-form-grid">
+
+        
+        <div class="form-group-custom">
+          <label>From Date <span class="text-danger">*</span></label>
+          <input
+            type="date"
+            class="form-control-custom"
+            [(ngModel)]="model.fromDate"
+            name="fromDate"
+            required
+          />
+        </div>
+
+        <div class="form-group-custom">
+          <label>To Date <span class="text-danger">*</span></label>
+          <input
+            type="date"
+            class="form-control-custom"
+            [(ngModel)]="model.toDate"
+            name="toDate"
+            required
+          />
+        </div>
+
+        <div class="form-group-custom">
+          <label>Company <span class="text-danger">*</span></label>
+          <select
+            class="form-control-custom"
+            [(ngModel)]="model.companyId"
+            name="companyId"
+            (change)="onCompanyChange()"
+            disabled
+            required
+          >
+            <option [ngValue]="null">Select Company</option>
+            <option *ngFor="let c of companies" [ngValue]="c.id">
+              {{ c.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group-custom">
+          <label>Session <span class="text-danger">*</span></label>
+          <select
+            class="form-control-custom"
+            [(ngModel)]="model.sessionId"
+            name="sessionId"
+            required
+          >
+            <option [ngValue]="null">Select Session</option>
+            <option *ngFor="let s of filteredSessions" [ngValue]="s.id">
+              {{ s.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group-custom">
+          <label>Menu Choice <span class="text-danger">*</span></label>
+          <select
+            class="form-control-custom"
+            [(ngModel)]="model.CuisineId"
+            name="CuisineId"
+            required
+          >
+            <option [ngValue]="null">Select Menu</option>
+            <option *ngFor="let m of filteredMenus" [ngValue]="m.id">
+              {{ m.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group-custom">
+          <label>Location <span class="text-danger">*</span></label>
+          <select
+            class="form-control-custom"
+            [(ngModel)]="model.locationId"
+            name="locationId"
+            required
+          >
+            <option [ngValue]="null">Select Location</option>
+            <option *ngFor="let l of filteredLocations" [ngValue]="l.id">
+              {{ l.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group-custom">
+          <label>Qty <span class="text-danger">*</span></label>
+          <input
+            type="number"
+            min="1"
+            class="form-control-custom"
+            [(ngModel)]="model.qty"
+            name="qty"
+            placeholder="Enter quantity"
+            required
+          />
+        </div>
+
+        <div class="form-actions full-width">
+          <button type="button" class="btn-submit" (click)="saveRequest()">
+            <i data-feather="save"></i>
+            {{ isEditMode ? 'Update Request' : 'Save Request' }}
+          </button>
+
+          <button type="button" class="btn-reset" (click)="resetForm()">
+            <i data-feather="rotate-ccw"></i>
+            Reset
+          </button>
+
+          <button type="button" class="btn-cancel" (click)="goBack()">
+            <i data-feather="x"></i>
+            Cancel
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
