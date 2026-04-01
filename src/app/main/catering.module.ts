@@ -16,8 +16,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { CompanySidebarComponent } from './company-master/company-sidebar/company-sidebar.component';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { CoreSidebarModule } from '@core/components';
+import { RequestListComponent } from './request/request-list/request-list.component';
+import { RequestCreateComponent } from './request/request-create/request-create.component';
 
 
 
@@ -42,7 +44,25 @@ const routes = [
     component: ReportsComponent,
     data: { animation: 'reports' }
   },
+
     
+
+    
+      {
+    path: 'request',
+    component: RequestListComponent,
+    data: { animation: 'createpurchaserequest' }
+  },
+    {
+    path: 'request-create',
+    component: RequestCreateComponent,
+    data: { animation: 'createpurchaserequest' }
+  },
+  {
+    path: 'request-edit/:id',
+    component: RequestCreateComponent,
+    
+  },
 ]
 @NgModule({
   declarations: [
@@ -52,8 +72,12 @@ const routes = [
    ReportsComponent,
     BillingComponent,
     CompanySidebarComponent,
+
    
    
+
+    RequestListComponent,
+    RequestCreateComponent,
     
   ],
   imports: [
@@ -68,9 +92,9 @@ const routes = [
     RouterModule,
     NgxDatatableModule,
     FormsModule,
-NgxDatatableModule,
 NgSelectModule,
-NgbDropdownModule
+NgbDropdownModule,
+NgbTooltipModule
     
     
   ]

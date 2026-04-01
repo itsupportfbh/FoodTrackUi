@@ -2,93 +2,71 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 import { environment } from 'environments/environment';
-import { User, Role } from 'app/auth/models';
-import { ToastrService } from 'ngx-toastr';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
-  //public
-  public currentUser: Observable<User>;
+  public currentUser: Observable<any>;
+  private currentUserSubject: BehaviorSubject<any>;
 
-  //private
-  private currentUserSubject: BehaviorSubject<User>;
-
-  /**
-   *
-   * @param {HttpClient} _http
-   * @param {ToastrService} _toastrService
-   */
-  constructor(private _http: HttpClient, private _toastrService: ToastrService) {
-    this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
+  constructor(private _http: HttpClient) {
+    const savedUser = localStorage.getItem('currentUser');
+    this.currentUserSubject = new BehaviorSubject<any>(savedUser ? JSON.parse(savedUser) : null);
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
-  // getter: currentUserValue
-  public get currentUserValue(): User {
+  public get currentUserValue(): any {
     return this.currentUserSubject.value;
   }
 
-  /**
-   *  Confirms if user is admin
-   */
-  get isAdmin() {
-    return this.currentUser && this.currentUserSubject.value.role === Role.Admin;
+  login(email: string, password: string): Observable<any> {
+    const url = `${environment.apiUrl}/Auth/Login`;
+
+    return this._http.post<any>(url, { email, password }).pipe(
+      map((response: any) => {
+        if (response?.success && response?.data) {
+          localStorage.setItem('currentUser', JSON.stringify(response.data));
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('id', response.data.id);
+          localStorage.setItem('companyId', response.data.companyId);
+          localStorage.setItem('email', response.data.email);
+          localStorage.setItem('username', response.data.username);
+
+          this.currentUserSubject.next(response.data);
+        }
+        return response;
+      })
+    );
   }
 
-  /**
-   *  Confirms if user is client
-   */
-  get isClient() {
-    return this.currentUser && this.currentUserSubject.value.role === Role.Client;
+  forgotPassword(payload: { email: string; mode: string }): Observable<any> {
+    return this._http.post(`${environment.apiUrl}/Auth/ForgotPassword`, payload);
   }
 
-  /**
-   * User login
-   *
-   * @param email
-   * @param password
-   * @returns user
-   */
-  login(email: string, password: string) {
-    return this._http
-      .post<any>(`${environment.apiUrl}/users/authenticate`, { email, password })
-      .pipe(
-        map(user => {
-          // login successful if there's a jwt token in the response
-          if (user && user.token) {
-            // store user details and jwt token in local storage to keep user logged in between page refreshes
-            localStorage.setItem('currentUser', JSON.stringify(user));
-
-            // Display welcome toast!
-            setTimeout(() => {
-              this._toastrService.success(
-                'You have successfully logged in as an ' +
-                  user.role +
-                  ' user to Vuexy. Now you can start to explore. Enjoy! 🎉',
-                '👋 Welcome, ' + user.firstName + '!',
-                { toastClass: 'toast ngx-toastr', closeButton: true }
-              );
-            }, 2500);
-
-            // notify
-            this.currentUserSubject.next(user);
-          }
-
-          return user;
-        })
-      );
+  resetPassword(payload: {
+    email: string;
+    token: string;
+    newPassword: string;
+    confirmPassword: string;
+  }): Observable<any> {
+    return this._http.post(`${environment.apiUrl}/Auth/ResetPassword`, payload);
   }
 
-  /**
-   * User logout
-   *
-   */
-  logout() {
-    // remove user from local storage to log user out
-    localStorage.removeItem('currentUser');
-    // notify
-    this.currentUserSubject.next(null);
+  changePassword(payload: any): Observable<any> {
+    return this._http.post(`${environment.apiUrl}/Auth/ChangePassword`, payload);
   }
+
+logout(): void {
+  const rememberedEmail = localStorage.getItem('rememberedEmail');
+  const rememberedPassword = localStorage.getItem('rememberedPassword');
+
+  localStorage.clear();
+
+  if (rememberedEmail && rememberedPassword) {
+    localStorage.setItem('rememberedEmail', rememberedEmail);
+    localStorage.setItem('rememberedPassword', rememberedPassword);
+  }
+
+  this.currentUserSubject.next(null);
+}
 }

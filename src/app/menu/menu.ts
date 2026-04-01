@@ -66,6 +66,23 @@ export const menu: CoreMenu[] = [
         icon: 'file',
         url: 'scanner/qrgenerate'
       },
+   {
+    id: 'Scanner',
+    title: 'Scanner',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'catering/scanner'
+  },
+
+     {
+    id: 'Request',
+    title: 'Request',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'catering/request'
+  },
 {
     id: 'master',
     title: 'Master',

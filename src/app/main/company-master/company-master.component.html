@@ -48,7 +48,7 @@
           <div class="card">
              <h4
               class="card-text"
-              style="margin-left:0.85rem;margin-top:0.75rem;font-size:1.25rem;font-weight:600;color:blueviolet;">
+              style="margin-left:0.85rem;margin-top:0.75rem;font-size:1.25rem;font-weight:600;color:#6F61E8;">
               Company List
             </h4>
             <div class="row">
@@ -119,13 +119,49 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Contact Person" prop="contactPerson" [width]="160"></ngx-datatable-column>
-              <ngx-datatable-column name="Contact No" prop="contactNo" [width]="140"></ngx-datatable-column>
-              <ngx-datatable-column name="Email" prop="email" [width]="220"></ngx-datatable-column>
-              <ngx-datatable-column name="City" prop="city" [width]="130"></ngx-datatable-column>
-              <ngx-datatable-column name="State" prop="stateName" [width]="130"></ngx-datatable-column>
+           <ngx-datatable-column name="Name" prop="contactPerson" [width]="160">
+  <ng-template ngx-datatable-cell-template let-value="value">
+    <span
+      class="contact-person-text"
+      [ngbTooltip]="value && value.length > 15 ? contactTooltip : null"
+      container="body"
+      placement="top"
+      tooltipClass="modern-grid-tooltip"
+    >
+      {{ value?.length > 15 ? (value | slice:0:15) + '...' : value }}
+    </span>
 
-              <ngx-datatable-column name="Status" [width]="110">
+    <ng-template #contactTooltip>
+      <div class="tooltip-card">
+        <div class="tooltip-title">Contact Person</div>
+        <div class="tooltip-value">{{ value }}</div>
+      </div>
+    </ng-template>
+  </ng-template>
+</ngx-datatable-column>
+             
+             <ngx-datatable-column name="Email" prop="email" [width]="220">
+  <ng-template ngx-datatable-cell-template let-value="value">
+    <span
+      class="email-text"
+      [ngbTooltip]="value && value.length > 20 ? emailTooltip : null"
+      container="body"
+      placement="top"
+      tooltipClass="modern-grid-tooltip"
+    >
+      {{ value?.length > 20 ? (value | slice:0:20) + '...' : value }}
+    </span>
+
+    <ng-template #emailTooltip>
+      <div class="tooltip-card">
+        <div class="tooltip-title">Email</div>
+        <div class="tooltip-value">{{ value }}</div>
+      </div>
+    </ng-template>
+  </ng-template>
+</ngx-datatable-column>
+ <ngx-datatable-column name="Contact No" prop="contactNo" [width]="140"></ngx-datatable-column>
+              <ngx-datatable-column name="Status" [width]="90">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   <div
                     class="badge badge-pill"
@@ -138,23 +174,25 @@
                   </div>
                 </ng-template>
               </ngx-datatable-column>
-<ngx-datatable-column name="Actions" [width]="200" [sortable]="false">
+<ngx-datatable-column name="Actions" [width]="110" [sortable]="false">
   <ng-template ngx-datatable-cell-template let-row="row">
-    <div class="d-flex align-items-center">
+    <div class="d-flex align-items-center justify-content-center">
       <button
         type="button"
-        class="btn btn-sm btn-primary mr-50"
+        class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center action-icon-btn"
         (click)="editCompany(row)"
+        title="Edit"
       >
-        <i class="fa fa-edit mr-25"></i> 
+        <i data-feather="edit" class="action-icon"></i>
       </button>
 
       <button
         type="button"
-        class="btn btn-sm btn-outline-danger"
+        class="btn btn-outline-danger p-0 d-flex align-items-center justify-content-center ml-1 action-icon-btn"
         (click)="deleteCompany(row)"
+        title="Delete"
       >
-        <i class="fa fa-trash mr-25"></i> 
+        <i data-feather="trash-2" class="action-icon"></i>
       </button>
     </div>
   </ng-template>

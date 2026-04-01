@@ -133,30 +133,54 @@ deleteCompany(row: any): void {
   }
 
   editCompany(row: any): void {
-    this.model = {
-      id: row.id,
-      companyCode: row.companyCode || '',
-      companyName: row.companyName || '',
-      contactPerson: row.contactPerson || '',
-      contactNo: row.contactNo || '',
-      email: row.email || '',
-      password: '',
-      addressLine1: row.addressLine1 || '',
-      addressLine2: row.addressLine2 || '',
-      city: row.city || '',
-      stateName: row.stateName || '',
-      postalCode: row.postalCode || '',
-      isActive: row.isActive,
-      userId: 1
-    };
+  this.companyService.getCompanyById(row.id).subscribe({
+    next: (res) => {
+      const data = res?.data || res;
 
-    this.confirmPassword = '';
-    this.showSidebar = true;
+      this.model = {
+        id: data.id,
+        companyCode: data.companyCode || '',
+        companyName: data.companyName || '',
+        contactPerson: data.contactPerson || '',
+        contactNo: data.contactNo || '',
+        email: data.email || '',
+        password: '',
+        addressLine1: data.addressLine1 || '',
+        addressLine2: data.addressLine2 || '',
+        city: data.city || '',
+        stateName: data.stateName || '',
+        postalCode: data.postalCode || '',
+        isActive: data.isActive ?? true,
+        userId: 1,
 
-    setTimeout(() => {
-      this.sidebarService.getSidebarRegistry('new-company-sidebar')?.open();
-    }, 0);
-  }
+        username: data.username || '',
+        userContactNo: data.userContactNo || '',
+
+        locationIds: data.locationIds || [],
+        sessionIds: data.sessionIds || [],
+        cuisineIds: data.cuisineIds || []
+      };
+
+      this.confirmPassword = '';
+      this.showSidebar = true;
+
+      setTimeout(() => {
+        this.sidebarService.getSidebarRegistry('new-company-sidebar')?.open();
+      }, 0);
+    },
+    error: (err) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed',
+        text: err?.error?.message || 'Unable to load company details',
+        customClass: {
+          confirmButton: 'btn btn-primary'
+        },
+        buttonsStyling: false
+      });
+    }
+  });
+}
 
   submit(form: NgForm): void {
     if (form.invalid) return;

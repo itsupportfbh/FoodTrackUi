@@ -7,7 +7,7 @@ import { HttpClientModule } from '@angular/common/http';
 import 'hammerjs';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrModule } from 'ngx-toastr'; // For auth after login toast
+import { ToastrModule } from 'ngx-toastr';
 
 import { CoreModule } from '@core/core.module';
 import { CoreCommonModule } from '@core/common.module';
@@ -22,16 +22,20 @@ import { SampleModule } from 'app/main/sample/sample.module';
 const appRoutes: Routes = [
   {
     path: 'pages',
-    loadChildren: () => import('./main/pages/pages.module').then(m => m.PagesModule)
+    loadChildren: () =>
+      import('./main/pages/pages.module').then(m => m.PagesModule)
   },
-   {
+  {
     path: 'catering',
-    loadChildren: () => import('./main/catering.module').then(m => m.CateringModule)
+    loadChildren: () =>
+      import('./main/catering.module').then(m => m.CateringModule)
   },
   
-     {
+     
+  {
     path: 'master',
-    loadChildren: () => import('./main/Master/master.module').then(m => m.MasterModule)
+    loadChildren: () =>
+      import('./main/Master/master.module').then(m => m.MasterModule)
   },
 
 {
@@ -43,12 +47,12 @@ const appRoutes: Routes = [
 
   {
     path: '',
-    redirectTo: '/home',
+    redirectTo: 'pages/authentication/login-v2',
     pathMatch: 'full'
   },
   {
     path: '**',
-    redirectTo: '/pages/miscellaneous/error' //Error 404 - Page not found
+    redirectTo: 'pages/miscellaneous/error'
   }
 ];
 
@@ -59,26 +63,22 @@ const appRoutes: Routes = [
     BrowserAnimationsModule,
     HttpClientModule,
     RouterModule.forRoot(appRoutes, {
-      scrollPositionRestoration: 'enabled', // Add options right here
+      scrollPositionRestoration: 'enabled',
       relativeLinkResolution: 'legacy'
     }),
     TranslateModule.forRoot(),
 
-    //NgBootstrap
     NgbModule,
     ToastrModule.forRoot(),
 
-    // Core modules
     CoreModule.forRoot(coreConfig),
     CoreCommonModule,
     CoreSidebarModule,
     CoreThemeCustomizerModule,
 
-    // App modules
     LayoutModule,
     SampleModule
   ],
-
   bootstrap: [AppComponent]
 })
 export class AppModule {}

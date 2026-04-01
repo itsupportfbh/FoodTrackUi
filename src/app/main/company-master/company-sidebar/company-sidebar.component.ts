@@ -31,14 +31,21 @@ export class CompanySidebarComponent implements OnChanges {
     stateName: '',
     postalCode: '',
     isActive: true,
-    userId: 1
+    userId: 1,
+     locationIds: [],
+  sessionIds: [],
+  cuisineIds: []
   };
-
+public locationList: any[] = [];
+public sessionList: any[] = [];
+public cuisineList: any[] = [];
   constructor(
     private sidebarService: CoreSidebarService,
     private companyService: CateringService
   ) {}
-
+ngOnInit(): void {
+  this.loadDropdowns();
+}
 ngOnChanges(changes: SimpleChanges): void {
   if (changes['editData']) {
     if (this.editData && this.editData.id) {
@@ -56,7 +63,10 @@ ngOnChanges(changes: SimpleChanges): void {
         stateName: this.editData.stateName || '',
         postalCode: this.editData.postalCode || '',
         isActive: this.editData.isActive ?? true,
-        userId: 1
+        userId: 1,
+         locationIds: this.editData.locationIds || [],
+  sessionIds: this.editData.sessionIds || [],
+  cuisineIds: this.editData.cuisineIds || []
       };
     } else {
       this.resetForm();
@@ -70,18 +80,7 @@ submit(form: NgForm): void {
     return;
   }
 
-  if (!this.model.id && this.model.password !== this.confirmPassword) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Password mismatch',
-      text: 'Password and Confirm Password do not match',
-      customClass: {
-        confirmButton: 'btn btn-primary'
-      },
-      buttonsStyling: false
-    });
-    return;
-  }
+ 
 
   this.companyService.saveCompany(this.model).subscribe({
     next: () => {
@@ -102,16 +101,18 @@ submit(form: NgForm): void {
       });
     },
     error: (err) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'Save failed',
-        text: err?.error?.message || 'Something went wrong',
-        customClass: {
-          confirmButton: 'btn btn-primary'
-        },
-        buttonsStyling: false
-      });
-    }
+  const message = err?.error?.message || 'Something went wrong';
+
+  Swal.fire({
+    icon: err?.status === 400 ? 'warning' : 'error',
+    title: err?.status === 400 ? 'Warning' : 'Save failed',
+    text: message,
+    customClass: {
+      confirmButton: 'btn btn-primary'
+    },
+    buttonsStyling: false
+  });
+}
   });
 }
 
@@ -141,5 +142,17 @@ closeCompanySidebar(): void {
     };
     this.confirmPassword = '';
   }
-   
+   loadDropdowns(): void {
+  this.companyService.getLocation().subscribe(res => {
+    this.locationList = res?.data || [];
+  });
+
+  this.companyService.getSession().subscribe(res => {
+    this.sessionList = res?.data || [];
+  });
+
+  this.companyService.getAllCuisine().subscribe((res:any) => {
+    this.cuisineList = res || [];
+  });
+}
 }

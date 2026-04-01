@@ -8,84 +8,92 @@
   </div>
 
   <div class="company-sidebar-body">
-    <form #companyForm="ngForm" (ngSubmit)="submit(companyForm)">
-      <div class="form-group">
-        <label class="form-label">Company Code</label>
-        <input type="text" class="form-control" name="companyCode" [(ngModel)]="model.companyCode" required />
-      </div>
+   <form #companyForm="ngForm" (ngSubmit)="submit(companyForm)">
+  <div class="form-group">
+    <label class="form-label">Company Code</label>
+    <input type="text" class="form-control" name="companyCode" [(ngModel)]="model.companyCode" required />
+  </div>
 
-      <div class="form-group">
-        <label class="form-label">Company Name</label>
-        <input type="text" class="form-control" name="companyName" [(ngModel)]="model.companyName" required />
-      </div>
+  <div class="form-group">
+    <label class="form-label">Company Name</label>
+    <input type="text" class="form-control" name="companyName" [(ngModel)]="model.companyName" required />
+  </div>
 
-      <div class="form-group">
-        <label class="form-label">Contact Person</label>
-        <input type="text" class="form-control" name="contactPerson" [(ngModel)]="model.contactPerson" />
-      </div>
+ 
 
-      <div class="form-group">
-        <label class="form-label">Contact No</label>
-        <input type="text" class="form-control" name="contactNo" [(ngModel)]="model.contactNo" />
-      </div>
+  <div class="form-group">
+    <label class="form-label">Contact Person</label>
+    <input type="text" class="form-control" name="contactPerson" [(ngModel)]="model.contactPerson" />
+  </div>
+ <div class="form-group">
+    <label class="form-label">Contact Email</label>
+    <input type="email" class="form-control" name="email" [(ngModel)]="model.email" required />
+  </div>
+    <div class="form-group" *ngIf="!model.id">
+    <label class="form-label">Password</label>
+    <input type="password" class="form-control" name="password" [(ngModel)]="model.password" required />
+  </div>
+  <div class="form-group">
+    <label class="form-label">Contact No</label>
+    <input type="text" class="form-control" name="contactNo" [(ngModel)]="model.contactNo" />
+  </div>
 
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input type="email" class="form-control" name="email" [(ngModel)]="model.email" required />
-      </div>
 
-      <div class="form-group" *ngIf="!model.id">
-        <label class="form-label">Password</label>
-        <input type="password" class="form-control" name="password" [(ngModel)]="model.password" required />
-      </div>
 
-      <div class="form-group" *ngIf="!model.id">
-        <label class="form-label">Confirm Password</label>
-        <input type="password" class="form-control" name="confirmPassword" [(ngModel)]="confirmPassword" required />
-      </div>
 
-      <div class="form-group">
-        <label class="form-label">Address Line 1</label>
-        <input type="text" class="form-control" name="addressLine1" [(ngModel)]="model.addressLine1" />
-      </div>
 
-      <div class="form-group">
-        <label class="form-label">Address Line 2</label>
-        <input type="text" class="form-control" name="addressLine2" [(ngModel)]="model.addressLine2" />
-      </div>
+  <div class="form-group">
+    <label class="form-label">Locations</label>
+    <ng-select
+      [items]="locationList"
+      bindLabel="locationName"
+      bindValue="id"
+      [multiple]="true"
+      [closeOnSelect]="false"
+      name="locationIds"
+      [(ngModel)]="model.locationIds">
+    </ng-select>
+  </div>
 
-      <div class="form-group">
-        <label class="form-label">City</label>
-        <input type="text" class="form-control" name="city" [(ngModel)]="model.city" />
-      </div>
+  <div class="form-group">
+    <label class="form-label">Sessions</label>
+    <ng-select
+      [items]="sessionList"
+      bindLabel="sessionName"
+      bindValue="id"
+      [multiple]="true"
+      [closeOnSelect]="false"
+      name="sessionIds"
+      [(ngModel)]="model.sessionIds">
+    </ng-select>
+  </div>
 
-      <div class="form-group">
-        <label class="form-label">State</label>
-        <input type="text" class="form-control" name="stateName" [(ngModel)]="model.stateName" />
-      </div>
+  <div class="form-group">
+    <label class="form-label">Items / Cuisines</label>
+    <ng-select
+      [items]="cuisineList"
+      bindLabel="cuisineName"
+      bindValue="id"
+      [multiple]="true"
+      [closeOnSelect]="false"
+      name="cuisineIds"
+      [(ngModel)]="model.cuisineIds">
+    </ng-select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Address</label>
+    <textarea class="form-control" name="addressLine1" [(ngModel)]="model.addressLine1"></textarea>
+  </div>
 
-      <div class="form-group">
-        <label class="form-label">Postal Code</label>
-        <input type="text" class="form-control" name="postalCode" [(ngModel)]="model.postalCode" />
-      </div>
+  <div class="d-flex mt-2">
+    <button type="submit" class="btn btn-primary mr-1">
+      {{ model.id ? 'Update' : 'Submit' }}
+    </button>
 
-      <div class="form-group mb-2">
-        <label class="form-label">Status</label>
-        <select class="form-control" name="isActive" [(ngModel)]="model.isActive">
-          <option [ngValue]="true">Active</option>
-          <option [ngValue]="false">Inactive</option>
-        </select>
-      </div>
-
-      <div class="d-flex mt-2">
-        <button type="submit" class="btn btn-primary mr-1">
-          {{ model.id ? 'Update' : 'Submit' }}
-        </button>
-
-        <button type="button" class="btn btn-outline-secondary" (click)="closeCompanySidebar()">
-          Cancel
-        </button>
-      </div>
-    </form>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeCompanySidebar()">
+      Cancel
+    </button>
+  </div>
+</form>
   </div>
 </div>

@@ -1,0 +1,177 @@
+<div class="request-page">
+  <div class="request-card">
+    <div class="request-header">
+      <div class="header-left">
+        <button type="button" class="btn-back" (click)="goBack()">
+          <i data-feather="arrow-left"></i>
+        </button>
+
+        <div>
+          <h2 class="title">
+            {{ isEditMode ? 'Edit Request' : 'Create Request' }}
+          </h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="request-body">
+      <div class="header-grid">
+        <div class="form-group">
+          <label>Request No</label>
+          <input
+            type="text"
+            class="form-control-custom"
+            [ngModel]="model.requestNo || 'Auto Generate'"
+            name="requestNo"
+            readonly
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Company <span class="text-danger">*</span></label>
+          <select
+            class="form-control-custom"
+            [(ngModel)]="model.companyId"
+            name="companyId"
+            disabled
+          >
+            <option [ngValue]="null">Select Company</option>
+            <option *ngFor="let c of companies" [ngValue]="c.id">
+              {{ c.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>From Date <span class="text-danger">*</span></label>
+          <input
+            type="date"
+            class="form-control-custom"
+            [(ngModel)]="model.fromDate"
+            name="fromDate"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>To Date <span class="text-danger">*</span></label>
+          <input
+            type="date"
+            class="form-control-custom"
+            [(ngModel)]="model.toDate"
+            name="toDate"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Total Qty</label>
+          <input
+            type="number"
+            class="form-control-custom"
+            [(ngModel)]="model.totalQty"
+            name="totalQty"
+            readonly
+          />
+        </div>
+      </div>
+
+      <div class="line-section">
+        <div class="line-head">
+          <h3>Request Lines</h3>
+
+          <button type="button" class="btn-add-line" (click)="addLine()">
+            + Add Line
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="line-table">
+            <thead>
+              <tr>
+                <th>Session</th>
+                <th>Cuisine</th>
+                <th>Location</th>
+                <th>Qty</th>
+                <th class="text-center">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let line of model.lines; let i = index">
+                <td>
+                  <select
+                    class="form-control-custom table-control"
+                    [(ngModel)]="line.sessionId"
+                    [name]="'sessionId_' + i"
+                  >
+                    <option [ngValue]="null">Select Session</option>
+                    <option *ngFor="let s of sessions" [ngValue]="s.id">
+                      {{ s.name }}
+                    </option>
+                  </select>
+                </td>
+
+                <td>
+                  <select
+                    class="form-control-custom table-control"
+                    [(ngModel)]="line.cuisineId"
+                    [name]="'cuisineId_' + i"
+                  >
+                    <option [ngValue]="null">Select Cuisine</option>
+                    <option *ngFor="let m of menus" [ngValue]="m.id">
+                      {{ m.name }}
+                    </option>
+                  </select>
+                </td>
+
+                <td>
+                  <select
+                    class="form-control-custom table-control"
+                    [(ngModel)]="line.locationId"
+                    [name]="'locationId_' + i"
+                  >
+                    <option [ngValue]="null">Select Location</option>
+                    <option *ngFor="let l of locations" [ngValue]="l.id">
+                      {{ l.name }}
+                    </option>
+                  </select>
+                </td>
+
+                <td>
+                  <input
+                    type="number"
+                    min="1"
+                    class="form-control-custom table-control"
+                    [(ngModel)]="line.qty"
+                    [name]="'qty_' + i"
+                    (input)="calculateTotalQty()"
+                    placeholder="Enter qty"
+                  />
+                </td>
+
+                <td class="text-center">
+                  <button type="button" class="btn-delete-line" (click)="removeLine(i)">
+                    <i data-feather="trash-2"></i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngIf="!model.lines?.length">
+                <td colspan="5" class="empty-row">No lines added</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-reset" (click)="goBack()">
+          Cancel
+        </button>
+
+        <button type="button" class="btn-save" (click)="saveRequest()">
+          {{ isEditMode ? 'Update Request' : 'Save Request' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
