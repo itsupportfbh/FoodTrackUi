@@ -56,8 +56,17 @@ export class AuthenticationService {
     return this._http.post(`${environment.apiUrl}/Auth/ChangePassword`, payload);
   }
 
-  logout(): void {
-    localStorage.clear();
-    this.currentUserSubject.next(null);
+logout(): void {
+  const rememberedEmail = localStorage.getItem('rememberedEmail');
+  const rememberedPassword = localStorage.getItem('rememberedPassword');
+
+  localStorage.clear();
+
+  if (rememberedEmail && rememberedPassword) {
+    localStorage.setItem('rememberedEmail', rememberedEmail);
+    localStorage.setItem('rememberedPassword', rememberedPassword);
   }
+
+  this.currentUserSubject.next(null);
+}
 }

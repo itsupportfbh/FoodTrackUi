@@ -82,18 +82,18 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
             localStorage.removeItem('rememberedPassword');
           }
 
-          Swal.fire({
-            icon: 'success',
-            title: 'Login Successful',
-            text: response?.message || 'Welcome'
-          }).then(() => {
+          // Swal.fire({
+          //   icon: 'success',
+          //   title: 'Login Successful',
+          //   text: response?.message || 'Welcome'
+          // }).then(() => {
             // role based redirect
             if (response?.data?.roleId === 1) {
               this._router.navigate(['/home']);
             } else {
               this._router.navigate(['/home']);
             }
-          });
+          // });
         } else {
           this.error = response?.message || 'Invalid email or password';
 
