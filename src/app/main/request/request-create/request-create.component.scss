@@ -408,3 +408,15 @@
     width: 100%;
   }
 }
+
+::ng-deep .request-page .ng-select.ng-has-value .ng-placeholder {
+  display: none !important;
+}
+
+::ng-deep .request-page .ng-select .ng-value-container {
+  overflow: hidden !important;
+}
+
+::ng-deep .request-page .ng-select .ng-value {
+  margin: 0 !important;
+}

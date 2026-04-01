@@ -9,81 +9,7 @@ export const menu: CoreMenu[] = [
     icon: 'home',
     url: 'home'
   },
-  // {
-  //   id: 'sample',
-  //   title: 'Sample',
-  //   translate: 'MENU.SAMPLE',
-  //   type: 'item',
-  //   icon: 'file',
-  //   url: 'sample'
-  // },
-   {
-    id: 'CompanyMaster',
-    title: 'CompanyMaster',
-    translate: 'MENU.SAMPLE',
-    type: 'item',
-    icon: 'file',
-    url: 'catering/CompanyMaster'
-  },
-   {
-    id: 'DailyOrder',
-    title: 'Order',
-    translate: 'MENU.SAMPLE',
-    type: 'item',
-    icon: 'file',
-    url: 'catering/daily-order'
-  },
-   {
-    id: 'MealPlan',
-    title: 'MealPlan',
-    translate: 'MENU.SAMPLE',
-    type: 'item',
-    icon: 'file',
-    url: 'catering/meal-plan'
-  },
-   {
-    id: 'Reports',
-    title: 'Reports',
-    translate: 'MENU.SAMPLE',
-    type: 'item',
-    icon: 'file',
-    url: 'catering/reports'
-  },
-  //  {
-  //   id: 'Scanner',
-  //   title: 'Scanner',
-  //   translate: 'MENU.SAMPLE',
-  //   type: 'item',
-  //   icon: 'file',
-  //   url: 'catering/scanner'
-  // },
-
-    {
-        id: 'qrgenerate',
-        title: 'Generate QR',
-        translate: 'MENU.SAMPLE',
-        type: 'item',
-        icon: 'file',
-        url: 'scanner/qrgenerate'
-      },
-   {
-    id: 'Scanner',
-    title: 'Scanner',
-    translate: 'MENU.SAMPLE',
-    type: 'item',
-    icon: 'file',
-    url: 'catering/scanner'
-  },
-
-     {
-    id: 'Request',
-    title: 'Request',
-    translate: 'MENU.SAMPLE',
-    type: 'item',
-    icon: 'file',
-    url: 'catering/request'
-  },
-{
+  {
     id: 'master',
     title: 'Master',
     translate: 'MENU.SAMPLE',
@@ -126,5 +52,45 @@ export const menu: CoreMenu[] = [
       
  
     ]
-  }
+  },
+   {
+    id: 'CompanyMaster',
+    title: 'Company',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'catering/CompanyMaster'
+  },
+  {
+    id: 'Order',
+    title: 'Order',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'catering/request'
+  },
+  {
+      id: 'qrgenerate',
+      title: 'Generate QR',
+      translate: 'MENU.SAMPLE',
+      type: 'item',
+      icon: 'file',
+      url: 'scanner/qrgenerate'
+    },
+   {
+    id: 'Scanner',
+    title: 'Scanner',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'catering/scanner'
+  },
+  {
+    id: 'Reports',
+    title: 'Reports',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'catering/reports'
+  },
 ]

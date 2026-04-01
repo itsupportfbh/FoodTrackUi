@@ -8,9 +8,9 @@
 
         <div>
           <h2 class="title">
-            {{ isEditMode ? 'Edit Request' : 'Create Request' }}
+            {{ isEditMode ? 'Edit Order' : 'Create Order' }}
           </h2>
-          <p class="sub-title">Session-wise accordion request entry</p>
+          
         </div>
       </div>
     </div>
@@ -19,18 +19,13 @@
       <div class="header-grid header-grid-no-requestno">
         <div class="form-group">
           <label>Company <span class="text-danger">*</span></label>
-          <ng-select
-            [items]="companies"
-            bindLabel="name"
-            bindValue="id"
-            [(ngModel)]="model.companyId"
-            name="companyId"
-            [clearable]="false"
-            [searchable]="false"
-            [disabled]="true"
-            appendTo="body"
-            [placeholder]="model.companyId ? '' : 'Select Company'">
-          </ng-select>
+          <input
+            type="text"
+            class="form-control-custom"
+            [ngModel]="model.companyName"
+            name="companyName"
+            readonly
+          />
         </div>
 
         <div class="form-group">
@@ -110,14 +105,13 @@
                         class="table-ng-select"
                         [items]="locations"
                         bindLabel="name"
-                        bindValue="id"
-                        [(ngModel)]="line.locationId"
+                        [(ngModel)]="line.locationObj"
                         [name]="'locationId_' + gi + '_' + li"
-                        (change)="onLineChange()"
+                        (change)="onLocationChange(line)"
                         [clearable]="true"
                         [searchable]="true"
                         appendTo="body"
-                        [placeholder]="line.locationId ? '' : 'Select Location'">
+                        [placeholder]="line.locationObj ? '' : 'Select Location'">
                       </ng-select>
                     </td>
 
@@ -145,8 +139,8 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-reset" (click)="resetForm()">
-          Reset
+        <button type="button" class="btn-reset" (click)="goBack()">
+          Cancel
         </button>
 
         <button type="button" class="btn-save" (click)="saveRequest()">
