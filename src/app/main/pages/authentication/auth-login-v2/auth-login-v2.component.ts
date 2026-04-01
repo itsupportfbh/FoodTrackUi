@@ -69,8 +69,11 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     this._authenticationService.login(email, password).subscribe({
       next: (response: any) => {
         this.loading = false;
+        console.log('Login response =>', response);
 
-        if (response?.success && response?.data?.token) {
+        if (response?.success && response?.data) {
+          localStorage.setItem('currentUser', JSON.stringify(response.data));
+
           if (this.rememberMe) {
             localStorage.setItem('rememberedEmail', email);
             localStorage.setItem('rememberedPassword', password);
@@ -79,7 +82,18 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
             localStorage.removeItem('rememberedPassword');
           }
 
-          this._router.navigateByUrl(this.returnUrl || '/');
+          Swal.fire({
+            icon: 'success',
+            title: 'Login Successful',
+            text: response?.message || 'Welcome'
+          }).then(() => {
+            // role based redirect
+            if (response?.data?.roleId === 1) {
+              this._router.navigate(['/home']);
+            } else {
+              this._router.navigate(['/home']);
+            }
+          });
         } else {
           this.error = response?.message || 'Invalid email or password';
 
@@ -92,6 +106,8 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.loading = false;
+        console.error('Login error =>', err);
+
         this.error = err?.error?.message || 'Invalid email or password';
 
         Swal.fire({
@@ -113,7 +129,9 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     });
 
     this.rememberMe = !!rememberedEmail;
-    this.returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/';
+
+    // default return url not root
+    this.returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/catering';
 
     this._coreConfigService.config
       .pipe(takeUntil(this._unsubscribeAll))
