@@ -23,8 +23,8 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
   model: any = {
     id: 0,
-    requestNo: '',
     companyId: null,
+    companyName: '',
     fromDate: '',
     toDate: '',
     totalQty: 0,
@@ -69,13 +69,14 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       next: (res: any) => {
         const data = res?.data || {};
 
-        this.companies = data.companies || data.Companies || [];
-        this.sessions = data.sessions || data.Sessions || [];
-        this.cuisines = data.cuisines || data.Cuisines || [];
-        this.locations = data.locations || data.Locations || [];
+        this.companies = data.companies || [];
+        this.sessions = data.sessions || [];
+        this.cuisines = data.cuisines || [];
+        this.locations = data.locations || [];
 
-        if (this.companies.length > 0 && !this.model.companyId) {
-          this.model.companyId = Number(this.companies[0].id || this.companies[0].Id || 0);
+        if (!this.isEditMode && this.companies.length > 0) {
+          this.model.companyId = Number(this.companies[0].id || 0);
+          this.model.companyName = this.companies[0].name || '';
         }
 
         if (this.isEditMode) {
@@ -99,22 +100,27 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
           return;
         }
 
-        const apiLines = row.lines || row.Lines || [];
-
         this.model = {
-          id: Number(row.id || row.Id || 0),
-          requestNo: row.requestNo || row.RequestNo || '',
-          companyId: Number(row.companyId || row.CompanyId || 0),
-          fromDate: this.toDateInput(row.fromDate || row.FromDate),
-          toDate: this.toDateInput(row.toDate || row.ToDate),
-          totalQty: Number(row.totalQty || row.TotalQty || 0),
-          isActive: row.isActive ?? row.IsActive ?? true,
-          lines: apiLines
+          id: Number(row.id || 0),
+          companyId: Number(row.companyId || 0),
+          companyName: row.companyName || '',
+          fromDate: this.toDateInput(row.fromDate),
+          toDate: this.toDateInput(row.toDate),
+          totalQty: Number(row.totalQty || 0),
+          isActive: row.isActive ?? true,
+          lines: row.lines || []
         };
+
+        if (!this.model.companyName) {
+          const company = this.companies.find((x: any) => Number(x.id) === Number(this.model.companyId));
+          this.model.companyName = company ? company.name : '';
+        }
 
         this.buildSessionGroups();
         this.patchExistingLinesToGroups();
         this.calculateTotalQty();
+
+        setTimeout(() => feather.replace());
       },
       error: (err) => {
         console.error(err);
@@ -127,23 +133,22 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     this.sessionGroups = this.sessions.map((session: any, index: number) => {
       const lines = this.cuisines.map((cuisine: any) => ({
         id: 0,
-        sessionId: Number(session.id || session.Id || 0),
-        sessionName: session.name || session.Name || '',
-        cuisineId: Number(cuisine.id || cuisine.Id || 0),
-        cuisineName: cuisine.name || cuisine.Name || '',
+        sessionId: Number(session.id || 0),
+        sessionName: session.name || '',
+        cuisineId: Number(cuisine.id || 0),
+        cuisineName: cuisine.name || '',
         locationId: null,
+        locationObj: null,
         qty: 0
       }));
 
       return {
-        sessionId: Number(session.id || session.Id || 0),
-        sessionName: session.name || session.Name || '',
-        isOpen: index === 0,
+        sessionId: Number(session.id || 0),
+        sessionName: session.name || '',
+        isOpen: this.isEditMode ? true : index === 0,
         lines
       };
     });
-
-    this.syncLinesFromGroups();
   }
 
   patchExistingLinesToGroups(): void {
@@ -156,14 +161,19 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     this.sessionGroups.forEach((group: any) => {
       group.lines.forEach((line: any) => {
         const existing = existingLines.find((x: any) =>
-          Number(x.sessionId || x.SessionId || 0) === Number(line.sessionId || 0) &&
-          Number(x.cuisineId || x.CuisineId || 0) === Number(line.cuisineId || 0)
+          Number(x.sessionId) === Number(line.sessionId) &&
+          Number(x.cuisineId) === Number(line.cuisineId)
         );
 
         if (existing) {
-          line.id = Number(existing.id || existing.Id || 0);
-          line.locationId = Number(existing.locationId || existing.LocationId || 0) || null;
-          line.qty = Number(existing.qty || existing.Qty || 0);
+          line.id = Number(existing.id || 0);
+          line.locationId = Number(existing.locationId || 0) || null;
+          line.qty = Number(existing.qty || 0);
+
+          const selectedLocation = this.locations.find(
+            (loc: any) => Number(loc.id) === Number(line.locationId)
+          );
+          line.locationObj = selectedLocation || null;
         }
       });
     });
@@ -174,6 +184,11 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   toggleAccordion(group: any): void {
     group.isOpen = !group.isOpen;
     setTimeout(() => feather.replace());
+  }
+
+  onLocationChange(line: any): void {
+    line.locationId = line.locationObj ? Number(line.locationObj.id) : null;
+    this.onLineChange();
   }
 
   syncLinesFromGroups(): void {
@@ -256,8 +271,8 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   resetForm(): void {
     this.model = {
       id: this.isEditMode ? this.id : 0,
-      requestNo: '',
       companyId: this.companyId,
+      companyName: this.model.companyName || '',
       fromDate: '',
       toDate: '',
       totalQty: 0,
