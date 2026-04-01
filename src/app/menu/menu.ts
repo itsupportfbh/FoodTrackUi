@@ -49,14 +49,23 @@ export const menu: CoreMenu[] = [
     icon: 'file',
     url: 'catering/reports'
   },
-   {
-    id: 'Scanner',
-    title: 'Scanner',
-    translate: 'MENU.SAMPLE',
-    type: 'item',
-    icon: 'file',
-    url: 'catering/scanner'
-  },
+  //  {
+  //   id: 'Scanner',
+  //   title: 'Scanner',
+  //   translate: 'MENU.SAMPLE',
+  //   type: 'item',
+  //   icon: 'file',
+  //   url: 'catering/scanner'
+  // },
+
+    {
+        id: 'qrgenerate',
+        title: 'Generate QR',
+        translate: 'MENU.SAMPLE',
+        type: 'item',
+        icon: 'file',
+        url: 'scanner/qrgenerate'
+      },
 {
     id: 'master',
     title: 'Master',
@@ -95,7 +104,9 @@ export const menu: CoreMenu[] = [
         type: 'item',
         icon: 'file',
         url: 'master/site_settings'
-      }
+      },
+    
+      
  
     ]
   }

@@ -6,7 +6,7 @@ import { CateringRoutingModule } from './catering-routing.module';
 import { CompanyMasterComponent } from './company-master/company-master.component';
 import { MealPlanComponent } from './meal-plan/meal-plan.component';
 import { DailyOrderComponent } from './daily-order/daily-order.component';
-import { ScannerComponent } from './scanner/scanner.component';
+
 import { ReportsComponent } from './reports/reports.component';
 import { BillingComponent } from './billing/billing.component';
 import { RouterModule } from '@angular/router';
@@ -18,6 +18,8 @@ import { CompanySidebarComponent } from './company-master/company-sidebar/compan
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { CoreSidebarModule } from '@core/components';
+
+
 
 const routes = [
   {
@@ -40,21 +42,18 @@ const routes = [
     component: ReportsComponent,
     data: { animation: 'reports' }
   },
-    {
-    path: 'scanner',
-    component: ScannerComponent,
-    data: { animation: 'scanner' }
-  },
+    
 ]
 @NgModule({
   declarations: [
     CompanyMasterComponent,
     MealPlanComponent,
     DailyOrderComponent,
-    ScannerComponent,
-    ReportsComponent,
+   ReportsComponent,
     BillingComponent,
     CompanySidebarComponent,
+   
+   
     
   ],
   imports: [

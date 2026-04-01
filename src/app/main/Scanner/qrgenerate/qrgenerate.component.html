@@ -1,0 +1,199 @@
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-md-12 col-12">
+
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">QR Code Generator</h4>
+          <span class="badge badge-light-success">
+            {{ qrRequest.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+
+        <div class="card-body">
+
+          <!-- 🔹 FORM -->
+          <div class="row">
+
+            <!-- Request -->
+            <div class="col-md-4">
+              <label>Request ID</label>
+              <select class="form-control"
+                      name="requestId"
+                      [(ngModel)]="qrRequest.requestId"
+                      (change)="onRequestChange()">
+                <option [ngValue]="''">Select Request</option>
+                <option>1</option>
+                <option *ngFor="let item of requestList"
+                        [ngValue]="item.requestId">
+                  {{ item.displayText }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Company ID -->
+            <div class="col-md-4">
+              <label>Company ID</label>
+              <input type="number"
+                     name="companyId"
+                     class="form-control"
+                     [(ngModel)]="qrRequest.companyId"
+                     placeholder="Enter Company ID">
+            </div>
+
+            <!-- Company Name -->
+            <div class="col-md-4">
+              <label>Company Name</label>
+              <input type="text"
+                     name="companyName"
+                     class="form-control"
+                     [(ngModel)]="qrRequest.companyName"
+                     placeholder="Enter Company Name">
+            </div>
+              <!-- Company Email -->
+            <div class="col-md-4">
+              <label>Company Email</label>
+              <input type="email"
+       name="Email"
+       class="form-control"
+       [(ngModel)]="qrRequest.companyEmail"
+       placeholder="Enter Company Email">
+            </div>
+
+            <!-- Valid From -->
+            <div class="col-md-4 mt-2">
+              <label>QR Valid From</label>
+              <input type="date"
+                     name="qrValidFrom"
+                     class="form-control"
+                     [(ngModel)]="qrRequest.qrValidFrom">
+            </div>
+
+            <!-- Valid Till -->
+            <div class="col-md-4 mt-2">
+              <label>QR Valid Till</label>
+              <input type="date"
+                     name="qrValidTill"
+                     class="form-control"
+                     [(ngModel)]="qrRequest.qrValidTill">
+            </div>
+
+            <!-- No of QR -->
+            <div class="col-md-4 mt-2">
+              <label>No of QR Codes</label>
+              <input type="number"
+                     name="noofQR"
+                     class="form-control"
+                     [(ngModel)]="qrRequest.noofQR"
+                     placeholder="Enter number of QR">
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-4 mt-2">
+              <label>Status</label>
+              <select class="form-control"
+                      name="isActive"
+                      [(ngModel)]="qrRequest.isActive">
+                <option [ngValue]="true">Active</option>
+                <option [ngValue]="false">Inactive</option>
+              </select>
+            </div>
+
+          </div>
+
+          <!-- 🔹 BACKEND QR DISPLAY -->
+          <div class="row mt-4" *ngIf="backendQrImage">
+            <div class="col-12">
+              <div class="card text-center">
+                <div class="card-header">
+                  <h5 class="mb-0">Backend Generated QR</h5>
+                </div>
+
+                <div class="card-body">
+                  <img [src]="backendQrImage"
+                       width="200"
+                       class="mb-2 border p-1 rounded" />
+
+                  <p class="mt-2"><strong>QR Data:</strong></p>
+                  <small class="text-muted">{{ backendQrText }}</small>
+
+                  <br><br>
+
+                  <a [href]="backendQrImage"
+                     download="qr.png"
+                     class="btn btn-success btn-sm">
+                    Download QR
+                  </a>
+                </div>
+
+
+                <button class="btn btn-success btn-sm"
+        (click)="sendEmail()">
+  Send Email
+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔹 BUTTONS -->
+          <div class="d-flex mt-3 flex-wrap" style="gap: 10px;">
+            <button class="btn btn-primary" (click)="generateQrCodes()">
+              Generate QR
+            </button>
+
+            <button class="btn btn-success" (click)="saveQrRequest()">
+              Save
+            </button>
+
+            <button class="btn btn-secondary" (click)="clearForm()">
+              Clear
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 FRONTEND QR LIST -->
+  <div class="row mt-3" *ngIf="generatedQrList.length > 0">
+    <div class="col-12">
+      <div class="card">
+
+        <div class="card-header">
+          <h4 class="mb-0">Generated QR Preview</h4>
+        </div>
+
+        <div class="card-body">
+          <div class="row">
+
+            <div class="col-lg-4 col-md-6 mb-3"
+                 *ngFor="let item of generatedQrList">
+
+              <div class="border rounded p-3 text-center h-100 shadow-sm">
+                <h6 class="mb-2">QR {{ item.qrNo }}</h6>
+
+                <qrcode
+                  [qrdata]="item.qrText"
+                  [width]="180"
+                  [errorCorrectionLevel]="'M'">
+                </qrcode>
+
+                <div class="text-left mt-2 small">
+                  <p><b>Company:</b> {{ item.companyName }}</p>
+                  <p><b>Request:</b> {{ item.requestId }}</p>
+                  <p><b>From:</b> {{ item.qrValidFrom }}</p>
+                  <p><b>Till:</b> {{ item.qrValidTill }}</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

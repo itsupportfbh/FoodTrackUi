@@ -44,6 +44,7 @@
     "@swimlane/ngx-datatable": "^19.0.0",
     "angular-in-memory-web-api": "0.11.0",
     "angular-shepherd": "11.0.0",
+    "angularx-qrcode": "^14.0.0",
     "animate.css": "4.1.1",
     "apexcharts": "3.23.0",
     "autoprefixer": "10.4.5",
