@@ -30,11 +30,21 @@ const appRoutes: Routes = [
     loadChildren: () =>
       import('./main/catering.module').then(m => m.CateringModule)
   },
+  
+     
   {
     path: 'master',
     loadChildren: () =>
       import('./main/Master/master.module').then(m => m.MasterModule)
   },
+
+{
+    path: 'scanner',
+    loadChildren: () => import('./main/Scanner/scanner/scanner.module').then(m => m.ScannerModule)
+  },
+
+
+
   {
     path: '',
     redirectTo: 'pages/authentication/login-v2',
