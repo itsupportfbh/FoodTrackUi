@@ -18,7 +18,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
   companies: any[] = [];
   sessions: any[] = [];
-  menus: any[] = [];
+  cuisines: any[] = [];
   locations: any[] = [];
 
   model: any = {
@@ -31,6 +31,8 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     isActive: true,
     lines: []
   };
+
+  sessionGroups: any[] = [];
 
   constructor(
     private requestService: RequestService,
@@ -67,19 +69,19 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       next: (res: any) => {
         const data = res?.data || {};
 
-        this.companies = data.companies || [];
-        this.sessions = data.sessions || [];
-        this.menus = data.cuisines || [];
-        this.locations = data.locations || [];
+        this.companies = data.companies || data.Companies || [];
+        this.sessions = data.sessions || data.Sessions || [];
+        this.cuisines = data.cuisines || data.Cuisines || [];
+        this.locations = data.locations || data.Locations || [];
 
-        if (this.companies.length > 0) {
-          this.model.companyId = this.companies[0].id;
+        if (this.companies.length > 0 && !this.model.companyId) {
+          this.model.companyId = Number(this.companies[0].id || this.companies[0].Id || 0);
         }
 
         if (this.isEditMode) {
           this.loadById();
         } else {
-          this.addLine();
+          this.buildSessionGroups();
         }
       },
       error: (err) => {
@@ -93,29 +95,25 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     this.requestService.getRequestById(this.id).subscribe({
       next: (res: any) => {
         const row = res?.data;
-        if (!row) return;
-
-        this.model = {
-          id: row.id,
-          requestNo: row.requestNo,
-          companyId: row.companyId,
-          fromDate: this.toDateInput(row.fromDate),
-          toDate: this.toDateInput(row.toDate),
-          totalQty: row.totalQty || 0,
-          isActive: row.isActive ?? true,
-          lines: (row.lines || []).map((x: any) => ({
-            id: x.id,
-            sessionId: x.sessionId,
-            cuisineId: x.cuisineId,
-            locationId: x.locationId,
-            qty: x.qty
-          }))
-        };
-
-        if (!this.model.lines.length) {
-          this.addLine();
+        if (!row) {
+          return;
         }
 
+        const apiLines = row.lines || row.Lines || [];
+
+        this.model = {
+          id: Number(row.id || row.Id || 0),
+          requestNo: row.requestNo || row.RequestNo || '',
+          companyId: Number(row.companyId || row.CompanyId || 0),
+          fromDate: this.toDateInput(row.fromDate || row.FromDate),
+          toDate: this.toDateInput(row.toDate || row.ToDate),
+          totalQty: Number(row.totalQty || row.TotalQty || 0),
+          isActive: row.isActive ?? row.IsActive ?? true,
+          lines: apiLines
+        };
+
+        this.buildSessionGroups();
+        this.patchExistingLinesToGroups();
         this.calculateTotalQty();
       },
       error: (err) => {
@@ -125,28 +123,77 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     });
   }
 
-  addLine(): void {
-    this.model.lines.push({
-      id: 0,
-      sessionId: null,
-      cuisineId: null,
-      locationId: null,
-      qty: null
+  buildSessionGroups(): void {
+    this.sessionGroups = this.sessions.map((session: any, index: number) => {
+      const lines = this.cuisines.map((cuisine: any) => ({
+        id: 0,
+        sessionId: Number(session.id || session.Id || 0),
+        sessionName: session.name || session.Name || '',
+        cuisineId: Number(cuisine.id || cuisine.Id || 0),
+        cuisineName: cuisine.name || cuisine.Name || '',
+        locationId: null,
+        qty: 0
+      }));
+
+      return {
+        sessionId: Number(session.id || session.Id || 0),
+        sessionName: session.name || session.Name || '',
+        isOpen: index === 0,
+        lines
+      };
     });
+
+    this.syncLinesFromGroups();
   }
 
-  removeLine(index: number): void {
-    this.model.lines.splice(index, 1);
+  patchExistingLinesToGroups(): void {
+    const existingLines = this.model.lines || [];
 
-    if (this.model.lines.length === 0) {
-      this.addLine();
+    if (!existingLines.length) {
+      return;
     }
 
+    this.sessionGroups.forEach((group: any) => {
+      group.lines.forEach((line: any) => {
+        const existing = existingLines.find((x: any) =>
+          Number(x.sessionId || x.SessionId || 0) === Number(line.sessionId || 0) &&
+          Number(x.cuisineId || x.CuisineId || 0) === Number(line.cuisineId || 0)
+        );
+
+        if (existing) {
+          line.id = Number(existing.id || existing.Id || 0);
+          line.locationId = Number(existing.locationId || existing.LocationId || 0) || null;
+          line.qty = Number(existing.qty || existing.Qty || 0);
+        }
+      });
+    });
+
+    this.syncLinesFromGroups();
+  }
+
+  toggleAccordion(group: any): void {
+    group.isOpen = !group.isOpen;
+    setTimeout(() => feather.replace());
+  }
+
+  syncLinesFromGroups(): void {
+    this.model.lines = this.sessionGroups
+      .reduce((acc: any[], group: any) => acc.concat(group.lines || []), [])
+      .filter((line: any) => Number(line.locationId) > 0 || Number(line.qty) > 0);
+  }
+
+  onLineChange(): void {
+    this.syncLinesFromGroups();
     this.calculateTotalQty();
   }
 
   calculateTotalQty(): void {
-    this.model.totalQty = (this.model.lines || []).reduce(
+    const allLines = this.sessionGroups.reduce(
+      (acc: any[], group: any) => acc.concat(group.lines || []),
+      []
+    );
+
+    this.model.totalQty = allLines.reduce(
       (sum: number, line: any) => sum + (Number(line.qty) || 0),
       0
     );
@@ -163,16 +210,24 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       return;
     }
 
-    const validLines = (this.model.lines || []).filter((x: any) =>
-      x.sessionId && x.cuisineId && x.locationId && Number(x.qty) > 0
-    );
+    this.syncLinesFromGroups();
+    this.calculateTotalQty();
+
+    const validLines = this.sessionGroups
+      .reduce((acc: any[], group: any) => acc.concat(group.lines || []), [])
+      .filter((x: any) => x.locationId && Number(x.qty) > 0)
+      .map((x: any) => ({
+        Id: x.id || 0,
+        SessionId: x.sessionId,
+        CuisineId: x.cuisineId,
+        LocationId: x.locationId,
+        Qty: Number(x.qty) || 0
+      }));
 
     if (!validLines.length) {
-      Swal.fire('Validation', 'Please add at least one valid line', 'warning');
+      Swal.fire('Validation', 'Please select location and qty for at least one row', 'warning');
       return;
     }
-
-    this.calculateTotalQty();
 
     const payload = {
       Id: this.model.id || 0,
@@ -182,13 +237,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       TotalQty: this.model.totalQty,
       IsActive: this.model.isActive,
       UserId: this.userId,
-      Lines: validLines.map((x: any) => ({
-        Id: x.id || 0,
-        SessionId: x.sessionId,
-        CuisineId: x.cuisineId,
-        LocationId: x.locationId,
-        Qty: x.qty
-      }))
+      Lines: validLines
     };
 
     this.requestService.saveRequest(payload).subscribe({
@@ -216,7 +265,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       lines: []
     };
 
-    this.addLine();
+    this.buildSessionGroups();
   }
 
   goBack(): void {
@@ -224,7 +273,9 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   private toDateInput(value: any): string {
-    if (!value) return '';
+    if (!value) {
+      return '';
+    }
 
     const d = new Date(value);
     const year = d.getFullYear();

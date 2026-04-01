@@ -10,36 +10,27 @@
           <h2 class="title">
             {{ isEditMode ? 'Edit Request' : 'Create Request' }}
           </h2>
+          <p class="sub-title">Session-wise accordion request entry</p>
         </div>
       </div>
     </div>
 
     <div class="request-body">
-      <div class="header-grid">
-        <div class="form-group">
-          <label>Request No</label>
-          <input
-            type="text"
-            class="form-control-custom"
-            [ngModel]="model.requestNo || 'Auto Generate'"
-            name="requestNo"
-            readonly
-          />
-        </div>
-
+      <div class="header-grid header-grid-no-requestno">
         <div class="form-group">
           <label>Company <span class="text-danger">*</span></label>
-          <select
-            class="form-control-custom"
+          <ng-select
+            [items]="companies"
+            bindLabel="name"
+            bindValue="id"
             [(ngModel)]="model.companyId"
             name="companyId"
-            disabled
-          >
-            <option [ngValue]="null">Select Company</option>
-            <option *ngFor="let c of companies" [ngValue]="c.id">
-              {{ c.name }}
-            </option>
-          </select>
+            [clearable]="false"
+            [searchable]="false"
+            [disabled]="true"
+            appendTo="body"
+            [placeholder]="model.companyId ? '' : 'Select Company'">
+          </ng-select>
         </div>
 
         <div class="form-group">
@@ -74,98 +65,88 @@
         </div>
       </div>
 
-      <div class="line-section">
-        <div class="line-head">
-          <h3>Request Lines</h3>
+      <div class="accordion-wrapper">
+        <div class="session-accordion" *ngFor="let group of sessionGroups; let gi = index">
+          <button
+            type="button"
+            class="accordion-header"
+            (click)="toggleAccordion(group)"
+          >
+            <div class="accordion-title-wrap">
+              <span class="accordion-title">{{ group.sessionName }}</span>
+              <span class="accordion-count">{{ group.lines?.length || 0 }} cuisines</span>
+            </div>
 
-          <button type="button" class="btn-add-line" (click)="addLine()">
-            + Add Line
+            <span class="accordion-icon" [class.open]="group.isOpen">
+              <i data-feather="chevron-down"></i>
+            </span>
           </button>
-        </div>
 
-        <div class="table-wrap">
-          <table class="line-table">
-            <thead>
-              <tr>
-                <th>Session</th>
-                <th>Cuisine</th>
-                <th>Location</th>
-                <th>Qty</th>
-                <th class="text-center">Action</th>
-              </tr>
-            </thead>
+          <div class="accordion-body" *ngIf="group.isOpen">
+            <div class="table-wrap">
+              <table class="line-table">
+                <thead>
+                  <tr>
+                    <th>Cuisine</th>
+                    <th>Location</th>
+                    <th>Qty</th>
+                  </tr>
+                </thead>
 
-            <tbody>
-              <tr *ngFor="let line of model.lines; let i = index">
-                <td>
-                  <select
-                    class="form-control-custom table-control"
-                    [(ngModel)]="line.sessionId"
-                    [name]="'sessionId_' + i"
-                  >
-                    <option [ngValue]="null">Select Session</option>
-                    <option *ngFor="let s of sessions" [ngValue]="s.id">
-                      {{ s.name }}
-                    </option>
-                  </select>
-                </td>
+                <tbody>
+                  <tr *ngFor="let line of group.lines; let li = index">
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control-custom table-control readonly-input"
+                        [ngModel]="line.cuisineName"
+                        [name]="'cuisineName_' + gi + '_' + li"
+                        readonly
+                      />
+                    </td>
 
-                <td>
-                  <select
-                    class="form-control-custom table-control"
-                    [(ngModel)]="line.cuisineId"
-                    [name]="'cuisineId_' + i"
-                  >
-                    <option [ngValue]="null">Select Cuisine</option>
-                    <option *ngFor="let m of menus" [ngValue]="m.id">
-                      {{ m.name }}
-                    </option>
-                  </select>
-                </td>
+                    <td>
+                      <ng-select
+                        class="table-ng-select"
+                        [items]="locations"
+                        bindLabel="name"
+                        bindValue="id"
+                        [(ngModel)]="line.locationId"
+                        [name]="'locationId_' + gi + '_' + li"
+                        (change)="onLineChange()"
+                        [clearable]="true"
+                        [searchable]="true"
+                        appendTo="body"
+                        [placeholder]="line.locationId ? '' : 'Select Location'">
+                      </ng-select>
+                    </td>
 
-                <td>
-                  <select
-                    class="form-control-custom table-control"
-                    [(ngModel)]="line.locationId"
-                    [name]="'locationId_' + i"
-                  >
-                    <option [ngValue]="null">Select Location</option>
-                    <option *ngFor="let l of locations" [ngValue]="l.id">
-                      {{ l.name }}
-                    </option>
-                  </select>
-                </td>
+                    <td>
+                      <input
+                        type="number"
+                        min="0"
+                        class="form-control-custom table-control"
+                        [(ngModel)]="line.qty"
+                        [name]="'qty_' + gi + '_' + li"
+                        (input)="onLineChange()"
+                        placeholder="Enter qty"
+                      />
+                    </td>
+                  </tr>
 
-                <td>
-                  <input
-                    type="number"
-                    min="1"
-                    class="form-control-custom table-control"
-                    [(ngModel)]="line.qty"
-                    [name]="'qty_' + i"
-                    (input)="calculateTotalQty()"
-                    placeholder="Enter qty"
-                  />
-                </td>
-
-                <td class="text-center">
-                  <button type="button" class="btn-delete-line" (click)="removeLine(i)">
-                    <i data-feather="trash-2"></i>
-                  </button>
-                </td>
-              </tr>
-
-              <tr *ngIf="!model.lines?.length">
-                <td colspan="5" class="empty-row">No lines added</td>
-              </tr>
-            </tbody>
-          </table>
+                  <tr *ngIf="!group.lines || group.lines.length === 0">
+                    <td colspan="3" class="empty-row">No cuisines available</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-reset" (click)="goBack()">
-          Cancel
+        <button type="button" class="btn-reset" (click)="resetForm()">
+          Reset
         </button>
 
         <button type="button" class="btn-save" (click)="saveRequest()">
