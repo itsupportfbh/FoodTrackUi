@@ -15,8 +15,8 @@ export class RequestService {
     return this.http.get<any>(`${this.baseUrl}/GetPageMasters?userId=${userId}`);
   }
 
-  getAllRequests(payload: any): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/GetAllRequests?userId=${payload.userId}`);
+  getAllRequests(userId: any): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/GetAllRequests?userId=${userId}`);
   }
 
   getRequestById(id: number): Observable<any> {
