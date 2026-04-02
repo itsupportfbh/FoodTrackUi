@@ -39,6 +39,9 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
 
     this.loadRequests();
   }
+   get isOwnerView(): boolean {
+    return this.companyId === 0;
+  }
 
   ngAfterViewInit(): void {
     feather.replace();
@@ -84,7 +87,9 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
     );
   }
 
-  onPageSizeChange(): void {}
+  onPageSizeChange(): void {
+    this.filteredRows = [...this.filteredRows];
+  }
 
   openCreate(): void {
     this.router.navigate(['/catering/request-create']);

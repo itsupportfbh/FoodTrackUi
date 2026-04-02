@@ -1,92 +1,114 @@
 <div class="request-list-page">
-  <div class="request-list-card">
-    <div class="list-header">
-      <h2 class="list-title">Order List</h2>
+  <div class="card request-list-card">
+    <div class="card-header border-bottom d-flex justify-content-between align-items-center flex-wrap">
+      <h4 class="card-title mb-0">Order List</h4>
     </div>
 
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <label class="entries-label">
-          Show
-          <select [(ngModel)]="selectedOption" (change)="onPageSizeChange()" class="entries-select">
-            <option [ngValue]="10">10</option>
-            <option [ngValue]="25">25</option>
-            <option [ngValue]="50">50</option>
-            <option [ngValue]="100">100</option>
-          </select>
-          entries
-        </label>
-      </div>
+    <div class="card-body">
+      <div class="list-toolbar d-flex justify-content-between align-items-center flex-wrap">
+        <div class="d-flex align-items-center mb-1 mb-md-0">
+          <label class="d-flex align-items-center mb-0 text-muted">
+            <span class="mr-50">Show</span>
+            <select
+              [(ngModel)]="selectedOption"
+              (change)="onPageSizeChange()"
+              class="form-control form-control-sm mx-50 entries-select"
+            >
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+              <option [ngValue]="100">100</option>
+            </select>
+            <span class="ml-50">entries</span>
+          </label>
+        </div>
 
-      <div class="toolbar-right">
-        <label class="search-label">Search:</label>
-        <input
-          type="text"
-          class="search-input"
-          [(ngModel)]="searchText"
-          (input)="filterRequests()"
-          placeholder="Search"
-        />
+        <div class="d-flex align-items-center flex-wrap right-tools">
+          <label class="mb-0 mr-50 text-muted">Search:</label>
+          <input
+            type="text"
+            class="form-control search-input mr-1"
+            [(ngModel)]="searchText"
+            (input)="filterRequests()"
+            placeholder="Search"
+          />
 
-        <button type="button" class="btn-add" (click)="openCreate()">
-          Add New Order
-        </button>
+          <button *ngIf="!isOwnerView" type="button" class="btn btn-primary add-btn" (click)="openCreate()">
+            Add New Order
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="table-wrap">
-      <table class="request-table">
+    <div class="table-responsive custom-table-wrap">
+      <table class="table request-table mb-0">
         <thead>
           <tr>
             <th>REQUEST NO</th>
             <th>COMPANY</th>
-            <th>TOTAL QTY</th>
             <th>FROM DATE</th>
             <th>TO DATE</th>
-            <th class="text-center">ACTION</th>
+            <th>TOTAL QTY</th>
+            <th *ngIf="!isOwnerView" class="text-center action-col">ACTIONS</th>
           </tr>
         </thead>
 
         <tbody>
           <tr *ngFor="let row of pagedRows">
-            <td>{{ row.requestNo }}</td>
+            <td class="request-no">{{ row.requestNo }}</td>
 
             <td>
               <div class="company-cell">
                 <div class="company-avatar">
                   {{ (row.companyName || 'R').charAt(0) }}
                 </div>
+
                 <div class="company-info">
-                  <div class="company-name">{{ row.companyName }}</div>
+                  <span
+                    class="contact-person-text"
+                    [attr.title]="row.companyName"
+                  >
+                    {{ row.companyName }}
+                  </span>
                 </div>
               </div>
             </td>
 
-            <td>{{ row.totalQty }}</td>
             <td>{{ row.fromDate | date:'dd-MM-yyyy' }}</td>
             <td>{{ row.toDate | date:'dd-MM-yyyy' }}</td>
+            <td>{{ row.totalQty }}</td>
 
             <td class="text-center">
-              <div class="action-buttons">
-                <button type="button" class="btn-icon edit" (click)="editRequest(row)">
-                  <i data-feather="edit-2"></i>
+              <div class="d-flex align-items-center justify-content-center action-group">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary action-icon-btn mr-50"
+                  (click)="editRequest(row)"
+                  title="Edit"
+                >
+                  <i data-feather="edit" class="action-icon"></i>
                 </button>
 
-                <button type="button" class="btn-icon delete" (click)="deleteRequest(row)">
-                  <i data-feather="trash-2"></i>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger action-icon-btn"
+                  (click)="deleteRequest(row)"
+                  title="Delete"
+                >
+                  <i data-feather="trash-2" class="action-icon"></i>
                 </button>
               </div>
             </td>
           </tr>
 
           <tr *ngIf="pagedRows.length === 0">
-            <td colspan="6" class="empty-row">No data available</td>
+            <td colspan="6" class="text-center text-muted py-2">No data available</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="table-footer">
+    <div class="card-footer bg-white border-top text-muted">
       {{ filteredRows.length }} total
     </div>
   </div>
