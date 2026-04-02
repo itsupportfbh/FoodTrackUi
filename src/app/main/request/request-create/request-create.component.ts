@@ -15,6 +15,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
   userId = 0;
   companyId = 0;
+  minDate = '';
 
   companies: any[] = [];
   sessions: any[] = [];
@@ -41,6 +42,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   ) {}
 
   ngOnInit(): void {
+    this.minDate = this.getTodayDate();
     const currentUserRaw = localStorage.getItem('currentUser');
 
     if (currentUserRaw) {
@@ -286,6 +288,19 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
   goBack(): void {
     this.router.navigate(['/catering/request']);
+  }
+  onFromDateChange(): void {
+  if (this.model.toDate && this.model.fromDate && this.model.toDate < this.model.fromDate) {
+    this.model.toDate = '';
+  }
+  }
+
+  private getTodayDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = ('0' + (today.getMonth() + 1)).slice(-2);
+    const day = ('0' + today.getDate()).slice(-2);
+    return `${year}-${month}-${day}`;
   }
 
   private toDateInput(value: any): string {

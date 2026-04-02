@@ -32,6 +32,8 @@
             class="form-control form-control-sm create-input"
             [(ngModel)]="model.fromDate"
             name="fromDate"
+             [min]="minDate"
+             (change)="onFromDateChange()"
           />
         </div>
 
@@ -42,6 +44,7 @@
             class="form-control form-control-sm create-input"
             [(ngModel)]="model.toDate"
             name="toDate"
+            [min]="model.fromDate || minDate"
           />
         </div>
 

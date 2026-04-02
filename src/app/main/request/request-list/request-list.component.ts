@@ -19,6 +19,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
   userId = 0;
   companyId = 0;
   isAdmin = false;
+   roleId = 0;
 
   constructor(
     private requestService: RequestService,
@@ -32,6 +33,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
       const currentUser = JSON.parse(currentUserRaw);
       this.userId = Number(currentUser.id || 0);
       this.companyId = Number(currentUser.companyId || 0);
+      this.roleId = Number(currentUser.roleId || currentUser.RoleId || 0);
     }
 
     const role = (localStorage.getItem('role') || '').toLowerCase();
@@ -41,6 +43,9 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
   }
    get isOwnerView(): boolean {
     return this.companyId === 0;
+  }
+   get canManageOrders(): boolean {
+  return this.roleId !== 1;
   }
 
   ngAfterViewInit(): void {
@@ -52,13 +57,13 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
   }
 
   loadRequests(): void {
-    const payload = {
-      userId: this.userId,
-      companyId: this.companyId,
-      isAdmin: this.isAdmin
-    };
+    // const payload = {
+    //   userId: this.userId,
+    //   companyId: this.companyId,
+    //   isAdmin: this.isAdmin
+    // };
 
-    this.requestService.getAllRequests(payload).subscribe({
+    this.requestService.getAllRequests(this.userId).subscribe({
       next: (res: any) => {
         this.rows = res?.data || [];
         this.filteredRows = [...this.rows];
@@ -92,14 +97,23 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
   }
 
   openCreate(): void {
+    if (!this.canManageOrders) {
+      return;
+    }
     this.router.navigate(['/catering/request-create']);
   }
 
   editRequest(row: any): void {
+    if (!this.canManageOrders) {
+      return;
+    }
     this.router.navigate(['/catering/request-edit', row.id]);
   }
 
   deleteRequest(row: any): void {
+    if (!this.canManageOrders) {
+      return;
+    }
     Swal.fire({
       title: 'Are you sure?',
       text: 'This request will be deleted.',

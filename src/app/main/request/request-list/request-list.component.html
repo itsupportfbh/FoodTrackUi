@@ -33,7 +33,7 @@
             placeholder="Search"
           />
 
-          <button *ngIf="!isOwnerView" type="button" class="btn btn-primary add-btn" (click)="openCreate()">
+          <button *ngIf="canManageOrders" type="button" class="btn btn-primary add-btn" (click)="openCreate()">
             Add New Order
           </button>
         </div>
@@ -49,7 +49,7 @@
             <th>FROM DATE</th>
             <th>TO DATE</th>
             <th>TOTAL QTY</th>
-            <th *ngIf="!isOwnerView" class="text-center action-col">ACTIONS</th>
+            <th *ngIf="canManageOrders" class="text-center action-col">ACTIONS</th>
           </tr>
         </thead>
 
@@ -78,7 +78,7 @@
             <td>{{ row.toDate | date:'dd-MM-yyyy' }}</td>
             <td>{{ row.totalQty }}</td>
 
-            <td class="text-center">
+            <td *ngIf="canManageOrders" class="text-center">
               <div class="d-flex align-items-center justify-content-center action-group">
                 <button
                   type="button"
@@ -109,7 +109,7 @@
           </tr>
 
           <tr *ngIf="pagedRows.length === 0">
-            <td colspan="6" class="text-center text-muted py-2">No data available</td>
+            <td [attr.colspan]="canManageOrders ? 6 : 5" class="text-center text-muted py-2">No data available</td>
           </tr>
         </tbody>
       </table>
