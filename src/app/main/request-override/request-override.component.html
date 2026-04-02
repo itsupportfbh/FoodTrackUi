@@ -1,0 +1,187 @@
+<div class="request-page" *ngIf="!loading; else loadingTpl">
+  <div class="request-card">
+    <div class="request-header">
+      <div class="header-left">
+        <button type="button" class="btn-back" (click)="cancel()">
+          <i data-feather="arrow-left"></i>
+        </button>
+
+        <div class="header-text">
+          <h2 class="title">Order Override</h2>
+          <p class="sub-title">Session-wise override entry</p>
+        </div>
+      </div>
+
+      <div class="header-badge">
+        <span class="badge-label">Total Override Qty</span>
+        <span class="badge-value">{{ getTotalOverrideQty() }}</span>
+      </div>
+    </div>
+
+    <div class="request-body">
+      <div class="top-section">
+        <div class="header-grid override-header-grid">
+          <div class="form-group">
+            <label>Request No</label>
+            <input
+              type="text"
+              class="form-control-custom readonly-input"
+              [value]="model.header.requestNo || ''"
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Override From Date</label>
+            <input
+              type="text"
+              class="form-control-custom readonly-input"
+              [value]="fromDate"
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Override To Date</label>
+            <input
+              type="text"
+              class="form-control-custom readonly-input"
+              [value]="toDate"
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Request From Date</label>
+            <input
+              type="text"
+              class="form-control-custom readonly-input"
+              [value]="model.header.requestFromDate ? (model.header.requestFromDate | date:'yyyy-MM-dd') : ''"
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Request To Date</label>
+            <input
+              type="text"
+              class="form-control-custom readonly-input"
+              [value]="model.header.requestToDate ? (model.header.requestToDate | date:'yyyy-MM-dd') : ''"
+              readonly
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-wrapper" *ngIf="sessionGroups.length > 0; else noDataTpl">
+        <div class="session-accordion" *ngFor="let group of sessionGroups; let gi = index">
+          <button
+            type="button"
+            class="accordion-header"
+            (click)="toggleAccordion(group)"
+          >
+            <div class="accordion-title-wrap">
+              <span class="accordion-title">{{ group.sessionName }}</span>
+              <span class="accordion-count">{{ group.lines.length }} cuisines</span>
+            </div>
+
+            <span class="accordion-icon" [class.open]="group.isOpen">
+              <i data-feather="chevron-down"></i>
+            </span>
+          </button>
+
+          <div class="accordion-body" *ngIf="group.isOpen">
+            <div class="create-table-wrap">
+              <table class="table create-line-table">
+                <thead>
+                  <tr>
+                    <th>Cuisine</th>
+                    <th>Location</th>
+                    <th>Existing Qty</th>
+                    <th>Override Qty</th>
+                    <!-- <th>Status</th> -->
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let row of group.lines; let li = index">
+                    <td>
+                      <div class="cell-text strong">{{ row.cuisineName }}</div>
+                    </td>
+
+                    <td>
+                      <span class="cell-chip">{{ row.locationName }}</span>
+                    </td>
+
+                    <td>
+                      <span class="qty-pill readonly">{{ row.baseQty }}</span>
+                    </td>
+
+                    <td>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="form-control qty-input"
+                        [(ngModel)]="row.overrideQty"
+                        [name]="'overrideQty_' + gi + '_' + li"
+                        [disabled]="!!row.isCancelled"
+                        (ngModelChange)="onOverrideQtyChange(row)"
+                        placeholder="0"
+                      />
+                    </td>
+
+                    <!-- <td>
+                      <div class="status-wrap">
+                        <label class="switch-wrap">
+                          <input
+                            type="checkbox"
+                            [(ngModel)]="row.isCancelled"
+                            [name]="'cancel_' + gi + '_' + li"
+                            (change)="onCancelledChange(row)"
+                          />
+                          <span class="switch-text">Not Required</span>
+                        </label>
+
+                        <div class="status-badges">
+                          <span class="status-badge cancelled" *ngIf="row.isCancelled">Cancelled</span>
+                          <span class="status-badge zero" *ngIf="!row.isCancelled && +row.overrideQty === 0">Qty = 0</span>
+                          <span class="status-badge active" *ngIf="!row.isCancelled && +row.overrideQty > 0">Active</span>
+                        </div>
+                      </div>
+                    </td> -->
+                  </tr>
+
+                  <tr *ngIf="!group.lines?.length">
+                    <td colspan="5" class="empty-inline">No lines found</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noDataTpl>
+        <div class="empty-row-card">
+          <div class="empty-title">No override lines found</div>
+          
+        </div>
+      </ng-template>
+
+      <div class="form-actions">
+        <!-- <button type="button" class="btn btn-light btn-reset" (click)="resetOverride()">
+          Reset
+        </button> -->
+
+        <button type="button" class="btn btn-primary btn-save" (click)="save()" [disabled]="saving">
+          {{ saving ? 'Saving...' : 'Save Override' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading-box">Loading override screen...</div>
+</ng-template>

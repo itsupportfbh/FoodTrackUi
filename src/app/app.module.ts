@@ -44,6 +44,11 @@ const appRoutes: Routes = [
     loadChildren: () =>
       import('./main/Scanner/scanner/scanner.module').then(m => m.ScannerModule)
   },
+   {
+    path: 'requestoverride',
+    loadChildren: () =>
+      import('./main/request-override/request-override.module').then(m => m.RequestOverrideModule)
+  },
   {
     path: '',
     redirectTo: 'pages/authentication/login-v2',
