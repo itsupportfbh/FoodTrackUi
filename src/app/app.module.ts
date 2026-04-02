@@ -18,6 +18,7 @@ import { coreConfig } from 'app/app-config';
 import { AppComponent } from 'app/app.component';
 import { LayoutModule } from 'app/layout/layout.module';
 import { SampleModule } from 'app/main/sample/sample.module';
+import { AuthGuard } from 'app/auth/helpers/auth.guards';
 
 const appRoutes: Routes = [
   {
@@ -27,24 +28,22 @@ const appRoutes: Routes = [
   },
   {
     path: 'catering',
+    canActivate: [AuthGuard],
     loadChildren: () =>
       import('./main/catering.module').then(m => m.CateringModule)
   },
-  
-     
   {
     path: 'master',
+    canActivate: [AuthGuard],
     loadChildren: () =>
       import('./main/Master/master.module').then(m => m.MasterModule)
   },
-
-{
+  {
     path: 'scanner',
-    loadChildren: () => import('./main/Scanner/scanner/scanner.module').then(m => m.ScannerModule)
+    canActivate: [AuthGuard],
+    loadChildren: () =>
+      import('./main/Scanner/scanner/scanner.module').then(m => m.ScannerModule)
   },
-
-
-
   {
     path: '',
     redirectTo: 'pages/authentication/login-v2',
