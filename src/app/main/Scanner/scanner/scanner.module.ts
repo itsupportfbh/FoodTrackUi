@@ -6,6 +6,7 @@ import { QRCodeModule } from 'angularx-qrcode';
 
 import { QRgenerateComponent } from '../qrgenerate/qrgenerate.component';
 import { ListQRComponent } from '../list-qr/list-qr.component';
+import { ScannerComponent } from './scanner.component';
 
 const routes = [
   {
@@ -17,13 +18,19 @@ const routes = [
     path: 'listqr',
     component: ListQRComponent,
     data: { animation: 'listqr' }
-  }
+  },
+   {
+    path: 'scanner',
+    component: ScannerComponent,
+    data: { animation: 'scanner' }
+  },
 ];
 
 @NgModule({
   declarations: [
     QRgenerateComponent,
-    ListQRComponent
+    ListQRComponent,
+    ScannerComponent
   ],
   imports: [
     CommonModule,
