@@ -126,4 +126,148 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
   get pagedRows(): any[] {
     return this.filteredRows.slice(0, this.selectedOption);
   }
+  openOverride(row: any): void {
+  const today = new Date().toISOString().split('T')[0];
+  const requestFrom = this.toInputDate(row.fromDate);
+  const requestTo = this.toInputDate(row.toDate);
+
+  Swal.fire({
+    title: 'Select Override Date Range',
+    html: `
+      <div style="text-align:left;">
+        <label style="display:block; margin-bottom:8px; font-weight:600;">
+          Request No: ${row.requestNo}
+        </label>
+
+        <label style="display:block; margin:10px 0 6px;">From Date</label>
+        <input 
+          id="overrideFromDate" 
+          type="date" 
+          class="swal2-input" 
+          value="${requestFrom || today}"
+          style="width:100%; margin:0 0 10px 0;"
+        />
+
+        <label style="display:block; margin:10px 0 6px;">To Date</label>
+        <input 
+          id="overrideToDate" 
+          type="date" 
+          class="swal2-input" 
+          value="${requestTo || today}"
+          style="width:100%; margin:0;"
+        />
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Open Override',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#7367f0',
+    preConfirm: () => {
+      const fromDate = (document.getElementById('overrideFromDate') as HTMLInputElement)?.value;
+      const toDate = (document.getElementById('overrideToDate') as HTMLInputElement)?.value;
+
+      if (!fromDate || !toDate) {
+        Swal.showValidationMessage('Please select from date and to date');
+        return false;
+      }
+
+      const reqFrom = this.parseDateOnly(row.fromDate);
+      const reqTo = this.parseDateOnly(row.toDate);
+      const selFrom = this.parseDateOnly(fromDate);
+      const selTo = this.parseDateOnly(toDate);
+
+      if (!reqFrom || !reqTo || !selFrom || !selTo) {
+        Swal.showValidationMessage('Invalid date value found');
+        return false;
+      }
+
+      if (selFrom.getTime() > selTo.getTime()) {
+        Swal.showValidationMessage('From date cannot be greater than to date');
+        return false;
+      }
+
+      if (selFrom.getTime() < reqFrom.getTime() || selTo.getTime() > reqTo.getTime()) {
+        Swal.showValidationMessage('Override range must be within request date range');
+        return false;
+      }
+
+      return { fromDate, toDate };
+    }
+  }).then((result) => {
+    if (result.isConfirmed && result.value) {
+      this.router.navigate(['/requestoverride/Request-override'], {
+        queryParams: {
+          requestHeaderId: row.id,
+          fromDate: result.value.fromDate,
+          toDate: result.value.toDate
+        }
+      });
+    }
+  });
+}
+private parseDateOnly(value: any): Date | null {
+  if (!value) return null;
+
+  if (value instanceof Date && !isNaN(value.getTime())) {
+    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+  }
+
+  const text = String(value).trim();
+
+  // yyyy-MM-dd
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    const [y, m, d] = text.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  // dd-MM-yyyy
+  if (/^\d{2}-\d{2}-\d{4}$/.test(text)) {
+    const [d, m, y] = text.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  // dd/MM/yyyy
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
+    const [d, m, y] = text.split('/').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  // ISO datetime / other parseable formats
+  const parsed = new Date(text);
+  if (!isNaN(parsed.getTime())) {
+    return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+  }
+
+  return null;
+}
+
+private toInputDate(value: any): string {
+  const dt = this.parseDateOnly(value);
+  if (!dt) return '';
+
+  const yyyy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, '0');
+  const dd = String(dt.getDate()).padStart(2, '0');
+
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+private formatDate(value: any): string {
+  if (!value) return '';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return '';
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+  openOverrideList(row: any): void {
+    this.router.navigate(['/catering/request-override-list'], {
+      queryParams: {
+        requestHeaderId: row.id,
+        requestNo: row.requestNo
+      }
+    });
+  }
 }

@@ -23,7 +23,13 @@
 
   <div class="form-group">
     <label class="form-label">Contact Person</label>
-    <input type="text" class="form-control" name="contactPerson" [(ngModel)]="model.contactPerson" />
+   <input
+  type="text"
+  class="form-control"
+  name="contactPerson"
+  [(ngModel)]="model.contactPerson"
+  [readonly]="!!model.id"
+/>
   </div>
  <div class="form-group">
     <label class="form-label">Contact Email</label>

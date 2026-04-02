@@ -69,6 +69,14 @@ export const menu: CoreMenu[] = [
     icon: 'file',
     url: 'catering/request'
   },
+   {
+    id: 'Request',
+    title: 'Order Override',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'requestoverride/Request-override'
+  },
   {
       id: 'qrgenerate',
       title: 'Generate QR',
