@@ -11,6 +11,11 @@ import { ContentHeaderModule } from 'app/layout/components/content-header/conten
 
 const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'authentication/login-v2',
+    pathMatch: 'full'
+  },
+  {
     path: 'authentication',
     loadChildren: () =>
       import('./authentication/authentication.module').then(m => m.AuthenticationModule)
