@@ -44,6 +44,7 @@
       <table class="table request-table mb-0">
         <thead>
           <tr>
+            <th class="view-col text-center"></th>
             <th>REQUEST NO</th>
             <th>COMPANY</th>
             <th>FROM DATE</th>
@@ -55,6 +56,16 @@
 
         <tbody>
           <tr *ngFor="let row of pagedRows">
+            <td class="text-center view-cell">
+          <button
+            type="button"
+            class="view-icon-btn"
+            (click)="viewRequestDetails(row)"
+            title="View"
+          >
+            <i data-feather="eye" class="view-icon"></i>
+          </button>
+        </td>
             <td class="request-no">{{ row.requestNo }}</td>
 
             <td>
@@ -109,7 +120,7 @@
           </tr>
 
           <tr *ngIf="pagedRows.length === 0">
-            <td [attr.colspan]="canManageOrders ? 6 : 5" class="text-center text-muted py-2">No data available</td>
+            <td [attr.colspan]="canManageOrders ? 7 : 6" class="text-center text-muted py-2">No data available</td>
           </tr>
         </tbody>
       </table>

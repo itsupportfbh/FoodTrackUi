@@ -284,4 +284,182 @@ private formatDate(value: any): string {
       }
     });
   }
+
+viewRequestDetails(row: any): void {
+  this.requestService.getRequestById(row.id).subscribe({
+    next: (res: any) => {
+      console.log('request details response:', res);
+
+      let details: any[] = [];
+
+      if (Array.isArray(res)) {
+        details = res;
+      } else if (Array.isArray(res?.data)) {
+        details = res.data;
+      } else if (Array.isArray(res?.data?.lines)) {
+        details = res.data.lines;
+      } else if (Array.isArray(res?.lines)) {
+        details = res.lines;
+      } else {
+        details = [];
+      }
+
+      const groupedDetails = this.groupBySession(details);
+
+      let html = `
+  <div style="text-align:left; max-height:60vh; overflow-y:auto; padding-right:4px;">
+
+    <div style="
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:12px 24px;
+      margin-bottom:18px;
+      padding:16px 18px;
+      background:#f8f8fb;
+      border:1px solid #ebe9f1;
+      border-radius:12px;
+    ">
+      <div style="display:flex; align-items:center; gap:8px; font-size:15px; color:#5e5873;">
+        <span style="font-size:13px; font-weight:700; color:#6e6b7b; min-width:90px;">COMPANY</span>
+        <span style="color:#6e6b7b;">:</span>
+        <span style="font-weight:500;">${row.companyName || '-'}</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px; font-size:15px; color:#5e5873;">
+        <span style="font-size:13px; font-weight:700; color:#6e6b7b; min-width:90px;">TOTAL QTY</span>
+        <span style="color:#6e6b7b;">:</span>
+        <span style="font-weight:500;">${row.totalQty ?? 0}</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px; font-size:15px; color:#5e5873;">
+        <span style="font-size:13px; font-weight:700; color:#6e6b7b; min-width:90px;">FROM DATE</span>
+        <span style="color:#6e6b7b;">:</span>
+        <span style="font-weight:500;">${this.displayDate(row.fromDate)}</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px; font-size:15px; color:#5e5873;">
+        <span style="font-size:13px; font-weight:700; color:#6e6b7b; min-width:90px;">TO DATE</span>
+        <span style="color:#6e6b7b;">:</span>
+        <span style="font-weight:500;">${this.displayDate(row.toDate)}</span>
+      </div>
+    </div>
+`;
+
+      if (!details.length) {
+        html += `
+          <div style="
+            text-align:center;
+            color:#6e6b7b;
+            padding:24px 0;
+            border:1px solid #ebe9f1;
+            border-radius:12px;
+            background:#fff;
+          ">
+            No line details found
+          </div>
+        `;
+      } else {
+        Object.keys(groupedDetails).forEach((sessionName: string) => {
+          const sessionRows = groupedDetails[sessionName];
+
+          html += `
+            <div style="margin-bottom:16px; border:1px solid #ebe9f1; border-radius:14px; overflow:hidden;">
+              <div style="
+                background: linear-gradient(90deg, #7367f0 0%, #9e95f5 100%);
+                color: #fff;
+                padding: 12px 14px;
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                font-weight:600;
+                font-size:15px;
+              ">
+                <span>${sessionName}</span>
+                <span style="
+                  background: rgba(255,255,255,0.18);
+                  padding: 4px 10px;
+                  border-radius: 999px;
+                  font-size: 12px;
+                ">
+                  ${sessionRows.length} cuisines
+                </span>
+              </div>
+
+              <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                  <tr style="background:#f8f8fb;">
+                    <th style="padding:10px 14px; text-align:left; font-size:12px; color:#6e6b7b; border-bottom:1px solid #ebe9f1;">CUISINE</th>
+                    <th style="padding:10px 14px; text-align:left; font-size:12px; color:#6e6b7b; border-bottom:1px solid #ebe9f1;">LOCATION</th>
+                    <th style="padding:10px 14px; text-align:left; font-size:12px; color:#6e6b7b; border-bottom:1px solid #ebe9f1;">QTY</th>
+                  </tr>
+                </thead>
+                <tbody>
+          `;
+
+          sessionRows.forEach((item: any) => {
+            html += `
+              <tr>
+                <td style="padding:10px 14px; border-bottom:1px solid #f3f2f7; color:#6e6b7b; font-size:14px;">
+                  ${item.cuisineName || item.cuisine || '-'}
+                </td>
+                <td style="padding:10px 14px; border-bottom:1px solid #f3f2f7; color:#6e6b7b; font-size:14px;">
+                  ${item.locationName || item.location || '-'}
+                </td>
+                <td style="padding:10px 14px; border-bottom:1px solid #f3f2f7; color:#6e6b7b; font-size:14px;">
+                  ${item.qty ?? item.requestedQty ?? item.totalQty ?? 0}
+                </td>
+              </tr>
+            `;
+          });
+
+          html += `
+                </tbody>
+              </table>
+            </div>
+          `;
+        });
+      }
+
+      html += `</div>`;
+
+      Swal.fire({
+        title: `Order Details - ${row.requestNo}`,
+        html,
+        width: 950,
+        confirmButtonText: 'Close',
+        confirmButtonColor: '#7367f0'
+      });
+    },
+    error: (err) => {
+      console.error(err);
+      Swal.fire('Error', 'Failed to load request details', 'error');
+    }
+  });
+}
+ private groupBySession(items: any[]): { [key: string]: any[] } {
+  if (!Array.isArray(items)) {
+    return {};
+  }
+
+  return items.reduce((acc: any, curr: any) => {
+    const key = curr.sessionName || curr.session || 'Others';
+
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+
+    acc[key].push(curr);
+    return acc;
+  }, {});
+}
+private displayDate(value: any): string {
+  const dt = this.parseDateOnly(value);
+  if (!dt) return '-';
+
+  const dd = String(dt.getDate()).padStart(2, '0');
+  const mm = String(dt.getMonth() + 1).padStart(2, '0');
+  const yyyy = dt.getFullYear();
+
+  return `${dd}-${mm}-${yyyy}`;
+}
 }

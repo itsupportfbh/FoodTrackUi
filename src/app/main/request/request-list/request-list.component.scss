@@ -175,3 +175,40 @@
     width: 100%;
   }
 }
+
+.view-col {
+  width: 56px;
+  min-width: 56px;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+.view-cell {
+  width: 56px;
+  min-width: 56px;
+  text-align: center;
+}
+
+.view-icon-btn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6e6b7b;
+  transition: all 0.2s ease;
+}
+
+.view-icon-btn:hover {
+  color: #7367f0;
+  transform: scale(1.08);
+}
+
+.view-icon {
+  width: 16px;
+  height: 16px;
+}
