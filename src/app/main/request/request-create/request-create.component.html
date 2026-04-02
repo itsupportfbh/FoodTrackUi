@@ -1,27 +1,24 @@
-<div class="request-page">
-  <div class="request-card">
-    <div class="request-header">
-      <div class="header-left">
-        <button type="button" class="btn-back" (click)="goBack()">
+<div class="request-list-page">
+  <div class="card request-list-card request-create-card">
+    <div class="card-header border-bottom d-flex justify-content-between align-items-center flex-wrap">
+      <div class="d-flex align-items-center create-header-left">
+        <button type="button" class="btn btn-outline-primary back-btn mr-1" (click)="goBack()">
           <i data-feather="arrow-left"></i>
         </button>
 
-        <div>
-          <h2 class="title">
-            {{ isEditMode ? 'Edit Order' : 'Create Order' }}
-          </h2>
-          
-        </div>
+        <h4 class="card-title mb-0">
+          {{ isEditMode ? 'Edit Order' : 'Create Order' }}
+        </h4>
       </div>
     </div>
 
-    <div class="request-body">
-      <div class="header-grid header-grid-no-requestno">
+    <div class="card-body request-create-body">
+      <div class="create-form-grid">
         <div class="form-group">
           <label>Company <span class="text-danger">*</span></label>
           <input
             type="text"
-            class="form-control-custom"
+            class="form-control form-control-sm create-input"
             [ngModel]="model.companyName"
             name="companyName"
             readonly
@@ -32,7 +29,7 @@
           <label>From Date <span class="text-danger">*</span></label>
           <input
             type="date"
-            class="form-control-custom"
+            class="form-control form-control-sm create-input"
             [(ngModel)]="model.fromDate"
             name="fromDate"
           />
@@ -42,7 +39,7 @@
           <label>To Date <span class="text-danger">*</span></label>
           <input
             type="date"
-            class="form-control-custom"
+            class="form-control form-control-sm create-input"
             [(ngModel)]="model.toDate"
             name="toDate"
           />
@@ -52,7 +49,7 @@
           <label>Total Qty</label>
           <input
             type="number"
-            class="form-control-custom"
+            class="form-control form-control-sm create-input"
             [(ngModel)]="model.totalQty"
             name="totalQty"
             readonly
@@ -78,8 +75,8 @@
           </button>
 
           <div class="accordion-body" *ngIf="group.isOpen">
-            <div class="table-wrap">
-              <table class="line-table">
+            <div class="table-responsive create-table-wrap">
+              <table class="table create-line-table mb-0">
                 <thead>
                   <tr>
                     <th>Cuisine</th>
@@ -93,7 +90,7 @@
                     <td>
                       <input
                         type="text"
-                        class="form-control-custom table-control readonly-input"
+                        class="form-control form-control-sm create-input readonly-input"
                         [ngModel]="line.cuisineName"
                         [name]="'cuisineName_' + gi + '_' + li"
                         readonly
@@ -119,7 +116,7 @@
                       <input
                         type="number"
                         min="0"
-                        class="form-control-custom table-control"
+                        class="form-control form-control-sm create-input"
                         [(ngModel)]="line.qty"
                         [name]="'qty_' + gi + '_' + li"
                         (input)="onLineChange()"
@@ -129,7 +126,7 @@
                   </tr>
 
                   <tr *ngIf="!group.lines || group.lines.length === 0">
-                    <td colspan="3" class="empty-row">No cuisines available</td>
+                    <td colspan="3" class="text-center text-muted py-2">No cuisines available</td>
                   </tr>
                 </tbody>
               </table>
@@ -139,12 +136,12 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-reset" (click)="goBack()">
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()">
           Cancel
         </button>
 
-        <button type="button" class="btn-save" (click)="saveRequest()">
-          {{ isEditMode ? 'Update Request' : 'Save Request' }}
+        <button type="button" class="btn btn-primary btn-sm" (click)="saveRequest()">
+          {{ isEditMode ? 'Update' : 'Save' }}
         </button>
       </div>
     </div>
