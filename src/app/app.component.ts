@@ -18,6 +18,7 @@ import { locale as menuEnglish } from 'app/menu/i18n/en';
 import { locale as menuFrench } from 'app/menu/i18n/fr';
 import { locale as menuGerman } from 'app/menu/i18n/de';
 import { locale as menuPortuguese } from 'app/menu/i18n/pt';
+import { TabSessionService } from './services/tab-session.service';
 
 @Component({
   selector: 'app-root',
@@ -57,7 +58,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private _coreLoadingScreenService: CoreLoadingScreenService,
     private _coreMenuService: CoreMenuService,
     private _coreTranslationService: CoreTranslationService,
-    private _translateService: TranslateService
+    private _translateService: TranslateService,
+    private tabSessionService: TabSessionService
   ) {
     // Get the application main menu
     this.menu = menu;
@@ -88,6 +90,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * On init
    */
   ngOnInit(): void {
+    this.tabSessionService.initTabCheck();
     // Init wave effect (Ripple effect)
     Waves.init();
 
