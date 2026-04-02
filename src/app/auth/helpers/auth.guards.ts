@@ -5,7 +5,6 @@ import {
   ActivatedRouteSnapshot,
   RouterStateSnapshot
 } from '@angular/router';
-
 import { AuthenticationService } from 'app/auth/service';
 
 @Injectable({
@@ -19,17 +18,20 @@ export class AuthGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const currentUser = this._authenticationService.currentUserValue;
+    const storedCurrentUser = localStorage.getItem('currentUser');
+    const accessToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
-    // Login check
-    if (!currentUser) {
+    const isLoggedIn = !!currentUser || !!storedCurrentUser || !!accessToken || !!token;
+
+    if (!isLoggedIn) {
       this._router.navigate(['/pages/authentication/login-v2'], {
         queryParams: { returnUrl: state.url }
       });
       return false;
     }
 
-    // Role check
-    if (route.data.roles && route.data.roles.indexOf(currentUser.role) === -1) {
+    if (route.data.roles && currentUser && route.data.roles.indexOf(currentUser.role) === -1) {
       this._router.navigate(['/pages/miscellaneous/not-authorized']);
       return false;
     }

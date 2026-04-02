@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -7,6 +8,8 @@ export class TabSessionService {
   private readonly TAB_ID_KEY = 'app_tab_id';
   private readonly ACTIVE_TABS_KEY = 'active_app_tabs';
   private readonly UNLOAD_REGISTERED_KEY = 'tab_unload_registered';
+
+  constructor(private router: Router) {}
 
   initTabCheck(): void {
     const currentPath = window.location.pathname;
@@ -22,7 +25,6 @@ export class TabSessionService {
     let currentTabId = sessionStorage.getItem(this.TAB_ID_KEY);
     const activeTabs = this.getActiveTabs();
 
-    // new tab / pasted URL in new tab
     if (!currentTabId) {
       if (activeTabs.length > 0) {
         this.handleDuplicateTab();
@@ -36,7 +38,6 @@ export class TabSessionService {
       return;
     }
 
-    // refresh in same tab
     if (!activeTabs.includes(currentTabId)) {
       this.addTabToRegistry(currentTabId);
     }
@@ -62,6 +63,14 @@ export class TabSessionService {
   }
 
   private handleDuplicateTab(): void {
+    this.clearAuthStorage();
+    sessionStorage.removeItem(this.TAB_ID_KEY);
+    sessionStorage.removeItem(this.UNLOAD_REGISTERED_KEY);
+
+    this.router.navigateByUrl('/pages/authentication/login-v2');
+  }
+
+  private clearAuthStorage(): void {
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('currentUser');
@@ -69,10 +78,6 @@ export class TabSessionService {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
-
-    sessionStorage.removeItem(this.TAB_ID_KEY);
-
-    window.location.href = '/pages/authentication/login-v2';
   }
 
   private generateTabId(): string {
