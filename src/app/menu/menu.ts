@@ -77,14 +77,15 @@ export const menu: CoreMenu[] = [
       icon: 'file',
       url: 'scanner/qrgenerate'
     },
-   {
+  {
     id: 'Scanner',
     title: 'Scanner',
     translate: 'MENU.SAMPLE',
     type: 'item',
     icon: 'file',
-    url: 'catering/scanner'
+    url: 'scanner/scanner'
   },
+
   {
     id: 'Reports',
     title: 'Reports',
