@@ -12,41 +12,70 @@
   border-radius: 0.75rem;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(34, 41, 47, 0.06);
+  border: 0 !important;
+  background: #fff;
 }
 
-.card-title {
-  color: #7367f0;
+.request-page-title {
+  margin-left: 0.85rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  font-size: 1.2rem;
+  color: #6f61e8;
 }
 
-.list-toolbar {
-  gap: 1rem;
+.request-toolbar-row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.left-tools-wrap {
+  min-height: 54px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem 0.5rem 0;
+  flex-wrap: nowrap;
 }
 
 .entries-select {
-  width: 85px;
-  min-width: 85px;
+  width: 74px;
+  min-width: 74px;
+}
+
+.search-label {
+  white-space: nowrap;
+  margin-right: 0;
 }
 
 .search-input {
-  width: 260px;
-  min-width: 220px;
+  width: 300px;
+  min-width: 300px;
 }
 
 .add-btn {
   white-space: nowrap;
-  font-weight: 500;
+  min-width: 185px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.custom-table-wrap {
-  overflow-x: hidden !important;
+.request-table-wrap {
+  overflow-x: auto;
 }
 
 .request-table {
   width: 100%;
-  margin-bottom: 0;
+  margin-bottom: 0 !important;
   table-layout: fixed;
+  border-top: 0 !important;
 }
 
 .request-table thead th {
@@ -54,19 +83,19 @@
   color: #6e6b7b;
   font-size: 0.8rem;
   font-weight: 600;
-  border-top: 0;
+  border-top: 0 !important;
   border-bottom: 1px solid #ebe9f1;
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.1rem;
   white-space: nowrap;
 }
 
 .request-table tbody td {
-  padding: 1.25rem;
+  padding: 1rem 1.1rem;
   vertical-align: middle;
   color: #6e6b7b;
-  border-top: 0;
+  border-top: 0 !important;
   border-bottom: 1px solid #f3f2f7;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .request-no {
@@ -75,25 +104,7 @@
 }
 
 .company-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
   min-width: 0;
-}
-
-.company-avatar {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  border-radius: 50%;
-  background-color: rgba(40, 199, 111, 0.15);
-  color: #28c76f;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 1.1rem;
 }
 
 .company-info {
@@ -109,84 +120,16 @@
   text-overflow: ellipsis;
   cursor: pointer;
   vertical-align: middle;
-  font-weight: 500;
-  color: #5e5873;
-}
-
-.action-group {
-  gap: 0.35rem;
-}
-
-.action-col {
-  width: 120px;
-}
-
-.action-icon-btn {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  border-radius: 8px;
-  padding: 0 !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.action-icon {
-  width: 14px;
-  height: 14px;
-}
-
-.card-footer {
-  font-size: 0.95rem;
-}
-
-@media (max-width: 991.98px) {
-  .custom-table-wrap {
-    overflow-x: auto !important;
-  }
-
-  .request-table {
-    min-width: 900px;
-    table-layout: auto;
-  }
-}
-
-@media (max-width: 767.98px) {
-  .list-toolbar {
-    flex-direction: column;
-    align-items: stretch !important;
-  }
-
-  .right-tools {
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch !important;
-  }
-
-  .search-input {
-    width: 100%;
-    min-width: 100%;
-    margin-right: 0 !important;
-    margin-bottom: 0.75rem;
-  }
-
-  .add-btn {
-    width: 100%;
-  }
 }
 
 .view-col {
   width: 56px;
   min-width: 56px;
-  padding-left: 0.75rem !important;
-  padding-right: 0.75rem !important;
 }
 
 .view-cell {
   width: 56px;
   min-width: 56px;
-  text-align: center;
 }
 
 .view-icon-btn {
@@ -211,4 +154,75 @@
 .view-icon {
   width: 16px;
   height: 16px;
+}
+
+.action-col {
+  width: 190px;
+  min-width: 190px;
+}
+
+.action-group {
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.action-icon-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 7px;
+  padding: 0 !important;
+}
+
+.action-icon {
+  width: 13px;
+  height: 13px;
+}
+
+.request-total-footer {
+  padding: 0.9rem 1.1rem 1.2rem;
+  font-size: 0.95rem;
+  border-top: 0 !important;
+}
+
+@media (max-width: 991.98px) {
+  .request-table {
+    min-width: 980px;
+    table-layout: auto;
+  }
+
+  .toolbar-right {
+    padding-right: 1rem;
+  }
+
+  .search-input {
+    width: 220px;
+    min-width: 220px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .toolbar-right {
+    width: 100%;
+    justify-content: flex-start;
+    align-items: stretch;
+    flex-wrap: wrap;
+    padding: 0.5rem 1rem 0.75rem;
+  }
+
+  .search-label {
+    width: 100%;
+    display: flex !important;
+    align-items: center;
+  }
+
+  .search-input {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .add-btn {
+    width: 100%;
+    min-width: 100%;
+  }
 }
