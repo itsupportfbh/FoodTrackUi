@@ -23,18 +23,19 @@
   name="requestId"
   [(ngModel)]="qrRequest.requestId"
   (change)="onRequestChange()"
-  
 >
-    <option [ngValue]="''" disabled selected>Select Request</option>
-
-
+  <option [ngValue]="null" disabled selected>Select Request</option>
   <option *ngFor="let item of requestList" [ngValue]="item.requestId">
-  {{ item.displayText || (item.requestNo + ' - ' + item.companyName) }}
-</option>
+    {{ item.displayText || (item.requestNo + ' - ' + item.companyName) }}
+  </option>
 </select>
+
             </div>
 
-            <!-- Company ID -->
+
+
+
+            <!-- Company ID 
             <div class="col-md-4">
               <label>Company ID</label>
               <input type="number"
@@ -44,7 +45,7 @@
                      placeholder="Enter Company ID">
             </div>
 
-            <!-- Company Name -->
+             Company Name 
             <div class="col-md-4">
               <label>Company Name</label>
               <input type="text"
@@ -53,6 +54,10 @@
                      [(ngModel)]="qrRequest.companyName"
                      placeholder="Enter Company Name">
             </div>
+
+-->
+
+
               <!-- Company Email -->
             <div class="col-md-4">
               <label>Company Email</label>
@@ -60,8 +65,22 @@
        name="Email"
        class="form-control"
        [(ngModel)]="qrRequest.companyEmail"
-       placeholder="Enter Company Email">
+       placeholder="Enter Company Email"
+       readonly>
             </div>
+
+ <!-- No of QR -->
+           <div class="col-md-4">
+  <label>No of QR Codes</label>
+  <input type="number"
+         name="noofQR"
+         class="form-control"
+         [(ngModel)]="qrRequest.TotalQty"
+         placeholder="Enter number of QR"
+         readonly>
+</div>
+
+
 
             <!-- Valid From -->
             <div class="col-md-4 mt-2">
@@ -70,7 +89,10 @@
 
                      name="qrValidFrom"
                      class="form-control"
-                     [(ngModel)]="qrRequest.qrValidFrom">
+                    [ngModel]="qrRequest.qrValidFrom| date:'dd-MM-yyyy'"
+                    placeholder="dd-mm-yyyy"
+
+                     readonly>
             </div>
 
             <!-- Valid Till -->
@@ -80,19 +102,13 @@
 
                      name="qrValidTill"
                      class="form-control"
-                     [(ngModel)]="qrRequest.qrValidTill">
+                    [ngModel]="qrRequest.qrValidTill | date:'dd-MM-yyyy'"
+                    placeholder="dd-mm-yyyy"
+
+                     readonly>
             </div>
 
-            <!-- No of QR -->
-            <div class="col-md-4 mt-2">
-              <label>No of QR Codes</label>
-              <input type="number"
-                     name="noofQR"
-                     class="form-control"
-                     [(ngModel)]="qrRequest.TotalQty"
-                     placeholder="Enter number of QR">
-            </div>
-
+           
            
 
           <!-- 🔹 BACKEND QR DISPLAY 
@@ -148,13 +164,12 @@
 <!--
            <button type="button" class="btn btn-success" (click)="onSubmit()">
   Save
-</button>   -->
+</button>   --> 
 
-            <button class="btn btn-secondary" (click)="clearForm()">
-                  <i data-feather="x-circle" class="mr-50"></i>
+           
 
-              Clear
-            </button>
+
+           
              <button
             type="button"
             class="btn btn-primary btn-sm"
@@ -176,6 +191,15 @@
 
   Download All QR
 </button>
+
+
+
+
+ <button class="btn btn-secondary" (click)="clearForm()">
+                  <i data-feather="x-circle" class="mr-50"></i>
+
+              Clear
+            </button>
           </div>
 
         </div>

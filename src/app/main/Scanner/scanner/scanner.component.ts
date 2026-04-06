@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Html5Qrcode, Html5QrcodeCameraScanConfig } from 'html5-qrcode';
 
+
 @Component({
   selector: 'app-scanner',
   templateUrl: './scanner.component.html',
