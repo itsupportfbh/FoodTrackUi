@@ -1,97 +1,134 @@
-<div class="request-list-page">
-  <div class="request-list-card">
-    <div class="list-header">
-      <div class="header-left">
-        <button type="button" class="btn-back" (click)="goBack()">
-          <i data-feather="arrow-left"></i>
-        </button>
-
-        <div>
-          <h2 class="list-title">Order Override List</h2>
-          <p class="sub-title">Order No: {{ requestNo || '-' }}</p>
-        </div>
-      </div>
-
-      <button type="button" class="btn-add" (click)="openCreateOverride()">
-        Add Override
-      </button>
-    </div>
-
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <label class="entries-label">
-          Show
-          <select [(ngModel)]="selectedOption" (change)="onPageSizeChange()" class="entries-select">
-            <option [ngValue]="10">10</option>
-            <option [ngValue]="25">25</option>
-            <option [ngValue]="50">50</option>
-            <option [ngValue]="100">100</option>
-          </select>
-          entries
-        </label>
-      </div>
-
-      <div class="toolbar-right">
-        <label class="search-label">Search:</label>
-        <input
-          type="text"
-          class="search-input"
-          [(ngModel)]="searchText"
-          (input)="filterRows()"
-          placeholder="Search"
-        />
-      </div>
-    </div>
-
-    <div class="table-wrap" *ngIf="!loading; else loadingTpl">
-      <table class="request-table">
-        <thead>
-          <tr>
-            <th>FROM DATE</th>
-            <th>TO DATE</th>
-            <th>LINE COUNT</th>
-            <th>TOTAL OVERRIDE QTY</th>
-            <th>NOTES</th>
-            <th>CREATED DATE</th>
-            <th class="text-center">ACTION</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr *ngFor="let row of pagedRows">
-            <td>{{ row.fromDate | date:'dd-MM-yyyy' }}</td>
-            <td>{{ row.toDate | date:'dd-MM-yyyy' }}</td>
-            <td>{{ row.lineCount }}</td>
-            <td>{{ row.totalOverrideQty }}</td>
-            <td>{{ row.notes || '-' }}</td>
-            <td>{{ row.createdDate | date:'dd-MM-yyyy hh:mm a' }}</td>
-
-            <td class="text-center">
-              <div class="action-buttons">
-                <button type="button" class="btn-icon edit" (click)="editOverride(row)" title="Edit">
-                  <i data-feather="edit-2"></i>
-                </button>
-
-                <button type="button" class="btn-icon delete" (click)="deleteOverride(row)" title="Delete">
-                  <i data-feather="trash-2"></i>
-                </button>
+<div class="content-wrapper container-xxl p-0">
+  <div class="content-body">
+    <section class="invoice-list-wrapper">
+      <div class="card">
+        <div class="row">
+          <div class="col-md-6 col-12">
+            <div class="d-flex justify-content-between align-items-center m-1">
+              <div class="d-flex align-items-center">
+                <label class="d-flex align-items-center mb-0">
+                  Show
+                  <select class="form-control mx-25" [(ngModel)]="selectedOption">
+                    <option [ngValue]="10">10</option>
+                    <option [ngValue]="25">25</option>
+                    <option [ngValue]="50">50</option>
+                    <option [ngValue]="100">100</option>
+                  </select>
+                </label>
               </div>
-            </td>
-          </tr>
+            </div>
+          </div>
 
-          <tr *ngIf="pagedRows.length === 0">
-            <td colspan="7" class="empty-row">No override data available</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+          <div
+            class="col-md-6 col-lg-4 col-12 d-flex justify-content-start justify-content-md-end align-items-center offset-lg-2"
+          >
+            <div class="row pr-1 pb-1 pb-md-0 align-items-center w-100">
+              <div class="col-12 col-md-12 pr-0">
+                <label class="d-flex align-items-center mb-0 ml-1 ml-md-0">
+                  <input
+                    [(ngModel)]="searchValue"
+                    name="searchValue"
+                    type="search"
+                    class="form-control"
+                    placeholder="Search..."
+                    (keyup)="filterUpdate($event)"
+                    (search)="filterUpdate($event)"
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <div class="table-footer">
-      {{ filteredRows.length }} total
-    </div>
+        <ngx-datatable
+          #table
+          class="bootstrap core-bootstrap"
+          [rows]="rows"
+          [rowHeight]="'auto'"
+          [limit]="selectedOption"
+          [columnMode]="ColumnMode.force"
+          [headerHeight]="50"
+          [footerHeight]="50"
+          [scrollbarH]="true"
+        >
+          <ngx-datatable-column name="REQUEST NO" prop="requestNo" [width]="140"></ngx-datatable-column>
+
+          <ngx-datatable-column name="COMPANY" prop="companyName" [width]="180"></ngx-datatable-column>
+
+         <ngx-datatable-column name="FROM DATE" prop="fromDate" [width]="140">
+  <ng-template let-row="row" ngx-datatable-cell-template>
+    {{ row.fromDate | date:'dd-MM-yyyy' }}
+  </ng-template>
+</ngx-datatable-column>
+
+<ngx-datatable-column name="TO DATE" prop="toDate" [width]="140">
+  <ng-template let-row="row" ngx-datatable-cell-template>
+    {{ row.toDate | date:'dd-MM-yyyy' }}
+  </ng-template>
+</ngx-datatable-column>
+
+
+
+          <ngx-datatable-column name="LINE COUNT" prop="lineCount" [width]="120"></ngx-datatable-column>
+
+          <ngx-datatable-column name="TOTAL OVERRIDE QTY" prop="totalOverrideQty" [width]="160"></ngx-datatable-column>
+
+        
+
+        <ngx-datatable-column name="CREATED DATE" prop="createdDate" [width]="180">
+  <ng-template let-row="row" ngx-datatable-cell-template>
+    {{ row.createdDate | date:'dd-MM-yyyy hh:mm a' }}
+  </ng-template>
+</ngx-datatable-column>
+
+          <ngx-datatable-column name="ACTION" [width]="100" [sortable]="false">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <button
+                type="button"
+                class="btn btn-icon btn-flat-primary"
+                (click)="toggleDetails(row)"
+                title="View Lines"
+              >
+                <i data-feather="eye"></i>
+              </button>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-row-detail [rowHeight]="'auto'">
+            <ng-template let-row="row" ngx-datatable-row-detail-template>
+              <div class="p-1" *ngIf="row.detailsOpen">
+                <div class="table-responsive">
+                  <table class="table table-bordered table-sm">
+                    <thead>
+                      <tr>
+                        <th>SESSION</th>
+                        <th>CUISINE</th>
+                        <th>LOCATION</th>
+                        <th>BASE QTY</th>
+                        <th>OVERRIDE QTY</th>
+                        <th>CANCELLED</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let d of row.detailRows">
+                        <td>{{ d.sessionName || '-' }}</td>
+                        <td>{{ d.cuisineName || '-' }}</td>
+                        <td>{{ d.locationName || '-' }}</td>
+                        <td>{{ d.baseQty }}</td>
+                        <td>{{ d.overrideQty }}</td>
+                        <td>{{ d.isCancelled ? 'Yes' : 'No' }}</td>
+                      </tr>
+                      <tr *ngIf="!row.detailRows || row.detailRows.length === 0">
+                        <td colspan="6" class="text-center">No lines found</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-row-detail>
+        </ngx-datatable>
+      </div>
+    </section>
   </div>
 </div>
-
-<ng-template #loadingTpl>
-  <div class="loading-box">Loading override list...</div>
-</ng-template>

@@ -65,14 +65,21 @@ export class RequestOverrideService {
   save(payload: SaveRequestOverride): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/save`, payload);
   }
-   getOverrideList(requestHeaderId: number): Observable<any> {
-    const params = new HttpParams()
-      .set('requestHeaderId', requestHeaderId.toString());
+  //  getOverrideList(requestHeaderId: number): Observable<any> {
+  //   const params = new HttpParams()
+  //     .set('requestHeaderId', requestHeaderId.toString());
 
-    return this.http.get<any>(`${this.baseUrl}/list`, { params });
-  }
+  //   return this.http.get<any>(`${this.baseUrl}/list`, { params });
+  // }
 
   deleteOverride(id: number): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/${id}`);
   }
+  getOverrideList(companyId: number) {
+  return this.http.get<any>(`${this.baseUrl}/list?companyId=${companyId}`);
+}
+
+getOverrideLines(requestOverrideId: number) {
+  return this.http.get<any>(`${this.baseUrl}/lines/${requestOverrideId}`);
+}
 }
