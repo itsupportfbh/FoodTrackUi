@@ -1,133 +1,171 @@
 <div class="request-list-page">
-  <div class="card request-list-card">
-    <div class="card-header border-bottom d-flex justify-content-between align-items-center flex-wrap">
-      <h4 class="card-title mb-0">Order List</h4>
-    </div>
+  <div class="content-wrapper container-xxl p-0">
+    <div class="content-body">
+      <section class="users-list-wrapper">
+        <div class="card request-list-card">
+          <h4 class="request-page-title">
+            Order List
+          </h4>
 
-    <div class="card-body">
-      <div class="list-toolbar d-flex justify-content-between align-items-center flex-wrap">
-        <div class="d-flex align-items-center mb-1 mb-md-0">
-          <label class="d-flex align-items-center mb-0 text-muted">
-            <span class="mr-50">Show</span>
-            <select
-              [(ngModel)]="selectedOption"
-              (change)="onPageSizeChange()"
-              class="form-control form-control-sm mx-50 entries-select"
-            >
-              <option [ngValue]="10">10</option>
-              <option [ngValue]="25">25</option>
-              <option [ngValue]="50">50</option>
-              <option [ngValue]="100">100</option>
-            </select>
-            <span class="ml-50">entries</span>
-          </label>
-        </div>
-
-        <div class="d-flex align-items-center flex-wrap right-tools">
-          <label class="mb-0 mr-50 text-muted">Search:</label>
-          <input
-            type="text"
-            class="form-control search-input mr-1"
-            [(ngModel)]="searchText"
-            (input)="filterRequests()"
-            placeholder="Search"
-          />
-
-          <button *ngIf="canManageOrders" type="button" class="btn btn-primary add-btn" (click)="openCreate()">
-            Add New Order
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="table-responsive custom-table-wrap">
-      <table class="table request-table mb-0">
-        <thead>
-          <tr>
-            <th class="view-col text-center"></th>
-            <th>REQUEST NO</th>
-            <th>COMPANY</th>
-            <th>FROM DATE</th>
-            <th>TO DATE</th>
-            <th>TOTAL QTY</th>
-            <th *ngIf="canManageOrders" class="text-center action-col">ACTIONS</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr *ngFor="let row of pagedRows">
-            <td class="text-center view-cell">
-          <button
-            type="button"
-            class="view-icon-btn"
-            (click)="viewRequestDetails(row)"
-            title="View"
-          >
-            <i data-feather="eye" class="view-icon"></i>
-          </button>
-        </td>
-            <td class="request-no">{{ row.requestNo }}</td>
-
-            <td>
-              <div class="company-cell">
-                <div class="company-avatar">
-                  {{ (row.companyName || 'R').charAt(0) }}
-                </div>
-
-                <div class="company-info">
-                  <span
-                    class="contact-person-text"
-                    [attr.title]="row.companyName"
+          <div class="row request-toolbar-row align-items-center">
+            <div class="col-md-4 col-12">
+              <div class="d-flex align-items-center m-1 left-tools-wrap">
+                <label class="d-flex align-items-center mb-0 text-muted">
+                  Show
+                  <select
+                    class="form-control mx-25 entries-select"
+                    [(ngModel)]="selectedOption"
+                    (change)="onPageSizeChange()"
+                    name="selectedOption"
                   >
-                    {{ row.companyName }}
-                  </span>
-                </div>
+                    <option [ngValue]="10">10</option>
+                    <option [ngValue]="25">25</option>
+                    <option [ngValue]="50">50</option>
+                    <option [ngValue]="100">100</option>
+                  </select>
+                  entries
+                </label>
               </div>
-            </td>
+            </div>
 
-            <td>{{ row.fromDate | date:'dd-MM-yyyy' }}</td>
-            <td>{{ row.toDate | date:'dd-MM-yyyy' }}</td>
-            <td>{{ row.totalQty }}</td>
-
-            <td *ngIf="canManageOrders" class="text-center">
-              <div class="d-flex align-items-center justify-content-center action-group">
-                <button
-                  type="button"
-                  class="btn btn-outline-primary action-icon-btn mr-50"
-                  (click)="editRequest(row)"
-                  title="Edit"
-                >
-                  <i data-feather="edit" class="action-icon"></i>
-                </button>
+            <div class="col-md-8 col-12">
+              <div class="toolbar-right">
+                <label class="d-flex align-items-center mb-0 text-muted search-label">
+                  <span class="mr-50">Search:</span>
+                  <input
+                    [(ngModel)]="searchText"
+                    name="searchText"
+                    type="search"
+                    class="form-control search-input"
+                    (input)="filterRequests()"
+                  />
+                </label>
 
                 <button
+                  *ngIf="canManageOrders"
                   type="button"
-                  class="btn btn-outline-danger action-icon-btn"
-                  (click)="deleteRequest(row)"
-                  title="Delete"
+                  class="btn btn-primary add-btn"
+                  (click)="openCreate()"
                 >
-                  <i data-feather="trash-2" class="action-icon"></i>
-                </button>
-                 <button type="button" class="btn-action override" (click)="openOverride(row)">
-                  Override
-                </button>
-
-                <button type="button" class="btn-action override-list" (click)="openOverrideList(row)">
-                  Override List
+                  <i data-feather="plus" class="d-sm-none d-inline-block mr-0 mr-sm-1"></i>
+                  <span class="d-none d-sm-inline-block">Add New Order</span>
                 </button>
               </div>
-            </td>
-          </tr>
+            </div>
+          </div>
 
-          <tr *ngIf="pagedRows.length === 0">
-            <td [attr.colspan]="canManageOrders ? 7 : 6" class="text-center text-muted py-2">No data available</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+          <div class="table-responsive request-table-wrap">
+            <table class="table request-table mb-0">
+              <thead>
+                <tr>
+                  <th class="view-col text-center"></th>
+                  <th>REQUEST NO</th>
+                  <th>COMPANY</th>
+                  <th>FROM DATE</th>
+                  <th>TO DATE</th>
+                  <th>TOTAL QTY</th>
+                  <th *ngIf="canManageOrders" class="text-center action-col">ACTIONS</th>
+                </tr>
+              </thead>
 
-    <div class="card-footer bg-white border-top text-muted">
-      {{ filteredRows.length }} total
+              <tbody>
+                <tr *ngFor="let row of pagedRows">
+                  <td class="text-center view-cell">
+                    <button
+                      type="button"
+                      class="view-icon-btn"
+                      (click)="viewRequestDetails(row)"
+                      title="View"
+                    >
+                      <i data-feather="eye" class="view-icon"></i>
+                    </button>
+                  </td>
+
+                  <td class="request-no">{{ row.requestNo }}</td>
+
+                  <td>
+                    <div class="d-flex align-items-center company-cell">
+                      <div
+                        class="avatar mr-1 ml-0"
+                        [ngClass]="{
+                          'bg-light-success': true
+                        }"
+                      >
+                        <div class="avatar-content">
+                          {{ (row.companyName || 'R').charAt(0) }}
+                        </div>
+                      </div>
+
+                      <div class="cell-line-height company-info">
+                        <span
+                          class="font-weight-bold d-block contact-person-text"
+                          [attr.title]="row.companyName"
+                        >
+                          {{ row.companyName }}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>{{ row.fromDate | date:'dd-MM-yyyy' }}</td>
+                  <td>{{ row.toDate | date:'dd-MM-yyyy' }}</td>
+                  <td>{{ row.totalQty }}</td>
+
+                  <td *ngIf="canManageOrders" class="text-center">
+                    <div class="d-flex align-items-center justify-content-center action-group">
+                      <button
+                        type="button"
+                        class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center action-icon-btn"
+                        (click)="editRequest(row)"
+                        title="Edit"
+                      >
+                        <i data-feather="edit" class="action-icon"></i>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn btn-outline-danger p-0 d-flex align-items-center justify-content-center action-icon-btn"
+                        (click)="deleteRequest(row)"
+                        title="Delete"
+                      >
+                        <i data-feather="trash-2" class="action-icon"></i>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center action-icon-btn"
+                        (click)="openOverride(row)"
+                        title="Override"
+                      >
+                        <i data-feather="sliders" class="action-icon"></i>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn btn-outline-success p-0 d-flex align-items-center justify-content-center action-icon-btn"
+                        (click)="openOverrideList(row)"
+                        title="Override List"
+                      >
+                        <i data-feather="list" class="action-icon"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr *ngIf="pagedRows.length === 0">
+                  <td [attr.colspan]="canManageOrders ? 7 : 6" class="text-center text-muted py-2">
+                    No data available
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="request-total-footer text-muted">
+            {{ filteredRows.length }} total
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </div>
