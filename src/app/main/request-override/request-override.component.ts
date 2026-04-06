@@ -79,7 +79,7 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
     private companyService: CateringService
   ) {}
 
-  ngOnInit(): void {
+ngOnInit(): void {
     const currentUserRaw = localStorage.getItem('currentUser');
     if (currentUserRaw) {
       const currentUser = JSON.parse(currentUserRaw);
@@ -97,8 +97,34 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
       return;
     }
 
+    const fromDateObj = this.parseDateOnly(this.fromDate);
+    const toDateObj = this.parseDateOnly(this.toDate);
+
+    if (!fromDateObj || !toDateObj) {
+      this.toastr.error('Invalid override date');
+      return;
+    }
+
+    if (fromDateObj.getTime() > toDateObj.getTime()) {
+      this.toastr.error('From date cannot be greater than to date');
+      return;
+    }
+
+    if (!this.canOverrideEdit(this.fromDate)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Not Allowed',
+        text: 'Override/edit must be done at least 3 days before the override from date',
+        confirmButtonColor: '#7367f0'
+      }).then(() => {
+        this.cancel();
+      });
+      return;
+    }
+
     this.loadInitialData();
   }
+
 
   loadInitialData(): void {
     this.loading = true;
@@ -122,7 +148,7 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
     });
   }
 
-  loadScreen(): void {
+   loadScreen(): void {
     this.service.getScreen(this.requestHeaderId, this.fromDate, this.toDate).subscribe({
       next: (res: any) => {
         this.loading = false;
@@ -136,20 +162,42 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
         this.model.header = this.model.header || {};
         this.model.header.notes = this.model.header.notes || '';
 
-        const incomingLines: RequestOverrideLine[] = Array.isArray(this.model.lines) ? this.model.lines : [];
+        const requestFrom = this.parseDateOnly(this.model.header.requestFromDate);
+        const requestTo = this.parseDateOnly(this.model.header.requestToDate);
+        const selectedFrom = this.parseDateOnly(this.fromDate);
+        const selectedTo = this.parseDateOnly(this.toDate);
 
-        this.model.lines = incomingLines.map((line: RequestOverrideLine) => ({
-          ...line,
-          sessionName: this.getSessionName(line.sessionId),
-          cuisineName: this.getCuisineName(line.cuisineId),
-          locationName: this.getLocationName(line.locationId),
-          isCancelled: !!line.isCancelled,
-          overrideQty:
-            line.overrideQty !== null && line.overrideQty !== undefined
-              ? Number(line.overrideQty)
-              : Number(line.baseQty || 0),
-          baseQty: Number(line.baseQty || 0)
-        }));
+        if (requestFrom && requestTo && selectedFrom && selectedTo) {
+          if (selectedFrom.getTime() < requestFrom.getTime() || selectedTo.getTime() > requestTo.getTime()) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Invalid Range',
+              text: 'Override range must be within request date range',
+              confirmButtonColor: '#7367f0'
+            }).then(() => {
+              this.cancel();
+            });
+            return;
+          }
+        }
+
+  const incomingLines: RequestOverrideLine[] = Array.isArray(this.model.lines) ? this.model.lines : [];
+
+this.model.lines = incomingLines.map((line: RequestOverrideLine) => {
+  const baseQty = Number(line.baseQty || 0);
+
+  return {
+    ...line,
+    sessionName: this.getSessionName(line.sessionId),
+    cuisineName: this.getCuisineName(line.cuisineId),
+    locationName: this.getLocationName(line.locationId),
+    isCancelled: !!line.isCancelled,
+    baseQty,
+    overrideQty: Number(line.overrideQty ?? 0)
+  };
+});
+console.log('API lines before map:', incomingLines);
+console.log('Mapped lines:', this.model.lines);
 
         this.originalLines = JSON.parse(JSON.stringify(this.model.lines));
         this.buildSessionGroups();
@@ -273,6 +321,22 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
   }
 
   save(): void {
+    if (this.saving) {
+    console.log('Blocked duplicate save click');
+    return;
+  }
+
+  console.log('SAVE METHOD HIT', new Date().toISOString());
+
+  if (!this.canOverrideEdit(this.fromDate)) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Not Allowed',
+      text: 'Override/edit must be done at least 3 days before the override from date',
+      confirmButtonColor: '#7367f0'
+    });
+    return;
+  }
     const changedLines = (this.model.lines || [])
       .filter((x: RequestOverrideLine) =>
         x.isCancelled === true || Number(x.overrideQty || 0) !== Number(x.baseQty || 0)
@@ -370,4 +434,49 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
   ngAfterViewChecked(): void {
     feather.replace();
   }
+   private canOverrideEdit(fromDateValue: any): boolean {
+    const fromDate = this.parseDateOnly(fromDateValue);
+    if (!fromDate) return false;
+
+    const today = new Date();
+    const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const allowedLastDate = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+    allowedLastDate.setDate(allowedLastDate.getDate() - 3);
+
+    return todayOnly.getTime() <= allowedLastDate.getTime();
+  }
+
+  private parseDateOnly(value: any): Date | null {
+    if (!value) return null;
+
+    if (value instanceof Date && !isNaN(value.getTime())) {
+      return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+    }
+
+    const text = String(value).trim();
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+      const [y, m, d] = text.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    if (/^\d{2}-\d{2}-\d{4}$/.test(text)) {
+      const [d, m, y] = text.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
+      const [d, m, y] = text.split('/').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    const parsed = new Date(text);
+    if (!isNaN(parsed.getTime())) {
+      return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+    }
+
+    return null;
+  }
+
 }

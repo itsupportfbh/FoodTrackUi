@@ -75,7 +75,7 @@ export const menu: CoreMenu[] = [
     translate: 'MENU.SAMPLE',
     type: 'item',
     icon: 'file',
-    url: 'requestoverride/Request-override'
+    url: 'requestoverride/Request-override-list'
   },
   {
       id: 'qrgenerate',

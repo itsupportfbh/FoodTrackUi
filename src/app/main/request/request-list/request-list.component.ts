@@ -140,10 +140,26 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
   get pagedRows(): any[] {
     return this.filteredRows.slice(0, this.selectedOption);
   }
-  openOverride(row: any): void {
-  const today = new Date().toISOString().split('T')[0];
+openOverride(row: any): void {
   const requestFrom = this.toInputDate(row.fromDate);
   const requestTo = this.toInputDate(row.toDate);
+
+  const reqFromDate = this.parseDateOnly(row.fromDate);
+  const reqToDate = this.parseDateOnly(row.toDate);
+
+  const minAllowedDateObj = new Date();
+  minAllowedDateObj.setHours(0, 0, 0, 0);
+  minAllowedDateObj.setDate(minAllowedDateObj.getDate() + 3);
+
+  const minAllowedDate = this.toInputDate(minAllowedDateObj);
+
+  let finalMinFromDate = requestFrom;
+  if (reqFromDate) {
+    finalMinFromDate =
+      reqFromDate.getTime() > minAllowedDateObj.getTime()
+        ? this.toInputDate(reqFromDate)
+        : minAllowedDate;
+  }
 
   Swal.fire({
     title: 'Select Override Date Range',
@@ -154,20 +170,24 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
         </label>
 
         <label style="display:block; margin:10px 0 6px;">From Date</label>
-        <input 
-          id="overrideFromDate" 
-          type="date" 
-          class="swal2-input" 
-          value="${requestFrom || today}"
+        <input
+          id="overrideFromDate"
+          type="date"
+          class="swal2-input"
+          value="${finalMinFromDate || ''}"
+          min="${finalMinFromDate || ''}"
+          max="${requestTo || ''}"
           style="width:100%; margin:0 0 10px 0;"
         />
 
         <label style="display:block; margin:10px 0 6px;">To Date</label>
-        <input 
-          id="overrideToDate" 
-          type="date" 
-          class="swal2-input" 
-          value="${requestTo || today}"
+        <input
+          id="overrideToDate"
+          type="date"
+          class="swal2-input"
+          value="${finalMinFromDate || ''}"
+          min="${finalMinFromDate || ''}"
+          max="${requestTo || ''}"
           style="width:100%; margin:0;"
         />
       </div>
@@ -176,6 +196,23 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
     confirmButtonText: 'Open Override',
     cancelButtonText: 'Cancel',
     confirmButtonColor: '#7367f0',
+
+    onOpen: () => {
+      const fromInput = document.getElementById('overrideFromDate') as HTMLInputElement;
+      const toInput = document.getElementById('overrideToDate') as HTMLInputElement;
+
+      if (fromInput && toInput) {
+        fromInput.addEventListener('change', () => {
+          const selectedFrom = fromInput.value || finalMinFromDate;
+          toInput.min = selectedFrom;
+
+          if (toInput.value && toInput.value < selectedFrom) {
+            toInput.value = selectedFrom;
+          }
+        });
+      }
+    },
+
     preConfirm: () => {
       const fromDate = (document.getElementById('overrideFromDate') as HTMLInputElement)?.value;
       const toDate = (document.getElementById('overrideToDate') as HTMLInputElement)?.value;
@@ -205,9 +242,16 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
         return false;
       }
 
+      if (!this.isAtLeastThreeDaysBefore(selFrom)) {
+        Swal.showValidationMessage(
+          'Override/edit must be done at least 3 days before the override from date'
+        );
+        return false;
+      }
+
       return { fromDate, toDate };
     }
-  }).then((result) => {
+  } as any).then((result: any) => {
     if (result.isConfirmed && result.value) {
       this.router.navigate(['/requestoverride/Request-override'], {
         queryParams: {
@@ -219,62 +263,8 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
     }
   });
 }
-private parseDateOnly(value: any): Date | null {
-  if (!value) return null;
 
-  if (value instanceof Date && !isNaN(value.getTime())) {
-    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
-  }
 
-  const text = String(value).trim();
-
-  // yyyy-MM-dd
-  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
-    const [y, m, d] = text.split('-').map(Number);
-    return new Date(y, m - 1, d);
-  }
-
-  // dd-MM-yyyy
-  if (/^\d{2}-\d{2}-\d{4}$/.test(text)) {
-    const [d, m, y] = text.split('-').map(Number);
-    return new Date(y, m - 1, d);
-  }
-
-  // dd/MM/yyyy
-  if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
-    const [d, m, y] = text.split('/').map(Number);
-    return new Date(y, m - 1, d);
-  }
-
-  // ISO datetime / other parseable formats
-  const parsed = new Date(text);
-  if (!isNaN(parsed.getTime())) {
-    return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
-  }
-
-  return null;
-}
-
-private toInputDate(value: any): string {
-  const dt = this.parseDateOnly(value);
-  if (!dt) return '';
-
-  const yyyy = dt.getFullYear();
-  const mm = String(dt.getMonth() + 1).padStart(2, '0');
-  const dd = String(dt.getDate()).padStart(2, '0');
-
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-private formatDate(value: any): string {
-  if (!value) return '';
-  const d = new Date(value);
-  if (isNaN(d.getTime())) return '';
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-}
 
   openOverrideList(row: any): void {
     this.router.navigate(['/catering/request-override-list'], {
@@ -462,4 +452,47 @@ private displayDate(value: any): string {
 
   return `${dd}-${mm}-${yyyy}`;
 }
+ isOverrideAllowed(row: any): boolean {
+    const reqFrom = this.parseDateOnly(row?.fromDate);
+    if (!reqFrom) return false;
+
+    return this.isAtLeastThreeDaysBefore(reqFrom);
+  }
+isAtLeastThreeDaysBefore(fromDate: Date): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const minDate = new Date(today);
+  minDate.setDate(minDate.getDate() + 3);
+
+  return fromDate.getTime() >= minDate.getTime();
+}
+
+ parseDateOnly(value: any): Date | null {
+  if (!value) return null;
+
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return null;
+
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+ toInputDate(date: any): string {
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '';
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+  private formatDate(value: any): string {
+    if (!value) return '';
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return '';
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
 }

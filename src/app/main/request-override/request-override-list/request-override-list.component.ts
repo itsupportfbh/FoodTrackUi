@@ -1,27 +1,27 @@
-import { Component, OnInit, AfterViewInit, AfterViewChecked, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, AfterViewInit, AfterViewChecked, ViewEncapsulation, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import Swal from 'sweetalert2';
 import * as feather from 'feather-icons';
 import { ToastrService } from 'ngx-toastr';
 import { RequestOverrideService } from '../request-override.service';
+import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 
 @Component({
   selector: 'app-request-override-list',
   templateUrl: './request-override-list.component.html',
   styleUrls: ['./request-override-list.component.scss'],
-  encapsulation:ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None
 })
 export class RequestOverrideListComponent implements OnInit, AfterViewInit, AfterViewChecked {
-  requestHeaderId = 0;
-  requestNo = '';
+  @ViewChild(DatatableComponent) table: DatatableComponent;
 
+  public ColumnMode = ColumnMode;
+  public searchValue = '';
+  public selectedOption = 10;
+
+  companyId = 0;
   rows: any[] = [];
-  filteredRows: any[] = [];
-  pagedRows: any[] = [];
-
+  tempData: any[] = [];
   loading = false;
-  searchText = '';
-  selectedOption = 10;
 
   constructor(
     private route: ActivatedRoute,
@@ -31,14 +31,7 @@ export class RequestOverrideListComponent implements OnInit, AfterViewInit, Afte
   ) {}
 
   ngOnInit(): void {
-    this.requestHeaderId = Number(this.route.snapshot.queryParamMap.get('requestHeaderId') || 0);
-    this.requestNo = this.route.snapshot.queryParamMap.get('requestNo') || '';
-
-    if (!this.requestHeaderId) {
-      this.toastr.error('RequestHeaderId is required');
-      return;
-    }
-
+    this.companyId = Number(this.route.snapshot.queryParamMap.get('companyId') || 0);
     this.loadOverrides();
   }
 
@@ -53,160 +46,78 @@ export class RequestOverrideListComponent implements OnInit, AfterViewInit, Afte
   loadOverrides(): void {
     this.loading = true;
 
-    this.service.getOverrideList(this.requestHeaderId).subscribe({
+    this.service.getOverrideList(this.companyId).subscribe({
       next: (res: any) => {
         this.loading = false;
 
-        if (!res?.isSuccess) {
-          this.toastr.error(res?.message || 'Failed to load override list');
-          return;
-        }
+        const data = Array.isArray(res) ? res : (res?.data || []);
 
-        this.rows = (res?.data || []).map((x: any) => ({
+        this.rows = data.map((x: any) => ({
           ...x,
+          lineCount: Number(x.lineCount || 0),
           totalOverrideQty: Number(x.totalOverrideQty || 0),
-          lineCount: Number(x.lineCount || 0)
+          detailsLoaded: false,
+          detailsOpen: false,
+          detailRows: []
         }));
 
-        this.filteredRows = [...this.rows];
-        this.applyPaging();
+        this.tempData = [...this.rows];
+        this.rows = [...this.rows];
+
+        if (this.table) {
+          this.table.offset = 0;
+        }
+
+        setTimeout(() => feather.replace(), 0);
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
+        console.error('Override list error:', err);
         this.toastr.error('Error while loading override list');
       }
     });
   }
 
-  filterRows(): void {
-    const text = (this.searchText || '').trim().toLowerCase();
+  filterUpdate(event: any): void {
+    const val = (event.target.value || '').toLowerCase();
 
-    if (!text) {
-      this.filteredRows = [...this.rows];
-    } else {
-      this.filteredRows = this.rows.filter((x: any) =>
-        (x.notes || '').toLowerCase().includes(text) ||
-        (x.fromDate || '').toString().toLowerCase().includes(text) ||
-        (x.toDate || '').toString().toLowerCase().includes(text) ||
-        (x.totalOverrideQty || '').toString().toLowerCase().includes(text) ||
-        (x.lineCount || '').toString().toLowerCase().includes(text)
+    const temp = this.tempData.filter((d: any) => {
+      return (
+        (d.requestNo || '').toLowerCase().includes(val) ||
+        (d.companyName || '').toLowerCase().includes(val) ||
+        (d.notes || '').toLowerCase().includes(val) ||
+        (d.fromDate || '').toString().toLowerCase().includes(val) ||
+        (d.toDate || '').toString().toLowerCase().includes(val) ||
+        (d.lineCount || '').toString().toLowerCase().includes(val) ||
+        (d.totalOverrideQty || '').toString().toLowerCase().includes(val)
       );
+    });
+
+    this.rows = temp;
+
+    if (this.table) {
+      this.table.offset = 0;
     }
-
-    this.applyPaging();
   }
 
-  onPageSizeChange(): void {
-    this.applyPaging();
-  }
+  toggleDetails(row: any): void {
+    this.table.rowDetail.toggleExpandRow(row);
 
-  applyPaging(): void {
-    this.pagedRows = this.filteredRows.slice(0, this.selectedOption);
-  }
-
-  openCreateOverride(): void {
-    Swal.fire({
-      title: 'Select Override Date Range',
-      html: `
-        <div style="text-align:left;">
-          <label style="display:block; margin:10px 0 6px;">From Date</label>
-          <input 
-            id="overrideFromDate" 
-            type="date" 
-            class="swal2-input" 
-            style="width:100%; margin:0 0 10px 0;"
-          />
-
-          <label style="display:block; margin:10px 0 6px;">To Date</label>
-          <input 
-            id="overrideToDate" 
-            type="date" 
-            class="swal2-input" 
-            style="width:100%; margin:0;"
-          />
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Open Override',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#7367f0',
-      preConfirm: () => {
-        const fromDate = (document.getElementById('overrideFromDate') as HTMLInputElement)?.value;
-        const toDate = (document.getElementById('overrideToDate') as HTMLInputElement)?.value;
-
-        if (!fromDate || !toDate) {
-          Swal.showValidationMessage('Please select from date and to date');
-          return false;
+    if (!row.detailsLoaded) {
+      this.service.getOverrideLines(row.requestOverrideId).subscribe({
+        next: (res: any) => {
+          row.detailRows = Array.isArray(res) ? res : (res?.data || []);
+          row.detailsLoaded = true;
+          this.rows = [...this.rows];
+        },
+        error: () => {
+          this.toastr.error('Error while loading lines');
         }
-
-        if (new Date(fromDate) > new Date(toDate)) {
-          Swal.showValidationMessage('From date cannot be greater than to date');
-          return false;
-        }
-
-        return { fromDate, toDate };
-      }
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        this.router.navigate(['/catering/request-override'], {
-          queryParams: {
-            requestHeaderId: this.requestHeaderId,
-            fromDate: result.value.fromDate,
-            toDate: result.value.toDate
-          }
-        });
-      }
-    });
-  }
-
-  editOverride(row: any): void {
-    this.router.navigate(['/catering/request-override'], {
-      queryParams: {
-        requestHeaderId: this.requestHeaderId,
-        fromDate: this.formatDate(row.fromDate),
-        toDate: this.formatDate(row.toDate)
-      }
-    });
-  }
-
-  deleteOverride(row: any): void {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'This override will be deleted.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it',
-      confirmButtonColor: '#ea5455'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.service.deleteOverride(row.id).subscribe({
-          next: (res: any) => {
-            if (res?.isSuccess) {
-              this.toastr.success(res?.message || 'Override deleted successfully');
-              this.loadOverrides();
-            } else {
-              this.toastr.error(res?.message || 'Delete failed');
-            }
-          },
-          error: () => {
-            this.toastr.error('Error while deleting override');
-          }
-        });
-      }
-    });
+      });
+    }
   }
 
   goBack(): void {
     this.router.navigate(['/catering/request-list']);
-  }
-
-  private formatDate(value: any): string {
-    if (!value) return '';
-    const d = new Date(value);
-    if (isNaN(d.getTime())) return '';
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
   }
 }
