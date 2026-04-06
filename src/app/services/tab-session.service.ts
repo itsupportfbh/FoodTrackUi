@@ -6,8 +6,9 @@ import { Router } from '@angular/router';
 })
 export class TabSessionService {
   private readonly TAB_ID_KEY = 'app_tab_id';
-  private readonly ACTIVE_TABS_KEY = 'active_app_tabs';
-  private readonly UNLOAD_REGISTERED_KEY = 'tab_unload_registered';
+  private readonly INSTANCE_ID_KEY = 'app_instance_id';
+  private readonly APP_LOCK_KEY = 'app_active_tab_lock';
+  private readonly DUPLICATE_BLOCKED_KEY = 'duplicate_tab_blocked';
 
   constructor(private router: Router) {}
 
@@ -22,107 +23,116 @@ export class TabSessionService {
       return;
     }
 
-    let currentTabId = sessionStorage.getItem(this.TAB_ID_KEY);
-    const activeTabs = this.getActiveTabs();
+    let tabId = sessionStorage.getItem(this.TAB_ID_KEY);
+    if (!tabId) {
+      tabId = this.generateId('TAB');
+      sessionStorage.setItem(this.TAB_ID_KEY, tabId);
+    }
 
-    if (!currentTabId) {
-      if (activeTabs.length > 0) {
-        this.handleDuplicateTab();
-        return;
-      }
+    // every page load gets unique instance id
+    const instanceId = this.generateId('INSTANCE');
+    sessionStorage.setItem(this.INSTANCE_ID_KEY, instanceId);
 
-      currentTabId = this.generateTabId();
-      sessionStorage.setItem(this.TAB_ID_KEY, currentTabId);
-      this.addTabToRegistry(currentTabId);
-      this.registerUnload(currentTabId);
+    const isReload = this.isReload();
+    const existingLock = this.getLock();
+
+    // no lock -> acquire
+    if (!existingLock) {
+      this.setLock(tabId, instanceId);
+      this.registerUnload(tabId, instanceId);
       return;
     }
 
-    if (!activeTabs.includes(currentTabId)) {
-      this.addTabToRegistry(currentTabId);
+    // same tab refresh -> allow and replace old instance id
+    if (isReload && existingLock.tabId === tabId) {
+      this.setLock(tabId, instanceId);
+      this.registerUnload(tabId, instanceId);
+      return;
     }
 
-    this.registerUnload(currentTabId);
+    // any other case = duplicate / copied url / duplicated tab
+    if (existingLock.tabId !== tabId || existingLock.instanceId !== instanceId) {
+      this.handleDuplicateTab();
+      return;
+    }
+
+    this.setLock(tabId, instanceId);
+    this.registerUnload(tabId, instanceId);
   }
 
   resetTabSession(): void {
-    localStorage.removeItem(this.ACTIVE_TABS_KEY);
-    sessionStorage.removeItem(this.TAB_ID_KEY);
-    sessionStorage.removeItem(this.UNLOAD_REGISTERED_KEY);
-  }
+    const tabId = sessionStorage.getItem(this.TAB_ID_KEY);
+    const instanceId = sessionStorage.getItem(this.INSTANCE_ID_KEY);
 
-  clearCurrentTabSession(): void {
-    const currentTabId = sessionStorage.getItem(this.TAB_ID_KEY);
-
-    if (currentTabId) {
-      this.removeTabFromRegistry(currentTabId);
+    if (tabId && instanceId) {
+      const lock = this.getLock();
+      if (lock && lock.tabId === tabId && lock.instanceId === instanceId) {
+        localStorage.removeItem(this.APP_LOCK_KEY);
+      }
     }
 
     sessionStorage.removeItem(this.TAB_ID_KEY);
-    sessionStorage.removeItem(this.UNLOAD_REGISTERED_KEY);
+    sessionStorage.removeItem(this.INSTANCE_ID_KEY);
+    sessionStorage.removeItem(this.DUPLICATE_BLOCKED_KEY);
+  }
+
+  isDuplicateBlocked(): boolean {
+    return sessionStorage.getItem(this.DUPLICATE_BLOCKED_KEY) === 'true';
+  }
+
+  clearDuplicateBlockedFlag(): void {
+    sessionStorage.removeItem(this.DUPLICATE_BLOCKED_KEY);
   }
 
   private handleDuplicateTab(): void {
-    this.clearAuthStorage();
-    sessionStorage.removeItem(this.TAB_ID_KEY);
-    sessionStorage.removeItem(this.UNLOAD_REGISTERED_KEY);
-
+    sessionStorage.setItem(this.DUPLICATE_BLOCKED_KEY, 'true');
     this.router.navigateByUrl('/pages/authentication/login-v2');
   }
 
-  private clearAuthStorage(): void {
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('currentUser');
-
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
+  private registerUnload(tabId: string, instanceId: string): void {
+    window.onbeforeunload = () => {
+      const lock = this.getLock();
+      if (lock && lock.tabId === tabId && lock.instanceId === instanceId) {
+        localStorage.removeItem(this.APP_LOCK_KEY);
+      }
+    };
   }
 
-  private generateTabId(): string {
-    return 'TAB-' + Math.random().toString(36).substring(2) + '-' + Date.now();
+  private setLock(tabId: string, instanceId: string): void {
+    localStorage.setItem(
+      this.APP_LOCK_KEY,
+      JSON.stringify({
+        tabId,
+        instanceId,
+        updatedAt: Date.now()
+      })
+    );
   }
 
-  private getActiveTabs(): string[] {
-    const raw = localStorage.getItem(this.ACTIVE_TABS_KEY);
-
+  private getLock(): { tabId: string; instanceId: string; updatedAt: number } | null {
+    const raw = localStorage.getItem(this.APP_LOCK_KEY);
     try {
-      return raw ? JSON.parse(raw) : [];
+      return raw ? JSON.parse(raw) : null;
     } catch {
-      return [];
+      return null;
     }
   }
 
-  private setActiveTabs(tabIds: string[]): void {
-    localStorage.setItem(this.ACTIVE_TABS_KEY, JSON.stringify(tabIds));
+  private generateId(prefix: string): string {
+    return `${prefix}-${Math.random().toString(36).substring(2)}-${Date.now()}`;
   }
 
-  private addTabToRegistry(tabId: string): void {
-    const activeTabs = this.getActiveTabs();
-
-    if (!activeTabs.includes(tabId)) {
-      activeTabs.push(tabId);
-      this.setActiveTabs(activeTabs);
-    }
-  }
-
-  private removeTabFromRegistry(tabId: string): void {
-    const activeTabs = this.getActiveTabs().filter(id => id !== tabId);
-    this.setActiveTabs(activeTabs);
-  }
-
-  private registerUnload(tabId: string): void {
-    const alreadyRegistered = sessionStorage.getItem(this.UNLOAD_REGISTERED_KEY);
-
-    if (alreadyRegistered === 'true') {
-      return;
+  private isReload(): boolean {
+    const navEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+    if (navEntries && navEntries.length > 0) {
+      return navEntries[0].type === 'reload';
     }
 
-    window.addEventListener('beforeunload', () => {
-      this.removeTabFromRegistry(tabId);
-    });
+    const legacyNav = (performance as any).navigation;
+    if (legacyNav) {
+      return legacyNav.type === 1;
+    }
 
-    sessionStorage.setItem(this.UNLOAD_REGISTERED_KEY, 'true');
+    return false;
   }
 }

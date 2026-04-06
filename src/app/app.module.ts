@@ -44,8 +44,9 @@ const appRoutes: Routes = [
     loadChildren: () =>
       import('./main/Scanner/scanner/scanner.module').then(m => m.ScannerModule)
   },
-   {
+  {
     path: 'requestoverride',
+    canActivate: [AuthGuard],
     loadChildren: () =>
       import('./main/request-override/request-override.module').then(m => m.RequestOverrideModule)
   },
@@ -71,15 +72,12 @@ const appRoutes: Routes = [
       relativeLinkResolution: 'legacy'
     }),
     TranslateModule.forRoot(),
-
     NgbModule,
     ToastrModule.forRoot(),
-
     CoreModule.forRoot(coreConfig),
     CoreCommonModule,
     CoreSidebarModule,
     CoreThemeCustomizerModule,
-
     LayoutModule,
     SampleModule
   ],
