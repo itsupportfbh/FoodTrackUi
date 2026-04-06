@@ -10,8 +10,13 @@ export class AuthenticationService {
   private currentUserSubject: BehaviorSubject<any>;
 
   constructor(private _http: HttpClient) {
-    const savedUser = localStorage.getItem('currentUser');
-    this.currentUserSubject = new BehaviorSubject<any>(savedUser ? JSON.parse(savedUser) : null);
+    const savedUser =
+      localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+
+    this.currentUserSubject = new BehaviorSubject<any>(
+      savedUser ? JSON.parse(savedUser) : null
+    );
+
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
@@ -19,21 +24,32 @@ export class AuthenticationService {
     return this.currentUserSubject.value;
   }
 
-  login(email: string, password: string): Observable<any> {
+  login(email: string, password: string, rememberMe: boolean = true): Observable<any> {
     const url = `${environment.apiUrl}/Auth/Login`;
 
     return this._http.post<any>(url, { email, password }).pipe(
       map((response: any) => {
         if (response?.success && response?.data) {
-          localStorage.setItem('currentUser', JSON.stringify(response.data));
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('id', response.data.id);
-          localStorage.setItem('companyId', response.data.companyId);
-          localStorage.setItem('email', response.data.email);
-          localStorage.setItem('username', response.data.username);
+          const storage = rememberMe ? localStorage : sessionStorage;
+          const otherStorage = rememberMe ? sessionStorage : localStorage;
+
+          otherStorage.removeItem('currentUser');
+          otherStorage.removeItem('token');
+          otherStorage.removeItem('id');
+          otherStorage.removeItem('companyId');
+          otherStorage.removeItem('email');
+          otherStorage.removeItem('username');
+
+          storage.setItem('currentUser', JSON.stringify(response.data));
+          storage.setItem('token', response.data.token || '');
+          storage.setItem('id', String(response.data.id || ''));
+          storage.setItem('companyId', String(response.data.companyId || ''));
+          storage.setItem('email', response.data.email || '');
+          storage.setItem('username', response.data.username || '');
 
           this.currentUserSubject.next(response.data);
         }
+
         return response;
       })
     );
@@ -56,17 +72,18 @@ export class AuthenticationService {
     return this._http.post(`${environment.apiUrl}/Auth/ChangePassword`, payload);
   }
 
-logout(): void {
-  const rememberedEmail = localStorage.getItem('rememberedEmail');
-  const rememberedPassword = localStorage.getItem('rememberedPassword');
+  logout(): void {
+    const rememberedEmail = localStorage.getItem('rememberedEmail');
+    const rememberedPassword = localStorage.getItem('rememberedPassword');
 
-  localStorage.clear();
+    localStorage.clear();
+    sessionStorage.clear();
 
-  if (rememberedEmail && rememberedPassword) {
-    localStorage.setItem('rememberedEmail', rememberedEmail);
-    localStorage.setItem('rememberedPassword', rememberedPassword);
+    if (rememberedEmail && rememberedPassword) {
+      localStorage.setItem('rememberedEmail', rememberedEmail);
+      localStorage.setItem('rememberedPassword', rememberedPassword);
+    }
+
+    this.currentUserSubject.next(null);
   }
-
-  this.currentUserSubject.next(null);
-}
 }

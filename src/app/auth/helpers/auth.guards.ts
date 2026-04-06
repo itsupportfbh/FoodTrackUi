@@ -18,11 +18,14 @@ export class AuthGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const currentUser = this._authenticationService.currentUserValue;
-    const storedCurrentUser = localStorage.getItem('currentUser');
-    const accessToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
-    const isLoggedIn = !!currentUser || !!storedCurrentUser || !!accessToken || !!token;
+    const storedCurrentUser =
+      localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+
+    const token =
+      localStorage.getItem('token') || sessionStorage.getItem('token');
+
+    const isLoggedIn = !!currentUser || !!storedCurrentUser || !!token;
 
     if (!isLoggedIn) {
       this._router.navigate(['/pages/authentication/login-v2'], {

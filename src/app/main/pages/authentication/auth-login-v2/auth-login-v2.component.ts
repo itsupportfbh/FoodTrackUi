@@ -6,6 +6,8 @@ import { takeUntil } from 'rxjs/operators';
 import { CoreConfigService } from '@core/services/config.service';
 import Swal from 'sweetalert2';
 import { AuthenticationService } from 'app/auth/service';
+import { TabSessionService } from 'app/services/tab-session.service';
+
 
 @Component({
   selector: 'app-auth-login-v2',
@@ -30,7 +32,8 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     private _formBuilder: UntypedFormBuilder,
     private _route: ActivatedRoute,
     private _router: Router,
-    private _authenticationService: AuthenticationService
+    private _authenticationService: AuthenticationService,
+    private _tabSessionService: TabSessionService
   ) {
     this._unsubscribeAll = new Subject();
 
@@ -66,14 +69,11 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     const email = (this.loginForm.value.email || '').trim();
     const password = this.loginForm.value.password || '';
 
-    this._authenticationService.login(email, password).subscribe({
+    this._authenticationService.login(email, password, this.rememberMe).subscribe({
       next: (response: any) => {
         this.loading = false;
-        console.log('Login response =>', response);
 
         if (response?.success && response?.data) {
-          localStorage.setItem('currentUser', JSON.stringify(response.data));
-
           if (this.rememberMe) {
             localStorage.setItem('rememberedEmail', email);
             localStorage.setItem('rememberedPassword', password);
@@ -82,21 +82,12 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
             localStorage.removeItem('rememberedPassword');
           }
 
-          // Swal.fire({
-          //   icon: 'success',
-          //   title: 'Login Successful',
-          //   text: response?.message || 'Welcome'
-          // }).then(() => {
-            // role based redirect
-            if (response?.data?.roleId === 1) {
-              this._router.navigate(['/home']);
-            } else {
-              this._router.navigate(['/home']);
-            }
-          // });
+          this._tabSessionService.resetTabSession();
+          this._router.navigateByUrl(this.returnUrl || '/catering').then(() => {
+            window.location.reload();
+          });
         } else {
           this.error = response?.message || 'Invalid email or password';
-
           Swal.fire({
             icon: 'error',
             title: 'Login Failed',
@@ -106,8 +97,6 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.loading = false;
-        console.error('Login error =>', err);
-
         this.error = err?.error?.message || 'Invalid email or password';
 
         Swal.fire({
@@ -129,9 +118,16 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     });
 
     this.rememberMe = !!rememberedEmail;
-
-    // default return url not root
     this.returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/catering';
+
+    if (this._tabSessionService.isDuplicateBlocked()) {
+      // Swal.fire({
+      //   icon: 'warning',
+      //   title: 'Duplicate Tab Not Allowed',
+      //   text: 'Application is already open in another tab.'
+      // });
+      this._tabSessionService.clearDuplicateBlockedFlag();
+    }
 
     this._coreConfigService.config
       .pipe(takeUntil(this._unsubscribeAll))
