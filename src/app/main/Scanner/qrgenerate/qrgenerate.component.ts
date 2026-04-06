@@ -190,16 +190,17 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
     reader.readAsDataURL(file);
   }
 
-  loadRequestDropdown(): void {
-    this.scannersettingsService.getRequestDropdown().subscribe({
-      next: (res: any) => {
-        this.requestList = res?.data || res || [];
-      },
-      error: () => {
-        Swal.fire('Error', 'Failed to load request dropdown', 'error');
-      }
-    });
-  }
+ loadRequestDropdown(resetSelection: boolean = false): void {
+  this.scannersettingsService.getRequestDropdown().subscribe({
+    next: (res: any) => {
+      this.requestList = res?.data || res || [];
+      this.qrRequest.requestId = null; // always reset to show "Select Request"
+    },
+    error: () => {
+      Swal.fire('Error', 'Failed to load request dropdown', 'error');
+    }
+  });
+}
 
   onRequestChange(): void {
     const selected = this.requestList.find(
@@ -357,6 +358,9 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
 
         Swal.fire('Success', 'QR generated successfully', 'success');
         this.onSubmit();
+       
+        this.loadRequestDropdown();
+        
       },
       error: (err: any) => {
         console.error('Generate QR error:', err);
@@ -554,7 +558,7 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
       companyId: 0,
       companyName: '',
       companyEmail: '',
-      requestId: '',
+      requestId: null,
       noofQR: 0,
       qrValidFrom: '',
       qrValidTill: '',
