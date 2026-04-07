@@ -242,4 +242,4 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
   private unlockBodyScroll(): void {
     document.body.classList.remove('modal-open-no-scroll');
   }
-}
+} 
