@@ -1,7 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import * as feather from 'feather-icons';
 
-
 interface SummaryCard {
   title: string;
   value: string;
@@ -28,16 +27,23 @@ interface AnalyticsMiniCard {
   icon: string;
 }
 
-interface ProgressItem {
-  label: string;
-  value: number;
-  count: number;
-}
-
 interface AlertItem {
   title: string;
   desc: string;
   type: string;
+}
+
+interface TodayCuisineSessionItem {
+  cuisine: string;
+  session: string;
+  orders: number;
+}
+
+interface SessionDemandItem {
+  label: string;
+  value: number;
+  count: number;
+  class: string;
 }
 
 @Component({
@@ -46,6 +52,7 @@ interface AlertItem {
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
+
   filters: string[] = ['Today', 'This Week', 'This Month', 'By Company', 'By Session', 'By Location'];
 
   summaryCards: SummaryCard[] = [
@@ -77,6 +84,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       icon: 'camera',
       theme: 'success'
     }
+  ];
+
+  sessionDemand: SessionDemandItem[] = [
+    { label: 'Breakfast', value: 26, count: 212, class: 'purple-dot' },
+    { label: 'Lunch', value: 44, count: 788, class: 'blue-dot' },
+    { label: 'Dinner', value: 30, count: 532, class: 'green-dot' }
   ];
 
   orderRows: OrderRow[] = [
@@ -152,17 +165,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     { label: 'Pending Sync', value: 92, percentage: 16 }
   ];
 
-  sessionDemand: ProgressItem[] = [
-    { label: 'Breakfast', value: 26, count: 212 },
-    { label: 'Lunch', value: 44, count: 788 },
-    { label: 'Dinner', value: 30, count: 532 }
-  ];
-
-  todaySummary = [
-    { label: 'Completed Orders', value: '978' },
-    { label: 'QR Scanned', value: '2,940' },
-    { label: 'New Companies', value: '4' },
-    { label: 'Manual Interventions', value: '11' }
+  todayCuisineSessionSummary: TodayCuisineSessionItem[] = [
+    { cuisine: 'South Indian', session: 'Breakfast', orders: 148 },
+    { cuisine: 'South Indian', session: 'Lunch', orders: 286 },
+    { cuisine: 'North Indian', session: 'Lunch', orders: 164 },
+    { cuisine: 'Chinese', session: 'Dinner', orders: 121 },
+    { cuisine: 'Continental', session: 'Breakfast', orders: 96 },
+    { cuisine: 'Mixed', session: 'Dinner', orders: 178 }
   ];
 
   alerts: AlertItem[] = [
@@ -189,7 +198,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.loadIcons();
-     feather.replace(); 
+    feather.replace();
   }
 
   loadIcons(): void {
@@ -200,11 +209,40 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
+  getSummaryProgress(title: string): number {
+    switch (title) {
+      case 'Total Companies':
+        return 62;
+      case 'Total Orders':
+        return 84;
+      case 'QR Generated':
+        return 76;
+      case 'Scanner Hits':
+        return 68;
+      default:
+        return 50;
+    }
+  }
+
+  // getSessionTotalOrders(): number {
+  //   return this.sessionDemand.reduce((sum, item) => sum + item.count, 0);
+  // }
+
   getOrderProgress(scanned: number, total: number): number {
     if (!total) {
       return 0;
     }
     return Math.round((scanned / total) * 100);
+  }
+
+  getCuisineSessionProgress(orderCount: number): number {
+    const maxOrders = Math.max(...this.todayCuisineSessionSummary.map(x => x.orders), 1);
+    return Math.round((orderCount / maxOrders) * 100);
+  }
+
+  getCuisineBarClass(index: number): string {
+    const classes = ['bar-purple', 'bar-cyan', 'bar-green', 'bar-orange', 'bar-pink', 'bar-indigo'];
+    return classes[index % classes.length];
   }
 
   getStatusClass(status: string): string {

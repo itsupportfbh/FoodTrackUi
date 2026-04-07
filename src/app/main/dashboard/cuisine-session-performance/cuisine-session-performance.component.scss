@@ -1,0 +1,325 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.cuisine-performance-card {
+  width: 100%;
+  background: linear-gradient(180deg, #ffffff 0%, #fcfcff 100%);
+  border: 1px solid #ece9f6;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(115, 103, 240, 0.07);
+  padding: 1.1rem;
+}
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.title-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.icon-box {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(115, 103, 240, 0.12);
+  color: #7367f0;
+}
+
+.section-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.card-top h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #3b3454;
+  line-height: 1.2;
+}
+
+.card-top p {
+  margin: 0.22rem 0 0;
+  font-size: 0.79rem;
+  color: #8f8aa8;
+  line-height: 1.45;
+}
+
+.top-badge {
+  padding: 0.38rem 0.72rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #7367f0;
+  background: rgba(115, 103, 240, 0.1);
+  white-space: nowrap;
+}
+
+.performance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.performance-row {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid #efedf7;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(34, 41, 47, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.performance-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(34, 41, 47, 0.08);
+}
+
+.row-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  border-radius: 18px 0 0 18px;
+}
+
+.row-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1rem 0.95rem 1.05rem;
+}
+
+.row-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.cuisine-avatar {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.info-block {
+  min-width: 0;
+  flex: 1;
+}
+
+.info-top {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+
+.info-top h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #2f2a43;
+  line-height: 1.2;
+}
+
+.session-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.23rem 0.6rem;
+  border-radius: 999px;
+  background: #f3f2f7;
+  color: #7e7a97;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.progress-wrap {
+  width: 100%;
+}
+
+.progress-track {
+  width: 100%;
+  height: 7px;
+  border-radius: 999px;
+  background: #eeedf5;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.row-right {
+  min-width: 72px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.order-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #2d2942;
+  line-height: 1;
+}
+
+.order-label {
+  margin-top: 0.2rem;
+  font-size: 0.72rem;
+  color: #9c98b2;
+  font-weight: 500;
+}
+
+/* Accent colors */
+.accent-purple {
+  background: linear-gradient(180deg, #7367f0 0%, #9b8cff 100%);
+}
+
+.accent-cyan {
+  background: linear-gradient(180deg, #00cfe8 0%, #5ce1e6 100%);
+}
+
+.accent-green {
+  background: linear-gradient(180deg, #28c76f 0%, #65d98d 100%);
+}
+
+.accent-orange {
+  background: linear-gradient(180deg, #ff9f43 0%, #ffb976 100%);
+}
+
+.accent-pink {
+  background: linear-gradient(180deg, #ea5455 0%, #f58aa8 100%);
+}
+
+.accent-indigo {
+  background: linear-gradient(180deg, #5a4fe0 0%, #7f73ff 100%);
+}
+
+/* Soft avatar bg */
+.soft-purple {
+  background: rgba(115, 103, 240, 0.12);
+  color: #7367f0;
+}
+
+.soft-cyan {
+  background: rgba(0, 207, 232, 0.12);
+  color: #00b8d4;
+}
+
+.soft-green {
+  background: rgba(40, 199, 111, 0.12);
+  color: #28c76f;
+}
+
+.soft-orange {
+  background: rgba(255, 159, 67, 0.13);
+  color: #ff9f43;
+}
+
+.soft-pink {
+  background: rgba(234, 84, 85, 0.13);
+  color: #ea5455;
+}
+
+.soft-indigo {
+  background: rgba(90, 79, 224, 0.12);
+  color: #5a4fe0;
+}
+
+/* Progress colors */
+.bar-purple {
+  background: linear-gradient(90deg, #7367f0 0%, #8f7bff 100%);
+}
+
+.bar-cyan {
+  background: linear-gradient(90deg, #00cfe8 0%, #47ddf0 100%);
+}
+
+.bar-green {
+  background: linear-gradient(90deg, #28c76f 0%, #57d98f 100%);
+}
+
+.bar-orange {
+  background: linear-gradient(90deg, #ff9f43 0%, #ffbc7d 100%);
+}
+
+.bar-pink {
+  background: linear-gradient(90deg, #ea5455 0%, #f28cb0 100%);
+}
+
+.bar-indigo {
+  background: linear-gradient(90deg, #5a4fe0 0%, #7d73f5 100%);
+}
+
+@media (max-width: 767px) {
+  .cuisine-performance-card {
+    padding: 0.95rem;
+    border-radius: 18px;
+  }
+
+  .card-top {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0.9rem;
+  }
+
+  .row-main {
+    padding: 0.85rem 0.85rem 0.85rem 0.95rem;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .row-left {
+    width: 100%;
+  }
+
+  .row-right {
+    width: 100%;
+    text-align: left;
+    padding-left: 3.45rem;
+  }
+
+  .card-top h3 {
+    font-size: 0.94rem;
+  }
+
+  .card-top p {
+    font-size: 0.74rem;
+  }
+
+  .info-top h4 {
+    font-size: 0.84rem;
+  }
+
+  .order-value {
+    font-size: 0.95rem;
+  }
+}

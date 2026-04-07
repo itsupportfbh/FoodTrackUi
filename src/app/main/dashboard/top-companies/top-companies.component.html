@@ -1,0 +1,28 @@
+<div class="top-companies-card">
+  <div class="section-header">
+    <div>
+      <h3>Top Companies</h3>
+      <p>Top 10 companies by orders</p>
+    </div>
+    <i data-feather="award" class="section-icon primary-text"></i>
+  </div>
+
+  <div class="companies-list">
+    <div class="company-row" *ngFor="let company of topCompanies; let i = index">
+      <div class="company-left">
+        <div class="company-rank">
+          {{ i + 1 }}
+        </div>
+
+        <div class="company-details">
+          <div class="company-name">{{ company.name }}</div>
+        </div>
+      </div>
+
+      <div class="company-right">
+        <strong>{{ company.orders }}</strong>
+        <span>orders</span>
+      </div>
+    </div>
+  </div>
+</div>
