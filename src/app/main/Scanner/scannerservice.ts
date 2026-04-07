@@ -58,6 +58,10 @@ downloadQrZip(id: number): Observable<Blob> {
     return this.http.delete<any>(`${this.apiUrl}/eleteQR/${id}?userId=${userId}`);
   }
 
-
+    // Validate scanned QR code
+    validateScanAsync(UniqueCode: string, RequestId: number, companyId: number): Observable<any> {
+    debugger;
+    return this.http.get<any>(`${this.apiUrl}/ValidateScan?UniqueCode=${UniqueCode}&RequestId=${RequestId}&CompanyId=${companyId}`);
+  }
   
 }
