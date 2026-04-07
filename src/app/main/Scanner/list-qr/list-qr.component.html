@@ -1,1 +1,110 @@
-<p>list-qr works!</p>
+<div class="request-list-page">
+  <div class="card request-list-card">
+    <div class="card-header  d-flex justify-content-between align-items-center flex-wrap">
+      <h4 class="card-title mb-0">QR List</h4>
+    </div>
+
+    <div class="card-body">
+      <div class="list-toolbar d-flex justify-content-between align-items-center flex-wrap">
+        <div class="d-flex align-items-center mb-1 mb-md-0">
+          <label class="d-flex align-items-center mb-0 text-muted">
+            <span class="mr-50">Show</span>
+            <select
+              [(ngModel)]="selectedOption"
+              (change)="onPageSizeChange()"
+              class="form-control form-control-sm mx-50 entries-select"
+            >
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+              <option [ngValue]="100">100</option>
+            </select>
+            <span class="ml-50">entries</span>
+          </label>
+        </div>
+
+        <div class="d-flex align-items-center flex-wrap right-tools">
+          <label class="mb-0 mr-50 text-muted">Search:</label>
+          <input
+            type="text"
+            class="form-control search-input mr-1"
+            [(ngModel)]="searchText"
+            (input)="filterRequests()"
+            placeholder="Search"
+          />
+
+          <button
+            *ngIf="canManageOrders"
+            type="button"
+            class="btn btn-primary add-btn"
+            (click)="openCreate()"
+          >
+            Generate New QR
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive custom-table-wrap">
+      <table class="table request-table mb-0">
+        <thead>
+          <tr>
+            <th>REQUEST NO</th>
+            <th>COMPANY</th>
+            <th>EMAIL</th>
+            <th>QR VALID FROM</th>
+            <th>QR VALID TILL</th>
+            <th>NO OF QR</th>
+            <th class="text-center action-header">ACTION</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngIf="loading">
+            <td colspan="7" class="text-center py-2">Loading...</td>
+          </tr>
+
+          <tr *ngFor="let row of filteredRows">
+            <td class="request-no">{{ row.requestNo || '-' }}</td>
+            <td>{{ row.companyName || '-' }}</td>
+            <td>{{ row.companyEmail || '-' }}</td>
+            <td>{{ displayDate(row.qrValidFrom) }}</td>
+            <td>{{ displayDate(row.qrValidTill) }}</td>
+            <td>{{ row.noofQR || 0 }}</td>
+            <td class="text-center action-cell">
+              <div class="action-btn-group">
+                <!--<button
+                  type="button"
+                  class="btn action-icon-btn mail-icon-btn"
+                  (click)="sendMail(row)"
+                  title="Send Mail"
+                >
+                  <i data-feather="mail"></i>
+                </button>-->
+
+               <button
+  type="button"
+  class="btn action-icon-btn download-icon-btn"
+  (click)="downloadFile(row)"
+  title="Download"
+>
+  <i data-feather="download"></i>
+</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!loading && pagedRows.length === 0">
+            <td colspan="7" class="text-center text-muted py-2">
+              No data available
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-footer bg-white border-top text-muted">
+      {{ filteredRows.length }} total
+    </div>
+  </div>
+</div>
