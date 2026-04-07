@@ -8,7 +8,6 @@ import Swal from 'sweetalert2';
 import { AuthenticationService } from 'app/auth/service';
 import { TabSessionService } from 'app/services/tab-session.service';
 
-
 @Component({
   selector: 'app-auth-login-v2',
   templateUrl: './auth-login-v2.component.html',
@@ -82,12 +81,16 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
             localStorage.removeItem('rememberedPassword');
           }
 
-          this._tabSessionService.resetTabSession();
-          this._router.navigateByUrl(this.returnUrl || '/dashboard').then(() => {
-            // window.location.reload();
-          });
+          // Login success ஆனதும் current tab-ku fresh active lock set பண்ணு
+          this._tabSessionService.activateCurrentTab();
+
+          const targetUrl =
+            this.returnUrl && this.returnUrl !== '/' ? this.returnUrl : '/dashboard';
+
+          this._router.navigateByUrl(targetUrl);
         } else {
           this.error = response?.message || 'Invalid email or password';
+
           Swal.fire({
             icon: 'error',
             title: 'Login Failed',
@@ -121,11 +124,6 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     this.returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/dashboard';
 
     if (this._tabSessionService.isDuplicateBlocked()) {
-      // Swal.fire({
-      //   icon: 'warning',
-      //   title: 'Duplicate Tab Not Allowed',
-      //   text: 'Application is already open in another tab.'
-      // });
       this._tabSessionService.clearDuplicateBlockedFlag();
     }
 
