@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
 
@@ -33,6 +33,31 @@ export class ScannerService {
   addOrUpdateQr(model: SaveQrCodeRequestModel): Observable<any> {
   return this.http.post<any>(`${this.apiUrl}/AddUpdateQrWithImages`, model);
 }
-  
+getallQR(data: any): Observable<any> {
+    let params = new HttpParams()
+      .set('userId', data.userId?.toString() || '0')
+      .set('companyId', data.companyId?.toString() || '0')
+      .set('isAdmin', data.isAdmin ? 'true' : 'false');
+
+    return this.http.get<any>(`${this.apiUrl}/GetAllQRList`, { params });
+  }
  
+ getQrImageDetailsByRequestId(id: number): Observable<any> {
+  const url = `${this.apiUrl}/GetQrDetailsByRequestId?requestId=${id}`;
+  console.log('DOWNLOAD API URL:', url);
+  return this.http.get<any>(url);
+}
+
+
+downloadQrZip(id: number): Observable<Blob> {
+  const url = `${this.apiUrl}/DownloadQrZip?requestId=${id}`;
+  console.log('ZIP DOWNLOAD URL:', url);
+  return this.http.get(url, { responseType: 'blob' });
+}
+  deleteQR(id: number, userId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/eleteQR/${id}?userId=${userId}`);
+  }
+
+
+  
 }

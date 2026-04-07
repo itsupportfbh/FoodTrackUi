@@ -78,12 +78,12 @@ export const menu: CoreMenu[] = [
     url: 'requestoverride/Request-override-list'
   },
   {
-      id: 'qrgenerate',
+      id: 'qrgenerateList',
       title: 'Generate QR',
       translate: 'MENU.SAMPLE',
       type: 'item',
       icon: 'file',
-      url: 'scanner/qrgenerate'
+      url: 'scanner/listqr'
     },
   {
     id: 'Scanner',
