@@ -16,16 +16,29 @@ export class AuthGuard implements CanActivate {
     private _authenticationService: AuthenticationService
   ) {}
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    const currentUser = this._authenticationService.currentUserValue;
-
-    const storedCurrentUser =
+  private getStoredUser(): any {
+    const currentUser =
       localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
 
+    if (!currentUser) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(currentUser);
+    } catch {
+      return null;
+    }
+  }
+
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    const currentUser = this._authenticationService.currentUserValue;
+    const storedUser = this.getStoredUser();
     const token =
       localStorage.getItem('token') || sessionStorage.getItem('token');
 
-    const isLoggedIn = !!currentUser || !!storedCurrentUser || !!token;
+    const user = currentUser || storedUser;
+    const isLoggedIn = !!user && !!token;
 
     if (!isLoggedIn) {
       this._router.navigate(['/pages/authentication/login-v2'], {
@@ -34,7 +47,7 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
-    if (route.data.roles && currentUser && route.data.roles.indexOf(currentUser.role) === -1) {
+    if (route.data.roles && user && route.data.roles.indexOf(user.role) === -1) {
       this._router.navigate(['/pages/miscellaneous/not-authorized']);
       return false;
     }

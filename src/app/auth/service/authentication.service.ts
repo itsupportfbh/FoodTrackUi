@@ -10,18 +10,36 @@ export class AuthenticationService {
   private currentUserSubject: BehaviorSubject<any>;
 
   constructor(private _http: HttpClient) {
-    const savedUser =
-      localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
-
-    this.currentUserSubject = new BehaviorSubject<any>(
-      savedUser ? JSON.parse(savedUser) : null
-    );
-
+    const savedUser = this.getStoredUser();
+    this.currentUserSubject = new BehaviorSubject<any>(savedUser);
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
   public get currentUserValue(): any {
-    return this.currentUserSubject.value;
+    return this.currentUserSubject.value || this.getStoredUser();
+  }
+
+  private getStoredUser(): any {
+    const savedUser =
+      localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+
+    if (!savedUser) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(savedUser);
+    } catch {
+      return null;
+    }
+  }
+
+  public getToken(): string | null {
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
+  }
+
+  public isLoggedIn(): boolean {
+    return !!this.getStoredUser() && !!this.getToken();
   }
 
   login(email: string, password: string, rememberMe: boolean = true): Observable<any> {
@@ -76,11 +94,25 @@ export class AuthenticationService {
     const rememberedEmail = localStorage.getItem('rememberedEmail');
     const rememberedPassword = localStorage.getItem('rememberedPassword');
 
-    localStorage.clear();
-    sessionStorage.clear();
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
+    localStorage.removeItem('id');
+    localStorage.removeItem('companyId');
+    localStorage.removeItem('email');
+    localStorage.removeItem('username');
 
-    if (rememberedEmail && rememberedPassword) {
+    sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('id');
+    sessionStorage.removeItem('companyId');
+    sessionStorage.removeItem('email');
+    sessionStorage.removeItem('username');
+
+    if (rememberedEmail) {
       localStorage.setItem('rememberedEmail', rememberedEmail);
+    }
+
+    if (rememberedPassword) {
       localStorage.setItem('rememberedPassword', rememberedPassword);
     }
 
