@@ -8,7 +8,7 @@
           </h4>
 
           <div class="row request-toolbar-row align-items-center">
-            <div class="col-md-4 col-12">
+            <div class="col-md-6 col-12">
               <div class="d-flex align-items-center m-1 left-tools-wrap">
                 <label class="d-flex align-items-center mb-0 text-muted">
                   Show
@@ -28,7 +28,7 @@
               </div>
             </div>
 
-            <div class="col-md-8 col-12">
+            <!-- <div class="col-md-6 col-12">
               <div class="toolbar-right">
                 <label class="d-flex align-items-center mb-0 text-muted search-label">
                   <span class="mr-50">Search:</span>
@@ -48,121 +48,208 @@
                   (click)="openCreate()"
                 >
                   <i data-feather="plus" class="d-sm-none d-inline-block mr-0 mr-sm-1"></i>
-                  <span class="d-none d-sm-inline-block">Add New Order</span>
+                  <span class="d-none d-sm-inline-block">Add</span>
                 </button>
               </div>
-            </div>
+            </div> -->
+
+             <div class="col-md-6 col-12 d-flex justify-content-start justify-content-md-end">
+                <div class="d-flex align-items-center justify-content-end pr-1 pb-1 pb-md-0">
+                  <label class="d-flex align-items-center ml-1 ml-md-0">
+                    Search:
+                    <input
+                    [(ngModel)]="searchText"
+                    name="searchText"
+                    type="search"
+                    class="form-control search-input"
+                    (input)="filterRequests()"
+                  />
+                  </label>
+
+                  <button class="btn btn-primary ml-1" rippleEffect (click)="openCreate()">
+                    <i data-feather="plus" class="d-sm-none d-inline-block mr-0 mr-sm-1"></i>
+                    <span class="d-none d-sm-inline-block">Add New Company</span>
+                  </button>
+                </div>
+              </div>
           </div>
 
-          <div class="table-responsive request-table-wrap">
-            <table class="table request-table mb-0">
-              <thead>
-                <tr>
-                  <th class="view-col text-center"></th>
-                  <th>REQUEST NO</th>
-                  <th>COMPANY</th>
-                  <th>FROM DATE</th>
-                  <th>TO DATE</th>
-                  <th>TOTAL QTY</th>
-                  <th *ngIf="canManageOrders" class="text-center action-col">ACTIONS</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr *ngFor="let row of pagedRows">
-                  <td class="text-center view-cell">
+          <div class="request-table-wrap">
+            <ngx-datatable
+              #table
+              class="bootstrap core-bootstrap request-datatable"
+              [rows]="filteredRows"
+              [columnMode]="'force'"
+              [headerHeight]="50"
+              [footerHeight]="50"
+              [rowHeight]="'auto'"
+              [limit]="selectedOption"
+              [scrollbarH]="true"
+              [reorderable]="false"
+              [externalPaging]="false"
+            >
+              <!-- View -->
+              <!-- <ngx-datatable-column
+                name=""
+                [width]="70"
+                [sortable]="false"
+                [canAutoResize]="false"
+                [draggable]="false"
+                [resizeable]="false"
+              >
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  <div class="text-center view-cell">
                     <button
                       type="button"
                       class="view-icon-btn"
                       (click)="viewRequestDetails(row)"
                       title="View"
                     >
-                      <i data-feather="eye" class="view-icon"></i>
+                     <i class="fas fa-eye"></i>
                     </button>
-                  </td>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column> -->
 
-                  <td class="request-no">{{ row.requestNo }}</td>
+            <ngx-datatable-column
+  [width]="50"
+  [resizeable]="false"
+  [sortable]="false"
+  [draggable]="false"
+  [canAutoResize]="false">
+  <ng-template ngx-datatable-cell-template let-row="row">
+    <span
+      (click)="viewRequestDetails(row)"
+      title="View Details"
+      style="cursor:pointer;font-size:18px;color:#6f61e8;">
+      <i class="fas fa-eye"></i>
+    </span>
+  </ng-template>
+</ngx-datatable-column>
 
-                  <td>
-                    <div class="d-flex align-items-center company-cell">
-                      <div
-                        class="avatar mr-1 ml-0"
-                        [ngClass]="{
-                          'bg-light-success': true
-                        }"
-                      >
-                        <div class="avatar-content">
-                          {{ (row.companyName || 'R').charAt(0) }}
-                        </div>
-                      </div>
+              <!-- Request No -->
+              <ngx-datatable-column name="REQUEST NO" prop="requestNo" [minWidth]="110">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  <span class="request-no">{{ row.requestNo }}</span>
+                </ng-template>
+              </ngx-datatable-column>
 
-                      <div class="cell-line-height company-info">
-                        <span
-                          class="font-weight-bold d-block contact-person-text"
-                          [attr.title]="row.companyName"
-                        >
-                          {{ row.companyName }}
-                        </span>
-                      </div>
+              <!-- Company -->
+              <ngx-datatable-column name="COMPANY" prop="companyName" [minWidth]="150">
+  <ng-template ngx-datatable-cell-template let-row="row">
+    <div class="d-flex align-items-center">
+      <div
+        class="avatar mr-1 ml-0"
+        [ngClass]="{
+          'bg-light-success': row.isActive,
+          'bg-light-secondary': !row.isActive
+        }"
+      >
+        <div class="avatar-content">{{ getInitials(row.companyName) }}</div>
+      </div>
+
+      <div class="cell-line-height">
+        <span class="font-weight-bold d-block">{{ row.companyName }}</span>
+        <span class="text-muted font-small-2">{{ row.companyCode }}</span>
+      </div>
+    </div>
+  </ng-template>
+</ngx-datatable-column>
+
+              <!-- From Date -->
+              <ngx-datatable-column name="FROM DATE" prop="fromDate" [width]="90">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  {{ row.fromDate | date:'dd-MM-yyyy' }}
+                </ng-template>
+              </ngx-datatable-column>
+
+              <!-- To Date -->
+              <ngx-datatable-column name="TO DATE" prop="toDate" [width]="90">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  {{ row.toDate | date:'dd-MM-yyyy' }}
+                </ng-template>
+              </ngx-datatable-column>
+
+              <!-- Total Qty -->
+              <ngx-datatable-column name="TOTAL QTY" prop="totalQty" [width]="90">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  {{ row.totalQty }}
+                </ng-template>
+              </ngx-datatable-column>
+
+              <!-- Actions -->
+              <ngx-datatable-column
+                *ngIf="canManageOrders"
+                name="ACTIONS"
+                [width]="120"
+                [sortable]="false"
+                [canAutoResize]="false"
+                [draggable]="false"
+                [resizeable]="false"
+              >
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  <div class="d-flex align-items-center justify-content-center action-group">
+                    <!-- <button
+                      type="button"
+                      class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center action-icon-btn"
+                      (click)="editRequest(row)"
+                      title="Edit"
+                    >
+                      <i data-feather="edit" class="action-icon"></i>
+                    </button> -->
+
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger p-0 d-flex align-items-center justify-content-center action-icon-btn"
+                      (click)="deleteRequest(row)"
+                      title="Delete"
+                    >
+                      <i data-feather="trash-2" class="action-icon"></i>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center action-icon-btn"
+                      (click)="openOverride(row)"
+                      title="Override"
+                    >
+                      <i data-feather="sliders" class="action-icon"></i>
+                    </button>
+
+                    <!-- <button
+                      type="button"
+                      class="btn btn-outline-success p-0 d-flex align-items-center justify-content-center action-icon-btn"
+                      (click)="openOverrideList(row)"
+                      title="Override List"
+                    >
+                      <i data-feather="list" class="action-icon"></i>
+                    </button> -->
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <!-- Empty -->
+              <ngx-datatable-footer>
+                <ng-template
+                  ngx-datatable-footer-template
+                  let-rowCount="rowCount"
+                  let-pageSize="pageSize"
+                  let-selectedCount="selectedCount"
+                  let-curPage="curPage"
+                  let-offset="offset"
+                >
+                  <div class="w-100 d-flex justify-content-between align-items-center px-2">
+                    <div class="text-muted">
+                      {{ filteredRows.length }} total
                     </div>
-                  </td>
+                  </div>
+                </ng-template>
+              </ngx-datatable-footer>
+            </ngx-datatable>
 
-                  <td>{{ row.fromDate | date:'dd-MM-yyyy' }}</td>
-                  <td>{{ row.toDate | date:'dd-MM-yyyy' }}</td>
-                  <td>{{ row.totalQty }}</td>
-
-                  <td *ngIf="canManageOrders" class="text-center">
-                    <div class="d-flex align-items-center justify-content-center action-group">
-                      <button
-                        type="button"
-                        class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center action-icon-btn"
-                        (click)="editRequest(row)"
-                        title="Edit"
-                      >
-                        <i data-feather="edit" class="action-icon"></i>
-                      </button>
-
-                      <button
-                        type="button"
-                        class="btn btn-outline-danger p-0 d-flex align-items-center justify-content-center action-icon-btn"
-                        (click)="deleteRequest(row)"
-                        title="Delete"
-                      >
-                        <i data-feather="trash-2" class="action-icon"></i>
-                      </button>
-
-                      <button
-                        type="button"
-                        class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center action-icon-btn"
-                        (click)="openOverride(row)"
-                        title="Override"
-                      >
-                        <i data-feather="sliders" class="action-icon"></i>
-                      </button>
-
-                      <button
-                        type="button"
-                        class="btn btn-outline-success p-0 d-flex align-items-center justify-content-center action-icon-btn"
-                        (click)="openOverrideList(row)"
-                        title="Override List"
-                      >
-                        <i data-feather="list" class="action-icon"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr *ngIf="pagedRows.length === 0">
-                  <td [attr.colspan]="canManageOrders ? 7 : 6" class="text-center text-muted py-2">
-                    No data available
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="request-total-footer text-muted">
-            {{ filteredRows.length }} total
+            <div *ngIf="filteredRows.length === 0" class="text-center text-muted py-2">
+              No data available
+            </div>
           </div>
         </div>
       </section>

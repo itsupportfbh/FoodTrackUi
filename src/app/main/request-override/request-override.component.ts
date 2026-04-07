@@ -434,49 +434,58 @@ console.log('Mapped lines:', this.model.lines);
   ngAfterViewChecked(): void {
     feather.replace();
   }
-   private canOverrideEdit(fromDateValue: any): boolean {
-    const fromDate = this.parseDateOnly(fromDateValue);
-    if (!fromDate) return false;
+private canOverrideEdit(fromDateValue: any): boolean {
+  const fromDate = this.parseDateOnly(fromDateValue);
+  if (!fromDate) return false;
 
-    const today = new Date();
-    const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const now = new Date();
+  const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    const allowedLastDate = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
-    allowedLastDate.setDate(allowedLastDate.getDate() - 3);
+  const lastAllowedEditDate = new Date(fromDate);
+  lastAllowedEditDate.setDate(lastAllowedEditDate.getDate() - 3);
 
-    return todayOnly.getTime() <= allowedLastDate.getTime();
+  return todayOnly.getTime() <= lastAllowedEditDate.getTime();
+}
+
+private parseDateOnly(value: any): Date | null {
+  if (!value) return null;
+
+  if (value instanceof Date) {
+    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
   }
 
-  private parseDateOnly(value: any): Date | null {
-    if (!value) return null;
+  if (typeof value !== 'string') return null;
 
-    if (value instanceof Date && !isNaN(value.getTime())) {
-      return new Date(value.getFullYear(), value.getMonth(), value.getDate());
-    }
+  const v = value.trim();
 
-    const text = String(value).trim();
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
-      const [y, m, d] = text.split('-').map(Number);
-      return new Date(y, m - 1, d);
-    }
-
-    if (/^\d{2}-\d{2}-\d{4}$/.test(text)) {
-      const [d, m, y] = text.split('-').map(Number);
-      return new Date(y, m - 1, d);
-    }
-
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
-      const [d, m, y] = text.split('/').map(Number);
-      return new Date(y, m - 1, d);
-    }
-
-    const parsed = new Date(text);
-    if (!isNaN(parsed.getTime())) {
-      return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
-    }
-
-    return null;
+  // ISO datetime: 2026-04-09T00:00:00
+  if (v.includes('T')) {
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return null;
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   }
 
+  // yyyy-MM-dd
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+    const [year, month, day] = v.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  // dd-MM-yyyy
+  if (/^\d{2}-\d{2}-\d{4}$/.test(v)) {
+    const [day, month, year] = v.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  // dd/MM/yyyy
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
+    const [day, month, year] = v.split('/').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  const d = new Date(v);
+  if (isNaN(d.getTime())) return null;
+
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
 }
