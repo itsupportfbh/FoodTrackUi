@@ -2,12 +2,12 @@ import { CoreMenu } from '@core/types'
 
 export const menu: CoreMenu[] = [
   {
-    id: 'home',
-    title: 'Home',
+    id: 'dashboard',
+    title: 'Dashboard',
     translate: 'MENU.HOME',
     type: 'item',
     icon: 'home',
-    url: 'home'
+    url: 'dashboard'
   },
   {
     id: 'master',
