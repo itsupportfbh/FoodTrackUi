@@ -84,7 +84,7 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
 
           this._tabSessionService.resetTabSession();
           this._router.navigateByUrl(this.returnUrl || '/dashboard').then(() => {
-            window.location.reload();
+            // window.location.reload();
           });
         } else {
           this.error = response?.message || 'Invalid email or password';

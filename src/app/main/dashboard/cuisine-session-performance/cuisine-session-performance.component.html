@@ -1,0 +1,55 @@
+<div class="cuisine-performance-card">
+  <div class="card-top">
+    <div class="title-wrap">
+      <div class="icon-box">
+        <i data-feather="activity" class="section-icon"></i>
+      </div>
+
+      <div>
+        <h3>Cuisine & Session Performance</h3>
+        <p>Today's cuisine-wise order contribution</p>
+      </div>
+    </div>
+
+    <div class="top-badge">Today</div>
+  </div>
+
+  <div class="performance-list">
+    <div
+      class="performance-row"
+      *ngFor="let item of todayCuisineSessionSummary; let i = index"
+    >
+      <div class="row-accent" [ngClass]="getCuisineAccentClass(i)"></div>
+
+      <div class="row-main">
+        <div class="row-left">
+          <div class="cuisine-avatar" [ngClass]="getCuisineSoftClass(i)">
+            {{ item.cuisine?.charAt(0) || 'C' }}
+          </div>
+
+          <div class="info-block">
+            <div class="info-top">
+              <h4>{{ item.cuisine }}</h4>
+              <span class="session-pill">{{ item.session }}</span>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-track">
+                <div
+                  class="progress-fill"
+                  [ngClass]="getCuisineBarClass(i)"
+                  [style.width.%]="getCuisineSessionProgress(item.orders)">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row-right">
+          <div class="order-value">{{ item.orders }}</div>
+          <div class="order-label">Orders</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

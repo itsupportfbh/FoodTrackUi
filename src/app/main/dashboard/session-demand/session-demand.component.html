@@ -1,0 +1,65 @@
+<div class="session-card">
+  <div class="section-header">
+    <div>
+      <h3>Session Demand</h3>
+      <p>Today's order distribution by meal session</p>
+    </div>
+
+    <i data-feather="pie-chart" class="section-icon primary-text"></i>
+  </div>
+
+  <!-- Center Donut -->
+  <div class="donut-top-section">
+    <div class="donut-wrapper">
+      <div class="donut-chart" [style.background]="donutGradient"></div>
+
+      <div class="donut-center">
+        <strong>{{ getSessionTotalOrders() }}</strong>
+        <span>Total Orders</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Two Split Panels -->
+  <div class="bottom-info-grid">
+    <!-- Left Split -->
+    <div class="left-panel">
+      <div class="panel-title">Session Breakdown</div>
+
+      <div class="legend-item" *ngFor="let item of leftSessionDemand">
+        <div class="legend-left">
+          <span class="legend-dot" [style.background]="item.color"></span>
+
+          <div class="legend-text">
+            <div class="legend-label">{{ item.label }}</div>
+            <div class="legend-sub">{{ item.count }} orders</div>
+          </div>
+        </div>
+
+        <div class="legend-right">
+          {{ item.value }}%
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Split -->
+    <div class="right-panel">
+      <div class="panel-title">Session Breakdown</div>
+
+      <div class="legend-item" *ngFor="let item of rightSessionDemand">
+        <div class="legend-left">
+          <span class="legend-dot" [style.background]="item.color"></span>
+
+          <div class="legend-text">
+            <div class="legend-label">{{ item.label }}</div>
+            <div class="legend-sub">{{ item.count }} orders</div>
+          </div>
+        </div>
+
+        <div class="legend-right">
+          {{ item.value }}%
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
