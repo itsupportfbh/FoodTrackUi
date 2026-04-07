@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, AfterViewInit, AfterViewChecked, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import * as feather from 'feather-icons';
@@ -7,7 +7,8 @@ import { RequestService } from '../request-service';
 @Component({
   selector: 'app-request-list',
   templateUrl: './request-list.component.html',
-  styleUrls: ['./request-list.component.scss']
+  styleUrls: ['./request-list.component.scss'],
+  encapsulation:ViewEncapsulation.None
 })
 export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChecked {
   rows: any[] = [];
@@ -74,7 +75,15 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
       }
     });
   }
-
+  getInitials(name: string): string {
+    if (!name) return '';
+    return name
+      .split(' ')
+      .map((x: string) => x.charAt(0))
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  }
   filterRequests(): void {
     const text = (this.searchText || '').trim().toLowerCase();
 
@@ -162,42 +171,78 @@ openOverride(row: any): void {
   }
 
   Swal.fire({
-    title: 'Select Override Date Range',
+    title: '',
     html: `
-      <div style="text-align:left;">
-        <label style="display:block; margin-bottom:8px; font-weight:600;">
-          Request No: ${row.requestNo}
-        </label>
+      <div class="override-popup">
+        <div class="override-popup__header">
+          <div>
+            <div class="override-popup__eyebrow">Override Date Selection</div>
+            <h2 class="override-popup__title">Select Override Date Range</h2>
+            <div class="override-popup__subtitle">
+              Request No: <span>${row.requestNo}</span>
+            </div>
+          </div>
+        </div>
 
-        <label style="display:block; margin:10px 0 6px;">From Date</label>
-        <input
-          id="overrideFromDate"
-          type="date"
-          class="swal2-input"
-          value="${finalMinFromDate || ''}"
-          min="${finalMinFromDate || ''}"
-          max="${requestTo || ''}"
-          style="width:100%; margin:0 0 10px 0;"
-        />
+        <div class="override-popup__body">
+          <div class="override-form-grid">
+            <div class="override-field-card">
+              <label for="overrideFromDate" class="override-label">From Date</label>
+              <div class="override-input-wrap">
+                <input
+                  id="overrideFromDate"
+                  type="date"
+                  class="override-input"
+                  value="${finalMinFromDate || ''}"
+                  min="${finalMinFromDate || ''}"
+                  max="${requestTo || ''}"
+                />
+              </div>
+              <div class="override-helper">
+                Must be at least 3 days ahead and within request range
+              </div>
+            </div>
 
-        <label style="display:block; margin:10px 0 6px;">To Date</label>
-        <input
-          id="overrideToDate"
-          type="date"
-          class="swal2-input"
-          value="${finalMinFromDate || ''}"
-          min="${finalMinFromDate || ''}"
-          max="${requestTo || ''}"
-          style="width:100%; margin:0;"
-        />
+            <div class="override-field-card">
+              <label for="overrideToDate" class="override-label">To Date</label>
+              <div class="override-input-wrap">
+                <input
+                  id="overrideToDate"
+                  type="date"
+                  class="override-input"
+                  value="${finalMinFromDate || ''}"
+                  min="${finalMinFromDate || ''}"
+                  max="${requestTo || ''}"
+                />
+              </div>
+              <div class="override-helper">
+                To date cannot be earlier than from date
+              </div>
+            </div>
+          </div>
+
+          <div class="override-range-note">
+            Allowed Request Range:
+            <strong>${this.displayDate(row.fromDate)}</strong>
+            to
+            <strong>${this.displayDate(row.toDate)}</strong>
+          </div>
+        </div>
       </div>
     `,
+    width: 560,
     showCancelButton: true,
+    showCloseButton: true,
     confirmButtonText: 'Open Override',
     cancelButtonText: 'Cancel',
-    confirmButtonColor: '#7367f0',
-
-    onOpen: () => {
+    customClass: {
+      popup: 'override-swal-popup',
+      confirmButton: 'override-swal-confirm',
+      cancelButton: 'override-swal-cancel',
+      closeButton: 'override-swal-close'
+    },
+    buttonsStyling: false,
+    didOpen: () => {
       const fromInput = document.getElementById('overrideFromDate') as HTMLInputElement;
       const toInput = document.getElementById('overrideToDate') as HTMLInputElement;
 
@@ -211,9 +256,11 @@ openOverride(row: any): void {
           }
         });
       }
+      
     },
-
+    
     preConfirm: () => {
+      
       const fromDate = (document.getElementById('overrideFromDate') as HTMLInputElement)?.value;
       const toDate = (document.getElementById('overrideToDate') as HTMLInputElement)?.value;
 
@@ -264,8 +311,6 @@ openOverride(row: any): void {
   });
 }
 
-
-
   openOverrideList(row: any): void {
     this.router.navigate(['/catering/request-override-list'], {
       queryParams: {
@@ -278,7 +323,7 @@ openOverride(row: any): void {
 viewRequestDetails(row: any): void {
   this.requestService.getRequestById(row.id).subscribe({
     next: (res: any) => {
-      console.log('request details response:', res);
+   
 
       let details: any[] = [];
 
@@ -297,128 +342,116 @@ viewRequestDetails(row: any): void {
       const groupedDetails = this.groupBySession(details);
 
       let html = `
-  <div style="text-align:left; max-height:60vh; overflow-y:auto; padding-right:4px;">
+        <div class="req-details-popup">
+       
 
-    <div style="
-      display:grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap:12px 24px;
-      margin-bottom:18px;
-      padding:16px 18px;
-      background:#f8f8fb;
-      border:1px solid #ebe9f1;
-      border-radius:12px;
-    ">
-      <div style="display:flex; align-items:center; gap:8px; font-size:15px; color:#5e5873;">
-        <span style="font-size:13px; font-weight:700; color:#6e6b7b; min-width:90px;">COMPANY</span>
-        <span style="color:#6e6b7b;">:</span>
-        <span style="font-weight:500;">${row.companyName || '-'}</span>
-      </div>
+          <div class="req-details-info-grid">
+            <div class="req-info-box">
+              <div class="req-info-label">From Date</div>
+              <div class="req-info-value">${this.displayDate(row.fromDate)}</div>
+            </div>
+            <div class="req-info-box">
+              <div class="req-info-label">To Date</div>
+              <div class="req-info-value">${this.displayDate(row.toDate)}</div>
+            </div>
+            <div class="req-info-box">
+              <div class="req-info-label">Company</div>
+              <div class="req-info-value">${row.companyName || '-'}</div>
+            </div>
+            <div class="req-info-box">
+              <div class="req-info-label">Sessions</div>
+              <div class="req-info-value">${Object.keys(groupedDetails).length}</div>
+            </div>
+          </div>
 
-      <div style="display:flex; align-items:center; gap:8px; font-size:15px; color:#5e5873;">
-        <span style="font-size:13px; font-weight:700; color:#6e6b7b; min-width:90px;">TOTAL QTY</span>
-        <span style="color:#6e6b7b;">:</span>
-        <span style="font-weight:500;">${row.totalQty ?? 0}</span>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:8px; font-size:15px; color:#5e5873;">
-        <span style="font-size:13px; font-weight:700; color:#6e6b7b; min-width:90px;">FROM DATE</span>
-        <span style="color:#6e6b7b;">:</span>
-        <span style="font-weight:500;">${this.displayDate(row.fromDate)}</span>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:8px; font-size:15px; color:#5e5873;">
-        <span style="font-size:13px; font-weight:700; color:#6e6b7b; min-width:90px;">TO DATE</span>
-        <span style="color:#6e6b7b;">:</span>
-        <span style="font-weight:500;">${this.displayDate(row.toDate)}</span>
-      </div>
-    </div>
-`;
+          <div class="req-details-body">
+      `;
 
       if (!details.length) {
         html += `
-          <div style="
-            text-align:center;
-            color:#6e6b7b;
-            padding:24px 0;
-            border:1px solid #ebe9f1;
-            border-radius:12px;
-            background:#fff;
-          ">
-            No line details found
+          <div class="req-empty-state">
+            <div class="req-empty-icon">📄</div>
+            <div class="req-empty-title">No line details found</div>
+            <div class="req-empty-text">There are no cuisines or locations available for this order.</div>
           </div>
         `;
       } else {
         Object.keys(groupedDetails).forEach((sessionName: string) => {
           const sessionRows = groupedDetails[sessionName];
+          const sessionTotal = sessionRows.reduce(
+            (sum: number, item: any) => sum + Number(item.qty ?? item.requestedQty ?? item.totalQty ?? 0),
+            0
+          );
 
           html += `
-            <div style="margin-bottom:16px; border:1px solid #ebe9f1; border-radius:14px; overflow:hidden;">
-              <div style="
-                background: linear-gradient(90deg, #7367f0 0%, #9e95f5 100%);
-                color: #fff;
-                padding: 12px 14px;
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                font-weight:600;
-                font-size:15px;
-              ">
-                <span>${sessionName}</span>
-                <span style="
-                  background: rgba(255,255,255,0.18);
-                  padding: 4px 10px;
-                  border-radius: 999px;
-                  font-size: 12px;
-                ">
-                  ${sessionRows.length} cuisines
-                </span>
+            <div class="req-session-card">
+              <div class="req-session-header">
+                <div class="req-session-title-wrap">
+                  <div class="req-session-dot"></div>
+                  <div class="req-session-title">${sessionName}</div>
+                </div>
+                <div class="req-session-badges">
+                  <span class="req-badge light">${sessionRows.length} cuisines</span>
+                  <span class="req-badge dark">Qty ${sessionTotal}</span>
+                </div>
               </div>
 
-              <table style="width:100%; border-collapse:collapse;">
-                <thead>
-                  <tr style="background:#f8f8fb;">
-                    <th style="padding:10px 14px; text-align:left; font-size:12px; color:#6e6b7b; border-bottom:1px solid #ebe9f1;">CUISINE</th>
-                    <th style="padding:10px 14px; text-align:left; font-size:12px; color:#6e6b7b; border-bottom:1px solid #ebe9f1;">LOCATION</th>
-                    <th style="padding:10px 14px; text-align:left; font-size:12px; color:#6e6b7b; border-bottom:1px solid #ebe9f1;">QTY</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <div class="req-table-wrap">
+                <table class="req-details-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 45%;">Cuisine</th>
+                      <th style="width: 35%;">Location</th>
+                      <th style="width: 20%; text-align:center;">Qty</th>
+                    </tr>
+                  </thead>
+                  <tbody>
           `;
 
-          sessionRows.forEach((item: any) => {
+          sessionRows.forEach((item: any, index: number) => {
+            const qty = item.qty ?? item.requestedQty ?? item.totalQty ?? 0;
             html += `
               <tr>
-                <td style="padding:10px 14px; border-bottom:1px solid #f3f2f7; color:#6e6b7b; font-size:14px;">
-                  ${item.cuisineName || item.cuisine || '-'}
+                <td>
+                  <div class="req-cell-main">${item.cuisineName || item.cuisine || '-'}</div>
+                 
                 </td>
-                <td style="padding:10px 14px; border-bottom:1px solid #f3f2f7; color:#6e6b7b; font-size:14px;">
-                  ${item.locationName || item.location || '-'}
+                <td>
+                  <div class="req-cell-main">${item.locationName || item.location || '-'}</div>
                 </td>
-                <td style="padding:10px 14px; border-bottom:1px solid #f3f2f7; color:#6e6b7b; font-size:14px;">
-                  ${item.qty ?? item.requestedQty ?? item.totalQty ?? 0}
+                <td style="text-align:center;">
+                  <span class="req-qty-pill">${qty}</span>
                 </td>
               </tr>
             `;
           });
 
           html += `
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+              </div>
             </div>
           `;
         });
       }
 
-      html += `</div>`;
+      html += `
+          </div>
+        </div>
+      `;
 
-      Swal.fire({
-        title: `Order Details - ${row.requestNo}`,
-        html,
-        width: 950,
-        confirmButtonText: 'Close',
-        confirmButtonColor: '#7367f0'
-      });
+Swal.fire({
+  title: '',
+  html,
+  width: 940,
+  showConfirmButton: false,
+  showCloseButton: true,
+  customClass: {
+    popup: 'req-swal-popup',
+    closeButton: 'req-swal-close'
+  },
+  buttonsStyling: false
+});
     },
     error: (err) => {
       console.error(err);
@@ -459,40 +492,90 @@ private displayDate(value: any): string {
     return this.isAtLeastThreeDaysBefore(reqFrom);
   }
 isAtLeastThreeDaysBefore(fromDate: Date): boolean {
+  const selected = new Date(
+    fromDate.getFullYear(),
+    fromDate.getMonth(),
+    fromDate.getDate()
+  );
+
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const todayOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
 
-  const minDate = new Date(today);
-  minDate.setDate(minDate.getDate() + 3);
+  const minAllowed = new Date(
+    todayOnly.getFullYear(),
+    todayOnly.getMonth(),
+    todayOnly.getDate() + 3
+  );
 
-  return fromDate.getTime() >= minDate.getTime();
+  return selected.getTime() >= minAllowed.getTime();
 }
 
- parseDateOnly(value: any): Date | null {
+parseDateOnly(value: any): Date | null {
   if (!value) return null;
 
-  const d = new Date(value);
-  if (isNaN(d.getTime())) return null;
+  if (value instanceof Date) {
+    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+  }
 
-  d.setHours(0, 0, 0, 0);
-  return d;
+  const str = String(value).trim();
+
+  // yyyy-MM-dd or yyyy-MM-ddTHH:mm:ss
+  if (str.includes('-')) {
+    const datePart = str.split('T')[0];
+    const parts = datePart.split('-');
+
+    if (parts.length === 3) {
+      const year = Number(parts[0]);
+      const month = Number(parts[1]) - 1;
+      const day = Number(parts[2]);
+
+      const d = new Date(year, month, day);
+      if (!isNaN(d.getTime())) {
+        return d;
+      }
+    }
+  }
+
+  // dd-MM-yyyy
+  if (str.includes('/')) {
+    const parts = str.split('/');
+    if (parts.length === 3) {
+      const day = Number(parts[0]);
+      const month = Number(parts[1]) - 1;
+      const year = Number(parts[2]);
+
+      const d = new Date(year, month, day);
+      if (!isNaN(d.getTime())) {
+        return d;
+      }
+    }
+  }
+
+  return null;
 }
- toInputDate(date: any): string {
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return '';
+toInputDate(value: any): string {
+  const d = this.parseDateOnly(value);
+  if (!d) return '';
+
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
+
   return `${year}-${month}-${day}`;
 }
 
-  private formatDate(value: any): string {
-    if (!value) return '';
-    const d = new Date(value);
-    if (isNaN(d.getTime())) return '';
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-  }
+ private formatDate(value: any): string {
+  const d = this.parseDateOnly(value);
+  if (!d) return '';
+
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+
+  return `${yyyy}-${mm}-${dd}`;
+}
 }

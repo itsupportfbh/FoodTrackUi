@@ -4,17 +4,8 @@
   width: auto !important;
 }
 
-.request-list-page {
-  position: relative;
-}
 
-.request-list-card {
-  border-radius: 0.75rem;
-  overflow: hidden;
-  box-shadow: 0 4px 24px rgba(34, 41, 47, 0.06);
-  border: 0 !important;
-  background: #fff;
-}
+
 
 .request-page-title {
   margin-left: 0.85rem;
@@ -48,15 +39,7 @@
   min-width: 74px;
 }
 
-.search-label {
-  white-space: nowrap;
-  margin-right: 0;
-}
 
-.search-input {
-  width: 300px;
-  min-width: 300px;
-}
 
 .add-btn {
   white-space: nowrap;
@@ -71,32 +54,7 @@
   overflow-x: auto;
 }
 
-.request-table {
-  width: 100%;
-  margin-bottom: 0 !important;
-  table-layout: fixed;
-  border-top: 0 !important;
-}
 
-.request-table thead th {
-  background-color: #f8f8fb;
-  color: #6e6b7b;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border-top: 0 !important;
-  border-bottom: 1px solid #ebe9f1;
-  padding: 1rem 1.1rem;
-  white-space: nowrap;
-}
-
-.request-table tbody td {
-  padding: 1rem 1.1rem;
-  vertical-align: middle;
-  color: #6e6b7b;
-  border-top: 0 !important;
-  border-bottom: 1px solid #f3f2f7;
-  font-size: 0.95rem;
-}
 
 .request-no {
   font-weight: 500;

@@ -17,7 +17,10 @@ export class RequestOverrideListComponent implements OnInit, AfterViewInit, Afte
   public ColumnMode = ColumnMode;
   public searchValue = '';
   public selectedOption = 10;
-
+detailsModalOpen = false;
+detailsLoading = false;
+selectedRow: any = null;
+detailRows: any[] = [];
   companyId = 0;
   rows: any[] = [];
   tempData: any[] = [];
@@ -116,7 +119,30 @@ export class RequestOverrideListComponent implements OnInit, AfterViewInit, Afte
       });
     }
   }
+openDetailsModal(row: any): void {
+  this.detailsModalOpen = true;
+  this.detailsLoading = true;
+  this.selectedRow = row;
+  this.detailRows = [];
 
+  this.service.getOverrideLines(row.requestOverrideId).subscribe({
+    next: (res: any) => {
+      this.detailRows = Array.isArray(res) ? res : (res?.data || []);
+      this.detailsLoading = false;
+    },
+    error: () => {
+      this.detailsLoading = false;
+      this.toastr.error('Error while loading lines');
+    }
+  });
+}
+
+closeDetailsModal(): void {
+  this.detailsModalOpen = false;
+  this.detailsLoading = false;
+  this.selectedRow = null;
+  this.detailRows = [];
+}
   goBack(): void {
     this.router.navigate(['/catering/request-list']);
   }
