@@ -51,8 +51,14 @@ const appRoutes: Routes = [
       import('./main/request-override/request-override.module').then(m => m.RequestOverrideModule)
   },
   {
+    path: 'dashboard',
+    canActivate: [AuthGuard],
+    loadChildren: () =>
+      import('./main/dashboard/dashboard.module').then(m => m.DashboardModule)
+  },
+  {
     path: '',
-    redirectTo: 'pages/authentication/login-v2',
+    redirectTo: 'dashboard',
     pathMatch: 'full'
   },
   {

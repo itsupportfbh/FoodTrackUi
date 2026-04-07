@@ -83,7 +83,7 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
           }
 
           this._tabSessionService.resetTabSession();
-          this._router.navigateByUrl(this.returnUrl || '/catering').then(() => {
+          this._router.navigateByUrl(this.returnUrl || '/dashboard').then(() => {
             window.location.reload();
           });
         } else {
@@ -118,7 +118,7 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     });
 
     this.rememberMe = !!rememberedEmail;
-    this.returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/catering';
+    this.returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/dashboard';
 
     if (this._tabSessionService.isDuplicateBlocked()) {
       // Swal.fire({
