@@ -20,8 +20,13 @@ import { LayoutModule } from 'app/layout/layout.module';
 import { SampleModule } from 'app/main/sample/sample.module';
 import { AuthGuard } from 'app/auth/helpers/auth.guards';
 import { AuthInterceptor } from './auth/service/auth.interceptor';
+import { ErrorComponent } from 'app/main/pages/miscellaneous/error/error.component';
 
 const appRoutes: Routes = [
+  {
+    path: 'error',
+    component: ErrorComponent
+  },
   {
     path: 'pages',
     loadChildren: () =>
@@ -49,7 +54,9 @@ const appRoutes: Routes = [
     path: 'requestoverride',
     canActivate: [AuthGuard],
     loadChildren: () =>
-      import('./main/request-override/request-override.module').then(m => m.RequestOverrideModule)
+      import('./main/request-override/request-override.module').then(
+        m => m.RequestOverrideModule
+      )
   },
   {
     path: 'dashboard',
@@ -59,17 +66,17 @@ const appRoutes: Routes = [
   },
   {
     path: '',
-      redirectTo: 'pages/authentication/login-v2',
+    redirectTo: 'dashboard',
     pathMatch: 'full'
   },
   {
     path: '**',
-    redirectTo: 'pages/miscellaneous/error'
+    redirectTo: 'error'
   }
 ];
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, ErrorComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

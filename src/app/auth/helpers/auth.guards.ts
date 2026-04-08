@@ -3,7 +3,8 @@ import {
   Router,
   CanActivate,
   ActivatedRouteSnapshot,
-  RouterStateSnapshot
+  RouterStateSnapshot,
+  UrlTree
 } from '@angular/router';
 import { AuthenticationService } from 'app/auth/service';
 
@@ -31,7 +32,8 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private hasRouteAccess(roleId: number, url: string): boolean {
+  private hasRouteAccess(user: any, url: string): boolean {
+    const roleId = Number(user?.roleId || user?.RoleId || user?.role || 0);
     const cleanUrl = (url || '').toLowerCase();
 
     if (roleId === 1) {
@@ -40,7 +42,8 @@ export class AuthGuard implements CanActivate {
         cleanUrl.startsWith('/master') ||
         cleanUrl.startsWith('/catering/companymaster') ||
         cleanUrl.startsWith('/scanner/listqr') ||
-        cleanUrl.startsWith('/catering/reports')
+        cleanUrl.startsWith('/catering/reports') ||
+         cleanUrl.startsWith('/scanner/qrgenerate')
       );
     }
 
@@ -48,7 +51,7 @@ export class AuthGuard implements CanActivate {
       return (
         cleanUrl.startsWith('/dashboard') ||
         cleanUrl.startsWith('/requestoverride/request-override-list') ||
-        cleanUrl.startsWith('/catering/request')||
+        cleanUrl.startsWith('/catering/request') ||
         cleanUrl.startsWith('/requestoverride/request-override')
       );
     }
@@ -60,7 +63,10 @@ export class AuthGuard implements CanActivate {
     return false;
   }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): boolean | UrlTree {
     const currentUser = this._authenticationService.currentUserValue;
     const storedUser = this.getStoredUser();
     const token =
@@ -70,17 +76,13 @@ export class AuthGuard implements CanActivate {
     const isLoggedIn = !!user && !!token;
 
     if (!isLoggedIn) {
-      this._router.navigate(['/pages/authentication/login-v2'], {
+      return this._router.createUrlTree(['/pages/authentication/login-v2'], {
         queryParams: { returnUrl: state.url }
       });
-      return false;
     }
 
-    const roleId = Number(user?.roleId || user?.RoleId || user?.role || 0);
-
-    if (!this.hasRouteAccess(roleId, state.url)) {
-      this._router.navigate(['/pages/miscellaneous/not-authorized']);
-      return false;
+    if (!this.hasRouteAccess(user, state.url)) {
+      return this._router.createUrlTree(['/error']);
     }
 
     return true;
