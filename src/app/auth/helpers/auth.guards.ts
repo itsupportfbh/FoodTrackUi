@@ -31,6 +31,34 @@ export class AuthGuard implements CanActivate {
     }
   }
 
+  private hasRouteAccess(roleId: number, url: string): boolean {
+    const cleanUrl = (url || '').toLowerCase();
+
+    if (roleId === 1) {
+      return (
+        cleanUrl.startsWith('/dashboard') ||
+        cleanUrl.startsWith('/master') ||
+        cleanUrl.startsWith('/catering/companymaster') ||
+        cleanUrl.startsWith('/scanner/listqr') ||
+        cleanUrl.startsWith('/catering/reports')
+      );
+    }
+
+    if (roleId === 2) {
+      return (
+        cleanUrl.startsWith('/dashboard') ||
+        cleanUrl.startsWith('/requestoverride/request-override-list') ||
+        cleanUrl.startsWith('/catering/request')
+      );
+    }
+
+    if (roleId === 3) {
+      return cleanUrl.startsWith('/scanner/scanner');
+    }
+
+    return false;
+  }
+
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const currentUser = this._authenticationService.currentUserValue;
     const storedUser = this.getStoredUser();
@@ -47,7 +75,9 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
-    if (route.data.roles && user && route.data.roles.indexOf(user.role) === -1) {
+    const roleId = Number(user?.roleId || user?.RoleId || user?.role || 0);
+
+    if (!this.hasRouteAccess(roleId, state.url)) {
       this._router.navigate(['/pages/miscellaneous/not-authorized']);
       return false;
     }

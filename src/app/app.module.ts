@@ -21,7 +21,6 @@ import { SampleModule } from 'app/main/sample/sample.module';
 import { AuthGuard } from 'app/auth/helpers/auth.guards';
 import { AuthInterceptor } from './auth/service/auth.interceptor';
 
-
 const appRoutes: Routes = [
   {
     path: 'pages',

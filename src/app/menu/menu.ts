@@ -1,4 +1,4 @@
-import { CoreMenu } from '@core/types'
+import { CoreMenu } from '@core/types';
 
 export const menu: CoreMenu[] = [
   {
@@ -24,14 +24,14 @@ export const menu: CoreMenu[] = [
         icon: 'file',
         url: 'master/location'
       },
-       {
+      {
         id: 'session',
         title: 'Session',
         translate: 'MENU.SAMPLE',
         type: 'item',
         icon: 'file',
         url: 'master/session'
-      },      
+      },
       {
         id: 'cuisine',
         title: 'Cuisine',
@@ -47,13 +47,10 @@ export const menu: CoreMenu[] = [
         type: 'item',
         icon: 'file',
         url: 'master/site_settings'
-      },
-    
-      
- 
+      }
     ]
   },
-   {
+  {
     id: 'CompanyMaster',
     title: 'Company',
     translate: 'MENU.SAMPLE',
@@ -69,7 +66,7 @@ export const menu: CoreMenu[] = [
     icon: 'file',
     url: 'catering/request'
   },
-   {
+  {
     id: 'Request',
     title: 'Order Override',
     translate: 'MENU.SAMPLE',
@@ -78,13 +75,13 @@ export const menu: CoreMenu[] = [
     url: 'requestoverride/Request-override-list'
   },
   {
-      id: 'qrgenerateList',
-      title: 'Generate QR',
-      translate: 'MENU.SAMPLE',
-      type: 'item',
-      icon: 'file',
-      url: 'scanner/listqr'
-    },
+    id: 'qrgenerateList',
+    title: 'Generate QR',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'file',
+    url: 'scanner/listqr'
+  },
   {
     id: 'Scanner',
     title: 'Scanner',
@@ -93,7 +90,6 @@ export const menu: CoreMenu[] = [
     icon: 'file',
     url: 'scanner/scanner'
   },
-
   {
     id: 'Reports',
     title: 'Reports',
@@ -101,5 +97,5 @@ export const menu: CoreMenu[] = [
     type: 'item',
     icon: 'file',
     url: 'catering/reports'
-  },
-]
+  }
+];

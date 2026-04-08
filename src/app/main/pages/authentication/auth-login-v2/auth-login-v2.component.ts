@@ -68,6 +68,8 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     const email = (this.loginForm.value.email || '').trim();
     const password = this.loginForm.value.password || '';
 
+     this._authenticationService.clearAuthData();
+
     this._authenticationService.login(email, password, this.rememberMe).subscribe({
       next: (response: any) => {
         this.loading = false;
