@@ -1,27 +1,44 @@
-<div class="top-companies-card">
-  <div class="section-header">
-    <div>
-      <h3>Top Companies</h3>
-      <p>Top 10 companies by orders</p>
+<div class="top-company-widget">
+  <div class="widget-header">
+    <div class="widget-title-wrap">
+      <div class="widget-icon">
+        <i data-feather="bar-chart-2"></i>
+      </div>
+      <div>
+        <h3>Top Company Performance</h3>
+        <p>Important company cards</p>
+      </div>
     </div>
-    <i data-feather="award" class="section-icon primary-text"></i>
   </div>
 
-  <div class="companies-list">
-    <div class="company-row" *ngFor="let company of topCompanies; let i = index">
-      <div class="company-left">
-        <div class="company-rank">
-          {{ i + 1 }}
+  <div class="company-grid">
+    <div class="company-card" *ngFor="let item of topCompanies" [ngClass]="item.cardClass">
+      <div class="company-card-top">
+        <div class="company-left">
+          <div class="company-avatar" [ngClass]="item.avatarClass">
+            {{ getInitials(item.name) }}
+          </div>
+
+          <div class="company-text">
+            <h4>{{ item.name }}</h4>
+            <span>Total Orders</span>
+          </div>
         </div>
 
-        <div class="company-details">
-          <div class="company-name">{{ company.name }}</div>
+        <div class="rate-pill" [ngClass]="item.badgeClass">
+          {{ item.rate }}%
         </div>
       </div>
 
-      <div class="company-right">
-        <strong>{{ company.orders }}</strong>
-        <span>orders</span>
+      <div class="company-card-body">
+        <div class="orders-value">{{ item.orders }}</div>
+
+        <div class="redeemed-row">
+          <span>Redeemed {{ item.redeemed }}</span>
+         
+        </div>
+
+        
       </div>
     </div>
   </div>

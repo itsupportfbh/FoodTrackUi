@@ -41,15 +41,8 @@ export class TotalCompanySummaryComponent implements OnInit, AfterViewInit {
       icon: 'grid',
       theme: 'pink',
       progress: 76
-    },
-    {
-      title: 'Scanner Hits',
-      value: '3,214',
-      sub: '89 failed scans',
-      icon: 'camera',
-      theme: 'success',
-      progress: 68
     }
+    
   ];
 
   constructor() { }

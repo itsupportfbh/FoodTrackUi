@@ -1,146 +1,178 @@
-<div class="session-page container-fluid">
-  <div class="row">
-    <!-- LEFT : session LIST -->
-    <div class="col-lg-6 col-md-12 mb-2">
-      <div class="session-card list-card">
-        <div class="card-header-custom">
-          <div class="title-block">
-            <div class="title-icon">
-              <i data-feather="map-pin"></i>
-            </div>
-            <div>
-              <h4 class="main-title">Session List</h4>
-              <p class="sub-title">Manage your sessions here</p>
-            </div>
-          </div>
+<div class="row">
+  <!-- LEFT : SESSION LIST -->
+  <div class="col-lg-6 col-md-6">
+    <div class="card card-transaction session-match-card">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+        style="background-color: #ffffff; padding: 12px 20px;"
+      >
+        <h4
+          class="card-title"
+          style="display: flex; align-items: center; gap: 10px; margin: 0; font-size: 1.25rem; font-weight: 600; color: #7367f0;"
+        >
+          <span
+            style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; background-color: #e5f0f3; border-radius: 50%;"
+          >
+            <i
+              data-feather="clock"
+              style="width: 18px; height: 18px; color: #7367f0;"
+            ></i>
+          </span>
+          Session List
+        </h4>
 
-          <button type="button" class="btn-create" (click)="createsessions()">
-            <i data-feather="plus"></i>
-            Create
-          </button>
-        </div>
+        <button
+          type="button"
+          (click)="createsessions()"
+          style="background-color:#7367f0; color:white; border:none; padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;"
+        >
+          <i data-feather="plus-circle" class="w-4 h-4"></i>
+          Create
+        </button>
+      </div>
 
-        <div class="card-body-custom">
-          <div class="empty-state" *ngIf="!rows || rows.length === 0">
-            <div class="empty-icon">
-              <i data-feather="map"></i>
-            </div>
-            <h5>No sessions found</h5>
-            <p>Click create button to add a new session.</p>
-          </div>
-
-          <div class="session-list" *ngIf="rows && rows.length > 0">
-            <div class="session-item" *ngFor="let item of rows">
-              <div class="item-left">
-                <div class="item-avatar">
-                  <i data-feather="globe"></i>
+      <div class="card-body">
+        <ul class="list-group" *ngIf="rows && rows.length > 0; else emptySession">
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center"
+            *ngFor="let item of rows"
+          >
+            <div
+              class="d-flex flex-column flex-md-row justify-content-between align-items-md-center w-100"
+            >
+              <div
+                style="display: flex; align-items: center; gap: 8px; padding: 4px 10px;"
+              >
+                <div
+                  class="avatar"
+                  style="background-color: #7367f0; color: white; width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;"
+                >
+                  <i data-feather="clock" style="width: 16px; height: 16px;"></i>
                 </div>
 
-                <div class="item-content">
-                  <h5 class="session-name">{{ item.sessionName }}</h5>
-                  <p class="session-desc">
+                <div>
+                  <h6
+                    style="margin: 0; font-weight: 600; font-size: 1rem; display: flex; align-items: center;"
+                  >
+                    {{ item.sessionName }}
+                  </h6>
+                  <small class="text-muted">
                     {{ item.description || 'No description available' }}
-                  </p>
+                  </small>
                 </div>
               </div>
 
-              <div class="item-actions">
+              <div class="mt-md-0 mt-1 d-flex justify-content-md-end">
                 <button
                   type="button"
-                  class="icon-btn outline-btn outline-edit"
+                  class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center"
+                  style="width: 28px; height: 28px;"
                   (click)="getsessionsDetails(item.id)"
                   title="Edit"
                 >
-                  <i data-feather="edit-2"></i>
+                  <i data-feather="edit" style="width: 14px; height: 14px;"></i>
                 </button>
 
                 <button
                   type="button"
-                  class="icon-btn outline-btn outline-delete"
+                  class="btn btn-outline-danger p-0 d-flex align-items-center justify-content-center ml-1"
+                  style="width: 28px; height: 28px;"
                   (click)="deletesessions(item.id)"
                   [disabled]="isEditMode"
                   title="Delete"
                 >
-                  <i data-feather="trash-2"></i>
+                  <i data-feather="trash" style="width: 14px; height: 14px;"></i>
                 </button>
               </div>
             </div>
+          </li>
+        </ul>
+
+        <ng-template #emptySession>
+          <div class="text-center py-3">
+            <div
+              style="width: 52px; height: 52px; margin: 0 auto 10px; border-radius: 50%; background: #f3f2ff; display:flex; align-items:center; justify-content:center;"
+            >
+              <i data-feather="clock" style="width: 20px; height: 20px; color:#7367f0;"></i>
+            </div>
+            <h6 class="mb-25">No sessions found</h6>
+            <p class="text-muted mb-0">Click create button to add a new session.</p>
           </div>
-        </div>
+        </ng-template>
       </div>
     </div>
+  </div>
 
-    <!-- RIGHT : FORM -->
-    <div class="col-lg-6 col-md-12 mb-2" *ngIf="isDisplay">
-      <div class="session-card form-card">
-        <div class="card-header-custom form-header">
-          <div>
-            <h4 class="main-title">{{ modeHeader }}</h4>
-            <p class="sub-title">Enter session details below</p>
+  <!-- RIGHT : FORM -->
+  <div class="col-lg-6 col-md-6" *ngIf="isDisplay">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">{{ modeHeader }}</h4>
+      </div>
+
+      <div class="card-body">
+        <form class="form" #addForm="ngForm" (ngSubmit)="Createsessions()">
+          <div class="form-group">
+            <label for="sessionName">Session Name</label>
+            <input
+              type="text"
+              id="sessionName"
+              class="form-control"
+              placeholder="Session Name"
+              name="sessionName"
+              [(ngModel)]="sessionName"
+              maxlength="50"
+              required
+            />
           </div>
-        </div>
 
-        <div class="card-body-custom">
-          <form class="session-form" #addForm="ngForm" (ngSubmit)="Createsessions()">
-            <div class="form-group-custom">
-              <label for="sessionName">Session Name</label>
-              <input
-                type="text"
-                id="sessionName"
-                name="sessionName"
-                class="form-control-custom"
-                placeholder="Enter session name"
-                [(ngModel)]="sessionName"
-                maxlength="50"
-                required
-              />
-            </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea
+              class="form-control"
+              id="description"
+              placeholder="Description"
+              name="description"
+              [(ngModel)]="description"
+              maxlength="50"
+              rows="4"
+              required
+            ></textarea>
+          </div>
 
-            <div class="form-group-custom">
-              <label for="description">Description</label>
-              <textarea
-                id="description"
-                name="description"
-                class="form-control-custom textarea-control"
-                placeholder="Enter description"
-                [(ngModel)]="description"
-                maxlength="50"
-                rows="4"
-                required
-              ></textarea>
-            </div>
+          <div class="row justify-content-start p-1">
+            <button
+              type="submit"
+              class="btn mr-1"
+              [disabled]="!addForm.valid"
+              style="background-color:#7367f0; color:white; padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;"
+            >
+              <i data-feather="check-circle" class="w-4 h-4"></i>
+              Submit
+            </button>
 
-            <div class="form-actions">
-              <button
-                type="submit"
-                class="btn-submit"
-                [disabled]="!addForm.valid"
-              >
-                <i data-feather="check"></i>
-                Submit
-              </button>
+            <button
+              type="button"
+              class="btn btn-danger mr-1"
+              (click)="cancel()"
+              style="padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;"
+            >
+              <i data-feather="x-circle" class="w-4 h-4"></i>
+              Cancel
+            </button>
 
-              <button
-                type="button"
-                class="btn-cancel"
-                (click)="cancel()"
-              >
-                <i data-feather="x"></i>
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                class="btn-reset"
-                *ngIf="resetButton"
-                (click)="reset()"
-              >
-                <i data-feather="refresh-ccw"></i>
-                Reset
-              </button>
-            </div>
-          </form>
-        </div>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              *ngIf="resetButton"
+              (click)="reset()"
+              style="padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;"
+            >
+              <i data-feather="rotate-ccw" class="w-4 h-4"></i>
+              Reset
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
