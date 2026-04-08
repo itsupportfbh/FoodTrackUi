@@ -43,6 +43,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
   reportPrintBlob: Blob | null = null;
   reportPrintObjectUrl: string | null = null;
   reportPrintSafeUrl: SafeResourceUrl | null = null;
+  sessionCuisineTotals: any[] = [];
 
   constructor(
     private reportService: ReportService,
@@ -105,32 +106,34 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
     });
   }
 
-  loadReport(): void {
-    const payload = {
-      userId: this.userId,
-      companyId: this.companyObj ? Number(this.companyObj.id) : null,
-      fromDate: this.filter.fromDate || null,
-      toDate: this.filter.toDate || null,
-      sessionId: this.sessionObj ? Number(this.sessionObj.id) : null,
-      cuisineId: this.cuisineObj ? Number(this.cuisineObj.id) : null,
-      locationId: this.locationObj ? Number(this.locationObj.id) : null
-    };
+ loadReport(): void {
+  const payload = {
+    userId: this.userId,
+    companyId: this.companyObj ? Number(this.companyObj.id) : null,
+    fromDate: this.filter.fromDate || null,
+    toDate: this.filter.toDate || null,
+    sessionId: this.sessionObj ? Number(this.sessionObj.id) : null,
+    cuisineId: this.cuisineObj ? Number(this.cuisineObj.id) : null,
+    locationId: this.locationObj ? Number(this.locationObj.id) : null
+  };
 
-    this.reportService.getReportByDates(payload).subscribe({
-      next: (res: any) => {
-        this.rows = res?.data || [];
-        this.foodTotals = res?.foodTotals || [];
-        this.totalQty = this.foodTotals.reduce(
-          (sum: number, x: any) => sum + Number(x.totalQty || 0),
-          0
-        );
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', err?.error || 'Failed to load report', 'error');
-      }
-    });
-  }
+  this.reportService.getReportByDates(payload).subscribe({
+    next: (res: any) => {
+      this.rows = res?.data || [];
+      this.foodTotals = res?.foodTotals || [];
+      this.totalQty = this.foodTotals.reduce(
+        (sum: number, x: any) => sum + Number(x.totalQty || 0),
+        0
+      );
+
+      this.buildSessionCuisineTotals();
+    },
+    error: (err) => {
+      console.error(err);
+      Swal.fire('Error', err?.error || 'Failed to load report', 'error');
+    }
+  });
+}
 
   resetFilters(): void {
     const today = new Date().toISOString().split('T')[0];
@@ -151,95 +154,394 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
     this.loadReport();
   }
 
-  openReportPrintPreview(): void {
-    if (!this.rows.length) {
-      Swal.fire('Info', 'No data available to print', 'info');
+  printReport(): void {
+  if (!this.rows || this.rows.length === 0) {
+    Swal.fire('Info', 'No data available to print', 'info');
+    return;
+  }
+
+  try {
+    const html = this.buildPrintableHtml();
+    const printWindow = window.open('', '_blank', 'width=1200,height=800');
+
+    if (!printWindow) {
+      Swal.fire('Info', 'Popup blocked. Please allow popups for printing.', 'info');
       return;
     }
 
-    this.showReportPrintModal = true;
-    this.lockBodyScroll();
-    this.reportPrintLoading = true;
-    this.clearReportPreview();
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
 
-    try {
-      const html = this.buildPrintableHtml();
-      this.reportPrintBlob = new Blob([html], { type: 'text/html' });
-
-      const url = URL.createObjectURL(this.reportPrintBlob);
-      this.reportPrintObjectUrl = url;
-
-      setTimeout(() => {
-        this.reportPrintSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-        this.reportPrintLoading = false;
-      }, 30);
-    } catch (e) {
-      this.reportPrintLoading = false;
-      Swal.fire('Error', 'Failed to prepare print preview', 'error');
-    }
-  }
-
-  closeReportPrintModal(): void {
-    this.showReportPrintModal = false;
-    this.reportPrintLoading = false;
-    this.clearReportPreview();
-    this.unlockBodyScroll();
-  }
-
-  printCurrentReport(): void {
-    if (!this.reportPrintBlob) return;
-
-    const url = URL.createObjectURL(this.reportPrintBlob);
-    const w = window.open(url, '_blank');
-    if (!w) {
-      Swal.fire({ icon: 'info', title: 'Popup blocked', text: 'Allow popups to print.' });
-      URL.revokeObjectURL(url);
-      return;
-    }
-
-    w.onload = () => {
-      w.focus();
-      w.print();
+    printWindow.onload = () => {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.onafterprint = () => {
+        printWindow.close();
+      };
     };
-
-    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  } catch (error) {
+    console.error(error);
+    Swal.fire('Error', 'Failed to print report', 'error');
   }
+}
 
-  downloadCurrentReport(): void {
-    if (!this.reportPrintBlob) return;
+private buildPrintableHtml(): string {
+  const companyText = this.companyObj?.name || 'All Companies';
+  const sessionText = this.sessionObj?.name || 'All Sessions';
+  const cuisineText = this.cuisineObj?.name || 'All Cuisines';
+  const locationText = this.locationObj?.name || 'All Locations';
+  const fromDateText = this.formatDateOnly(this.filter.fromDate);
+  const toDateText = this.formatDateOnly(this.filter.toDate);
 
-    const fileName = `Report_By_Dates_${this.filter.fromDate || 'Report'}.html`;
-    const url = URL.createObjectURL(this.reportPrintBlob);
+  const sessionCuisineCardsHtml = (this.sessionCuisineTotals || [])
+    .map(
+      (session: any) => `
+        <div class="session-summary-card">
+          <div class="session-summary-head">
+            <div class="session-summary-name">${this.escapeHtml(session.sessionName || '')}</div>
+            <div class="session-summary-total">Total: ${Number(session.totalQty || 0)}</div>
+          </div>
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+          <div class="session-summary-list">
+            ${(session.cuisines || [])
+              .map(
+                (item: any) => `
+                  <div class="session-summary-item">
+                    <span>${this.escapeHtml(item.cuisineName || '')}</span>
+                    <strong>${Number(item.totalQty || 0)}</strong>
+                  </div>
+                `
+              )
+              .join('')}
+          </div>
+        </div>
+      `
+    )
+    .join('');
 
-    URL.revokeObjectURL(url);
-  }
+  const rowsHtml = (this.rows || [])
+    .map(
+      (row: any, index: number) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${this.escapeHtml(row.companyName || '')}</td>
+          <td>${this.formatDateOnly(row.reportDate)}</td>
+          <td>${this.escapeHtml(row.sessionName || '')}</td>
+          <td>${this.escapeHtml(row.cuisineName || '')}</td>
+          <td>${this.escapeHtml(row.locationName || '')}</td>
+          <td class="text-right">${Number(row.count || 0)}</td>
+        </tr>
+      `
+    )
+    .join('');
 
-  private buildPrintableHtml(): string {
-    return '';
-  }
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8" />
+      <title>Report By Dates</title>
+      <style>
+        * {
+          box-sizing: border-box;
+        }
 
-  private clearReportPreview(): void {
-    if (this.reportPrintObjectUrl) {
-      URL.revokeObjectURL(this.reportPrintObjectUrl);
-      this.reportPrintObjectUrl = null;
+        body {
+          font-family: Arial, Helvetica, sans-serif;
+          margin: 0;
+          padding: 24px;
+          color: #2f2f2f;
+          background: #ffffff;
+        }
+
+        .report-header {
+          margin-bottom: 20px;
+          border-bottom: 2px solid #7367f0;
+          padding-bottom: 12px;
+        }
+
+        .report-title {
+          margin: 0 0 6px;
+          font-size: 26px;
+          color: #7367f0;
+          font-weight: 700;
+        }
+
+        .report-subtitle {
+          margin: 0;
+          font-size: 14px;
+          color: #777;
+        }
+
+        .filter-box {
+          border: 1px solid #ddd;
+          border-radius: 10px;
+          padding: 14px 16px;
+          margin-bottom: 20px;
+          background: #fafafe;
+        }
+
+        .filter-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px 18px;
+        }
+
+        .filter-item {
+          font-size: 13px;
+        }
+
+        .filter-label {
+          font-weight: 700;
+          color: #555;
+          margin-bottom: 4px;
+        }
+
+        .filter-value {
+          color: #222;
+        }
+
+        .summary-section {
+          margin-bottom: 20px;
+        }
+
+        .summary-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+
+        .summary-head h3 {
+          margin: 0;
+          font-size: 18px;
+          color: #444;
+        }
+
+        .summary-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 14px;
+        }
+
+        .session-summary-card {
+          border: 1px solid #ddd;
+          border-radius: 12px;
+          padding: 14px;
+          background: #fcfcff;
+          break-inside: avoid;
+        }
+
+        .session-summary-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 12px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid #ece9f6;
+        }
+
+        .session-summary-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: #4b4563;
+        }
+
+        .session-summary-total {
+          font-size: 13px;
+          font-weight: 700;
+          color: #7367f0;
+          background: #efeefe;
+          padding: 6px 12px;
+          border-radius: 999px;
+        }
+
+        .session-summary-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .session-summary-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border: 1px solid #ececec;
+          border-radius: 8px;
+          padding: 10px 12px;
+          background: #fff;
+          font-size: 14px;
+          color: #555;
+        }
+
+        .session-summary-item strong {
+          color: #7367f0;
+          font-size: 16px;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+        }
+
+        thead th {
+          background: #7367f0;
+          color: #fff;
+          font-size: 13px;
+          text-align: left;
+          padding: 10px;
+          border: 1px solid #dcdcdc;
+        }
+
+        tbody td {
+          font-size: 13px;
+          padding: 10px;
+          border: 1px solid #e3e3e3;
+        }
+
+        tbody tr:nth-child(even) {
+          background: #fafafa;
+        }
+
+        .text-right {
+          text-align: right;
+        }
+
+        @media print {
+          body {
+            padding: 10px;
+          }
+
+          .filter-box,
+          .session-summary-card,
+          table {
+            break-inside: avoid;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="report-header">
+        <h1 class="report-title">Report By Dates</h1>
+        <p class="report-subtitle">Company-wise food request report</p>
+      </div>
+
+      <div class="filter-box">
+        <div class="filter-grid">
+          <div class="filter-item">
+            <div class="filter-label">Company</div>
+            <div class="filter-value">${this.escapeHtml(companyText)}</div>
+          </div>
+          <div class="filter-item">
+            <div class="filter-label">From Date</div>
+            <div class="filter-value">${this.escapeHtml(fromDateText)}</div>
+          </div>
+          <div class="filter-item">
+            <div class="filter-label">To Date</div>
+            <div class="filter-value">${this.escapeHtml(toDateText)}</div>
+          </div>
+          <div class="filter-item">
+            <div class="filter-label">Session</div>
+            <div class="filter-value">${this.escapeHtml(sessionText)}</div>
+          </div>
+          <div class="filter-item">
+            <div class="filter-label">Cuisine</div>
+            <div class="filter-value">${this.escapeHtml(cuisineText)}</div>
+          </div>
+          <div class="filter-item">
+            <div class="filter-label">Location</div>
+            <div class="filter-value">${this.escapeHtml(locationText)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-head">
+          <h3>Session & Cuisine Totals</h3>
+        </div>
+        <div class="summary-grid">
+          ${sessionCuisineCardsHtml}
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>S.No</th>
+            <th>Company</th>
+            <th>Date</th>
+            <th>Session</th>
+            <th>Cuisine</th>
+            <th>Location</th>
+            <th class="text-right">Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `;
+}
+
+private formatDateOnly(value: any): string {
+  if (!value) return '';
+
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return '';
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+}
+
+private escapeHtml(value: string): string {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+private buildSessionCuisineTotals(): void {
+  const grouped: any = {};
+
+  (this.rows || []).forEach((row: any) => {
+    const session = row.sessionName || 'Unknown Session';
+    const cuisine = row.cuisineName || 'Unknown Cuisine';
+    const count = Number(row.count || 0);
+
+    if (!grouped[session]) {
+      grouped[session] = {
+        sessionName: session,
+        totalQty: 0,
+        items: {}
+      };
     }
 
-    this.reportPrintSafeUrl = null;
-    this.reportPrintBlob = null;
-  }
+    if (!grouped[session].items[cuisine]) {
+      grouped[session].items[cuisine] = 0;
+    }
 
-  private lockBodyScroll(): void {
-    document.body.classList.add('modal-open-no-scroll');
-  }
+    grouped[session].items[cuisine] += count;
+    grouped[session].totalQty += count;
+  });
 
-  private unlockBodyScroll(): void {
-    document.body.classList.remove('modal-open-no-scroll');
-  }
+  this.sessionCuisineTotals = Object.values(grouped).map((sessionGroup: any) => {
+    return {
+      sessionName: sessionGroup.sessionName,
+      totalQty: sessionGroup.totalQty,
+      cuisines: Object.keys(sessionGroup.items).map((cuisineName: string) => ({
+        cuisineName,
+        totalQty: sessionGroup.items[cuisineName]
+      }))
+    };
+  });
+}
 } 

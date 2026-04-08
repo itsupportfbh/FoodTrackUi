@@ -305,3 +305,88 @@
     width: 100%;
   }
 }
+.session-cuisine-wrap {
+  margin-bottom: 1.3rem;
+  border: 1px solid #ebe9f1;
+  border-radius: 1rem;
+  padding: 1rem 1.1rem 1.1rem;
+  background: #fff;
+}
+
+.session-cuisine-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.session-cuisine-card {
+  border: 1px solid #ebe9f1;
+  border-radius: 0.9rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f9f9ff 100%);
+  padding: 1rem;
+}
+
+.session-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f1eff7;
+}
+
+.session-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5e5873;
+}
+
+.session-total {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #7367f0;
+  background: rgba(115, 103, 240, 0.12);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+.session-cuisine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.session-cuisine-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #f0eef5;
+  border-radius: 0.7rem;
+  background: #fff;
+}
+
+.cuisine-label {
+  color: #6e6b7b;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.cuisine-value {
+  color: #7367f0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+@media (max-width: 1199.98px) {
+  .session-cuisine-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767.98px) {
+  .session-cuisine-grid {
+    grid-template-columns: 1fr;
+  }
+}
