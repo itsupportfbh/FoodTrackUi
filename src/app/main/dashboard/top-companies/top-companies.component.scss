@@ -235,7 +235,23 @@
 .progress-orange {
   background: linear-gradient(90deg, #f97316, #fb923c);
 }
+.company-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
 
+.company-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+@media (max-width: 991px) {
+  .company-split-grid {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 991.98px) {
   .company-grid {
     grid-template-columns: 1fr;
