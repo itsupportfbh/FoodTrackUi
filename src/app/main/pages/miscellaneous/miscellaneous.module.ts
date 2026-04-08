@@ -4,19 +4,10 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { CoreCommonModule } from '@core/common.module';
 
-import { ErrorComponent } from 'app/main/pages/miscellaneous/error/error.component';
-
-// routing
-const routes: Routes = [
-  {
-    path: 'miscellaneous/error',
-    component: ErrorComponent,
-    data: { animation: 'misc' }
-  }
-];
+const routes: Routes = [];
 
 @NgModule({
-  declarations: [ErrorComponent],
+  declarations: [],
   imports: [CommonModule, RouterModule.forChild(routes), CoreCommonModule]
 })
 export class MiscellaneousModule {}
