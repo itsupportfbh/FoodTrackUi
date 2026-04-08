@@ -59,7 +59,7 @@ const appRoutes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'dashboard',
+      redirectTo: 'pages/authentication/login-v2',
     pathMatch: 'full'
   },
   {

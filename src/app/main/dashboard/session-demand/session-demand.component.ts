@@ -7,6 +7,8 @@ interface SessionDemandItem {
   value: number;
   count: number;
   color: string;
+  strokeDasharray?: string;
+  strokeDashoffset?: number;
 }
 
 interface DashboardSummaryResponse {
@@ -31,9 +33,15 @@ interface DashboardSummaryResponse {
   styleUrls: ['./session-demand.component.scss']
 })
 export class SessionDemandComponent implements OnInit, AfterViewInit {
-
   sessionDemand: SessionDemandItem[] = [];
-  donutGradient = '';
+
+  tooltipVisible = false;
+  tooltipX = 0;
+  tooltipY = 0;
+  tooltipData: SessionDemandItem | null = null;
+
+  private readonly radius = 70;
+  private readonly circumference = 2 * Math.PI * this.radius;
 
   private sessionColors: string[] = [
     '#7367f0',
@@ -75,14 +83,25 @@ export class SessionDemandComponent implements OnInit, AfterViewInit {
         const sessions = res.totalOrdersBySession || [];
         const totalQty = sessions.reduce((sum, item) => sum + item.totalQty, 0);
 
-        this.sessionDemand = sessions.map((item, index) => ({
-          label: item.sessionName,
-          count: item.totalQty,
-          value: totalQty > 0 ? Math.round((item.totalQty / totalQty) * 100) : 0,
-          color: this.sessionColors[index % this.sessionColors.length]
-        }));
+        let cumulativePercentage = 0;
 
-        this.buildDonutGradient();
+        this.sessionDemand = sessions.map((item, index) => {
+          const percentage = totalQty > 0 ? (item.totalQty / totalQty) * 100 : 0;
+          const dashLength = (percentage / 100) * this.circumference;
+          const gapLength = this.circumference - dashLength;
+
+          const mappedItem: SessionDemandItem = {
+            label: item.sessionName,
+            count: item.totalQty,
+            value: +percentage.toFixed(1),
+            color: this.sessionColors[index % this.sessionColors.length],
+            strokeDasharray: `${dashLength} ${gapLength}`,
+            strokeDashoffset: -((cumulativePercentage / 100) * this.circumference)
+          };
+
+          cumulativePercentage += percentage;
+          return mappedItem;
+        });
 
         setTimeout(() => {
           feather.replace();
@@ -91,26 +110,28 @@ export class SessionDemandComponent implements OnInit, AfterViewInit {
       error: (err) => {
         console.error('Session demand load error:', err);
         this.sessionDemand = [];
-        this.buildDonutGradient();
       }
     });
   }
 
-  private buildDonutGradient(): void {
-    if (!this.sessionDemand.length) {
-      this.donutGradient = 'conic-gradient(#e9ecef 0% 100%)';
+  showTooltip(item: SessionDemandItem, event: MouseEvent): void {
+    this.tooltipData = item;
+    this.tooltipVisible = true;
+    this.tooltipX = event.offsetX + 14;
+    this.tooltipY = event.offsetY - 10;
+  }
+
+  moveTooltip(event: MouseEvent): void {
+    if (!this.tooltipVisible) {
       return;
     }
 
-    let start = 0;
+    this.tooltipX = event.offsetX + 14;
+    this.tooltipY = event.offsetY - 10;
+  }
 
-    const segments = this.sessionDemand.map(item => {
-      const end = start + item.value;
-      const segment = `${item.color} ${start}% ${end}%`;
-      start = end;
-      return segment;
-    });
-
-    this.donutGradient = `conic-gradient(${segments.join(', ')})`;
+  hideTooltip(): void {
+    this.tooltipVisible = false;
+    this.tooltipData = null;
   }
 }

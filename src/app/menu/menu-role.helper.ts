@@ -15,7 +15,7 @@ export class MenuRoleHelper {
 
       case 2:
         return this.filterMenus([
-          'dashboard',
+         
           'Request',
           'Order'
         ]);
