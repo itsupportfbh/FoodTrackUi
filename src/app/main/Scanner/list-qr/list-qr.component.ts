@@ -142,12 +142,15 @@ sendMail(row: any): void {
 }
 
 downloadFile(row: any): void {
-  if (!row?.requestId) {
-    Swal.fire('Info', 'Request Id not found', 'info');
+  const qrCodeRequestId = row?.qrCodeRequestId || row?.id || 0;
+
+  if (!qrCodeRequestId) {
+    console.error('Invalid row data:', row);
+    Swal.fire('Info', 'QR Code Request Id not found', 'info');
     return;
   }
 
-  this.scannerService.downloadQrZip(row.requestId).subscribe({
+  this.scannerService.downloadQrZip(qrCodeRequestId).subscribe({
     next: (blob: Blob) => {
       if (!blob || blob.size === 0) {
         Swal.fire('Info', 'ZIP file is empty', 'info');
@@ -155,11 +158,12 @@ downloadFile(row: any): void {
       }
 
       const companyName = (row.companyName || 'Company').replace(/\s+/g, '-');
-const requestNo = (row.requestNo || 'qr-images').replace(/\s+/g, '-');
-const fileName = `CSPL-${companyName}-${requestNo}.zip`;
-      const url = window.URL.createObjectURL(blob);
+      const requestNo = (row.requestNo || 'qr-images').replace(/\s+/g, '-');
+      const fileName = `CSPL-${companyName}-${requestNo}.zip`;
 
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
+
       link.href = url;
       link.download = fileName;
       link.style.display = 'none';
@@ -174,10 +178,11 @@ const fileName = `CSPL-${companyName}-${requestNo}.zip`;
     },
     error: (err: any) => {
       console.error('ZIP DOWNLOAD ERROR:', err);
-      Swal.fire('Error', err?.error?.message || 'Failed to download ZIP file', 'error');
+      Swal.fire('Error', 'Failed to download ZIP file', 'error');
     }
   });
 }
+
 filterRequests(): void {
   debugger
   const text = (this.searchText || '').trim().toLowerCase();

@@ -49,10 +49,14 @@ getallQR(data: any): Observable<any> {
 }
 
 
-downloadQrZip(id: number): Observable<Blob> {
-  const url = `${this.apiUrl}/DownloadQrZip?requestId=${id}`;
-  console.log('ZIP DOWNLOAD URL:', url);
-  return this.http.get(url, { responseType: 'blob' });
+downloadQrZip(qrCodeRequestId: number): Observable<Blob> {
+  return this.http.get(
+    `${this.apiUrl}/DownloadQrZip`,
+    {
+      params: { qrcoderequestid: String(qrCodeRequestId) },
+      responseType: 'blob'
+    }
+  );
 }
   deleteQR(id: number, userId: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/eleteQR/${id}?userId=${userId}`);
