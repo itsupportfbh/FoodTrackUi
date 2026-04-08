@@ -1,24 +1,42 @@
+// ===============================
+// SESSION PAGE
+// ===============================
+.row {
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+}
+
+.row > [class*='col-'] {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+// ===============================
+// LEFT CARD : SESSION LIST
+// ===============================
 .location-match-card,
 .session-match-card {
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 18px rgba(34, 41, 47, 0.1);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 18px rgba(34, 41, 47, 0.08);
   border: 1px solid #ebe9f1;
   background: #fff;
+  overflow: hidden;
 
   .card-header {
-    border-bottom: none !important;
-    padding: 1rem 1.25rem 0.45rem 1.25rem !important;
+    border-bottom: 1px solid #f1f1f4 !important;
+    padding: 1rem 1.25rem !important;
+    background: #fff !important;
   }
 
   .card-body {
-    padding: 0.35rem 1.25rem 1.25rem 1.25rem !important;
+    padding: 1rem 1.25rem 1.25rem !important;
+    background: #fff;
   }
 
   .list-group {
-    margin-bottom: 0;
-    margin-top: 0 !important;
+    margin: 0;
     border: 1px solid #ebe9f1;
-    border-radius: 0.5rem;
+    border-radius: 0.65rem;
     overflow: hidden;
     background: #fff;
   }
@@ -27,95 +45,125 @@
     border: 0 !important;
     border-bottom: 1px solid #ebe9f1 !important;
     border-radius: 0 !important;
-    margin-bottom: 0 !important;
-    padding: 1rem 1.1rem;
-    transition: background-color 0.2s ease;
-    background-color: #fff;
+    margin: 0 !important;
+    padding: 0.95rem 1rem;
+    background: #fff;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
 
     &:last-child {
       border-bottom: none !important;
     }
 
     &:hover {
-      transform: none !important;
-      box-shadow: none !important;
       background-color: #fafaff;
+      box-shadow: none !important;
+      transform: none !important;
     }
   }
 
   .avatar {
     flex-shrink: 0;
-  }
-
-  h6 {
-    color: #5e5873;
-    margin-bottom: 0.2rem;
-    font-weight: 600;
-  }
-
-  small {
-    display: block;
-    margin-top: 2px;
-    font-size: 0.9rem;
-    color: #b9b9c3 !important;
-    line-height: 1.3;
-  }
-
-  .btn-outline-primary,
-  .btn-outline-danger {
-    width: 40px;
-    height: 40px;
-    border-radius: 0.45rem;
-    padding: 0;
-    background: #fff;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
 
+  h6 {
+    color: #5e5873;
+    margin-bottom: 0.15rem;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  small {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.84rem;
+    color: #b9b9c3 !important;
+    line-height: 1.4;
+  }
+
+  .session-time {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #7367f0;
+    line-height: 1.35;
+  }
+
+  .btn-outline-primary,
+  .btn-outline-danger {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 0.45rem;
+    padding: 0 !important;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none !important;
+  }
+
   .btn-outline-primary i,
   .btn-outline-danger i {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
   }
 }
 
+// ===============================
+// COMMON CARD
+// ===============================
 .card {
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 18px rgba(34, 41, 47, 0.1);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 18px rgba(34, 41, 47, 0.08);
   border: 1px solid #ebe9f1;
   background: #fff;
+  overflow: visible;
 }
 
 .card-header {
   border-bottom: 1px solid #ebe9f1;
   padding: 1rem 1.25rem;
+  background: #fff;
 }
 
 .card-title {
   margin-bottom: 0;
   font-weight: 600;
+  font-size: 1.15rem;
   color: #5e5873;
 }
 
 .card-body {
   padding: 1.25rem;
+  overflow: visible;
+}
+
+// ===============================
+// FORM
+// ===============================
+.form {
+  overflow: visible;
 }
 
 .form-group {
   margin-bottom: 1rem;
-}
 
-.form-group label {
-  font-weight: 500;
-  color: #5e5873;
-  margin-bottom: 0.5rem;
-  display: inline-block;
+  label {
+    font-weight: 500;
+    color: #5e5873;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+  }
 }
 
 .form-control {
   border: 1px solid #d8d6de;
-  border-radius: 0.357rem;
+  border-radius: 0.5rem;
   min-height: 38px;
   box-shadow: none;
   color: #6e6b7b;
@@ -137,15 +185,214 @@ textarea.form-control {
   justify-content: center;
 }
 
+// ===============================
+// CUSTOM TIME INPUT SECTION
+// ===============================
+.time-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+  overflow: visible;
+}
+
+.form-group-custom {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: visible;
+
+  label {
+    font-weight: 500;
+    color: #5e5873;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+  }
+}
+
+.form-control-custom {
+  width: 100%;
+  min-height: 38px;
+  height: 38px;
+  border: 1px solid #d8d6de;
+  border-radius: 0.5rem;
+  box-shadow: none;
+  color: #6e6b7b;
+  background: #fff;
+  outline: none;
+  padding: 0.45rem 2.5rem 0.45rem 0.85rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:focus {
+    border-color: #7367f0;
+    box-shadow: 0 0 0 0.2rem rgba(115, 103, 240, 0.15);
+  }
+
+  &::placeholder {
+    color: #b9b9c3;
+  }
+}
+
+.time-input-wrapper {
+  position: relative;
+  overflow: visible;
+  z-index: 20;
+}
+
+.time-icon-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.6rem;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  color: #7367f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 25;
+
+  &:focus {
+    outline: none;
+  }
+
+  i {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+// ===============================
+// TIME PICKER POPUP
+// ===============================
+.time-popup {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  min-width: 250px;
+  background: #fff;
+  border: 1px solid #e7e7ef;
+  border-radius: 0.75rem;
+  padding: 0.85rem;
+  box-shadow: 0 12px 24px rgba(34, 41, 47, 0.14);
+  z-index: 99999;
+}
+
+.time-popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+.time-ok-btn {
+  border: none;
+  background: #7367f0;
+  color: #fff;
+  padding: 0.4rem 0.9rem;
+  border-radius: 0.45rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #6254e8;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.15rem rgba(115, 103, 240, 0.18);
+  }
+}
+
+// ===============================
+// NGB TIMEPICKER STYLE
+// ===============================
+::ng-deep ngb-timepicker {
+  display: block;
+}
+
+::ng-deep ngb-timepicker fieldset {
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+::ng-deep ngb-timepicker .form-control {
+  min-width: 58px;
+  height: 36px;
+  border: 1px solid #d8d6de;
+  border-radius: 0.45rem;
+  text-align: center;
+  box-shadow: none;
+  color: #6e6b7b;
+}
+
+::ng-deep ngb-timepicker .btn {
+  border-radius: 0.45rem;
+  padding: 0.2rem 0.35rem;
+}
+
+::ng-deep ngb-timepicker .btn-link {
+  color: #7367f0 !important;
+}
+
+// ===============================
+// ACTION BUTTON ROW
+// ===============================
+.row.justify-content-start.p-1 {
+  margin-top: 0.25rem;
+  margin-left: 0;
+  margin-right: 0;
+  gap: 0.5rem;
+}
+
+// ===============================
+// EMPTY STATE
+// ===============================
+.text-center.py-3 {
+  padding-top: 1.25rem !important;
+  padding-bottom: 1.25rem !important;
+
+  h6 {
+    color: #5e5873;
+    font-weight: 600;
+  }
+
+  p {
+    font-size: 0.9rem;
+  }
+}
+
+// ===============================
+// RESPONSIVE
+// ===============================
+@media (max-width: 991.98px) {
+  .time-row {
+    grid-template-columns: 1fr;
+  }
+
+  .time-popup {
+    min-width: 240px;
+  }
+}
+
 @media (max-width: 767.98px) {
   .location-match-card .card-header,
-  .session-match-card .card-header {
-    padding: 0.9rem 0.9rem 0.4rem 0.9rem !important;
+  .session-match-card .card-header,
+  .card-header {
+    padding: 0.9rem !important;
   }
 
   .location-match-card .card-body,
-  .session-match-card .card-body {
-    padding: 0.25rem 0.9rem 0.9rem 0.9rem !important;
+  .session-match-card .card-body,
+  .card-body {
+    padding: 0.9rem !important;
   }
 
   .location-match-card .list-group-item,
@@ -157,7 +404,18 @@ textarea.form-control {
   .location-match-card .btn-outline-danger,
   .session-match-card .btn-outline-primary,
   .session-match-card .btn-outline-danger {
-    width: 36px;
-    height: 36px;
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .time-popup {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .row.justify-content-start.p-1 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 }
