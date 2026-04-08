@@ -96,7 +96,8 @@ export class ScannerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private onScanSuccess(decodedText: string): void {
+  private async onScanSuccess(decodedText: string): Promise<void> {
+    debugger;
     if (this.isHandlingResult) {
       return;
     }
@@ -108,34 +109,31 @@ export class ScannerComponent implements OnInit, OnDestroy {
 
     console.log('Scanned QR:', decodedText);
 
-    const qrData = JSON.parse(decodedText);
-    const UniqueCode = qrData.UniqueCode;
-    const RequestId = qrData.RequestId;
-    debugger;
+    try {
+      const qrData = JSON.parse(decodedText);
+      const UniqueCode = qrData.UniqueCode;
+      const RequestId = qrData.RequestId;
 
-    this.scannerService.validateScanAsync(UniqueCode, RequestId, this.companyId).subscribe({
-      next: (response: any) => {
-        console.log('Validation successful:', response);
-        if (response.isAllowed == true) {
-          Swal.fire('Success', response.message, 'success');
-        }
-        else {
-          Swal.fire('Info', response.message || 'QR code is not valid for this request', 'info');
-        }
-      },
-      error: (err: any) => {
-        console.error('Validation failed:', err);
-        this.scanStatus = 'error';
-        this.statusMessage = 'QR validation failed';
-        Swal.fire('Error', 'QR code validation failed', 'error');
-        this.isHandlingResult = false;
+      const response = await this.scannerService.validateScanAsync(UniqueCode, RequestId, this.companyId).toPromise();
+
+      console.log('Validation successful:', response);
+
+      if (response?.isAllowed === true) {
+        Swal.fire('Success', response.message, 'success');
+      } else {
+        Swal.fire('Info', response?.message || 'QR code is not valid for this request', 'info');
       }
-
-    });
-
-    setTimeout(() => {
-      this.resetForNextScan();
-    }, 2000);
+    } catch (err: any) {
+      console.error('Validation failed:', err);
+      this.scanStatus = 'error';
+      this.statusMessage = 'QR validation failed';
+      Swal.fire('Error', 'QR code validation failed', 'error');
+      this.isHandlingResult = false;
+    } finally {
+      setTimeout(() => {
+        this.resetForNextScan();
+      }, 2000);
+    }
   }
 
   resetForNextScan(): void {
