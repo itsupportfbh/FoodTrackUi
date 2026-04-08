@@ -134,3 +134,28 @@
   white-space: normal;
  // background: linear-gradient(135deg, #9C8CFF, #6F61E8);
 }
+.company-cell-wrap {
+  width: 100%;
+  min-width: 0;
+}
+
+.company-text-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.company-name-text,
+.email-text,
+.contact-person-text {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.company-name-text {
+  max-width: 150px;
+}

@@ -80,7 +80,7 @@ export class CuisineComponent implements OnInit {
         title: 'Warning',
         text: 'Please fill all required fields',
         confirmButtonText: 'OK',
-        confirmButtonColor: '#0e3a4c'
+        confirmButtonColor: '#7367F0'
       });
       return;
     }
@@ -100,7 +100,7 @@ export class CuisineComponent implements OnInit {
           title: 'Success',
           text: res.message || 'Saved successfully',
           confirmButtonText: 'OK',
-          confirmButtonColor: '#0e3a4c'
+          confirmButtonColor: '#7367F0'
         });
         this.loadCuisine();
         this.cancel();
