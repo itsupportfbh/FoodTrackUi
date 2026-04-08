@@ -59,6 +59,9 @@
                   <small class="text-muted">
                     {{ item.description || 'No description available' }}
                   </small>
+                  <p class="session-time">
+                    {{ formatDisplayTime(item.fromTime) }} - {{ formatDisplayTime(item.toTime) }}
+                  </p>
                 </div>
               </div>
 
@@ -126,19 +129,107 @@
             />
           </div>
 
-          <div class="form-group">
-            <label for="description">Description</label>
-            <textarea
-              class="form-control"
-              id="description"
-              placeholder="Description"
-              name="description"
-              [(ngModel)]="description"
-              maxlength="50"
-              rows="4"
-              required
-            ></textarea>
-          </div>
+          
+            <div class="time-row">
+              <div class="form-group-custom">
+                <label for="fromTimeInput">From Time</label>
+
+                <div class="time-input-wrapper" #fromWrapper>
+                  <input
+                    id="fromTimeInput"
+                    type="text"
+                    name="fromTimeInput"
+                    class="form-control-custom"
+                    [value]="formatTime(fromTime)"
+                    placeholder="Select from time"
+                    readonly
+                    (click)="toggleFromPicker($event)"
+                  />
+
+                  <button
+                    type="button"
+                    class="time-icon-btn"
+                    (click)="toggleFromPicker($event)"
+                    tabindex="-1"
+                  >
+                    <i data-feather="clock"></i>
+                  </button>
+
+                  <div
+                    class="time-popup"
+                    *ngIf="showFromPicker"
+                    (click)="onTimeAreaClick($event)"
+                  >
+                    <ngb-timepicker
+                      [(ngModel)]="fromTime"
+                      name="fromTime"
+                      [meridian]="true"
+                      [spinners]="true"
+                      [seconds]="false"
+                    >
+                    </ngb-timepicker>
+
+                    <div class="time-popup-actions">
+                      <button type="button" class="time-ok-btn" (click)="closePickers()">
+                        OK
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group-custom">
+                <label for="toTimeInput">To Time</label>
+
+                <div class="time-input-wrapper" #toWrapper>
+                  <input
+                    id="toTimeInput"
+                    type="text"
+                    name="toTimeInput"
+                    class="form-control-custom"
+                    [value]="formatTime(toTime)"
+                    placeholder="Select to time"
+                    readonly
+                    (click)="toggleToPicker($event)"
+                  />
+
+                  <button
+                    type="button"
+                    class="time-icon-btn"
+                    (click)="toggleToPicker($event)"
+                    tabindex="-1"
+                  >
+                    <i data-feather="clock"></i>
+                  </button>
+
+                  <div
+                    class="time-popup"
+                    *ngIf="showToPicker"
+                    (click)="onTimeAreaClick($event)"
+                  >
+                    <ngb-timepicker
+                      [(ngModel)]="toTime"
+                      name="toTime"
+                      [meridian]="true"
+                      [spinners]="true"
+                      [seconds]="false"
+                    >
+                    </ngb-timepicker>
+
+                    <div class="time-popup-actions">
+                      <button type="button" class="time-ok-btn" (click)="closePickers()">
+                        OK
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+
+
 
           <div class="row justify-content-start p-1">
             <button

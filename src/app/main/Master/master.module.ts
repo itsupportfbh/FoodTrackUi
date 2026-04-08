@@ -7,6 +7,7 @@ import { CuisineComponent } from './cuisine/cuisine/cuisine.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SessionComponent } from './session/session.component';
 import { SitesettingsComponent } from './sitesettings/sitesettings.component';
+import { NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
 const routes = [
   {
@@ -34,6 +35,7 @@ const routes = [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+     NgbTimepickerModule,
   ]
 })
 export class MasterModule { }
