@@ -12,7 +12,8 @@ import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
   encapsulation: ViewEncapsulation.None
 })
 export class RequestOverrideListComponent implements OnInit, AfterViewInit, AfterViewChecked {
-  @ViewChild(DatatableComponent) table: DatatableComponent;
+  @ViewChild(DatatableComponent)
+  table!: DatatableComponent;
 
   public ColumnMode = ColumnMode;
   public searchValue = '';
@@ -21,7 +22,7 @@ detailsModalOpen = false;
 detailsLoading = false;
 selectedRow: any = null;
 detailRows: any[] = [];
-  companyId = 0;
+  companyId :any;
   rows: any[] = [];
   tempData: any[] = [];
   loading = false;
@@ -34,7 +35,7 @@ detailRows: any[] = [];
   ) {}
 
   ngOnInit(): void {
-    this.companyId = Number(this.route.snapshot.queryParamMap.get('companyId') || 0);
+    this.companyId = localStorage.getItem('companyId');
     this.loadOverrides();
   }
 

@@ -29,8 +29,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
 
   ngOnInit(): void {
     const currentUserRaw = localStorage.getItem('currentUser');
-
-    if (currentUserRaw) {
+      if (currentUserRaw) {
       const currentUser = JSON.parse(currentUserRaw);
       this.userId = Number(currentUser.id || 0);
       this.companyId = Number(currentUser.companyId || 0);
@@ -260,7 +259,7 @@ openOverride(row: any): void {
     },
     
     preConfirm: () => {
-      
+      debugger
       const fromDate = (document.getElementById('overrideFromDate') as HTMLInputElement)?.value;
       const toDate = (document.getElementById('overrideToDate') as HTMLInputElement)?.value;
 
@@ -299,17 +298,18 @@ openOverride(row: any): void {
       return { fromDate, toDate };
     }
   } as any).then((result: any) => {
-    if (result.isConfirmed && result.value) {
-      this.router.navigate(['/requestoverride/Request-override'], {
-        queryParams: {
-          requestHeaderId: row.id,
-          fromDate: result.value.fromDate,
-          toDate: result.value.toDate
-        }
-      });
+   if (result.isConfirmed && result.value) {
+  this.router.navigate(['/requestoverride/Request-override'], {
+    queryParams: {
+      requestHeaderId: row.id,
+      fromDate: result.value.fromDate,
+      toDate: result.value.toDate
     }
   });
 }
+      });
+    }
+ 
 
   openOverrideList(row: any): void {
     this.router.navigate(['/catering/request-override-list'], {
