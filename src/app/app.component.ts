@@ -13,12 +13,13 @@ import { CoreConfigService } from '@core/services/config.service';
 import { CoreLoadingScreenService } from '@core/services/loading-screen.service';
 import { CoreTranslationService } from '@core/services/translation.service';
 
-import { menu } from 'app/menu/menu';
 import { locale as menuEnglish } from 'app/menu/i18n/en';
 import { locale as menuFrench } from 'app/menu/i18n/fr';
 import { locale as menuGerman } from 'app/menu/i18n/de';
 import { locale as menuPortuguese } from 'app/menu/i18n/pt';
 import { TabSessionService } from './services/tab-session.service';
+import { AuthenticationService } from 'app/auth/service';
+import { MenuRoleHelper } from 'app/menu/menu-role.helper';
 
 @Component({
   selector: 'app-root',
@@ -32,6 +33,7 @@ export class AppComponent implements OnInit, OnDestroy {
   appLanguage: 'en';
 
   private _unsubscribeAll: Subject<any>;
+  private currentMenuKey = '';
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -44,24 +46,27 @@ export class AppComponent implements OnInit, OnDestroy {
     private _coreMenuService: CoreMenuService,
     private _coreTranslationService: CoreTranslationService,
     private _translateService: TranslateService,
-    private tabSessionService: TabSessionService
+    private tabSessionService: TabSessionService,
+    private _authenticationService: AuthenticationService
   ) {
-    this.menu = menu;
-    this._coreMenuService.register('main', this.menu);
-    this._coreMenuService.setCurrentMenu('main');
-
     this._translateService.addLangs(['en', 'fr', 'de', 'pt']);
     this._translateService.setDefaultLang('en');
 
     this._coreTranslationService.translate(menuEnglish, menuFrench, menuGerman, menuPortuguese);
-
     this._unsubscribeAll = new Subject();
   }
 
   ngOnInit(): void {
     this.tabSessionService.initTabCheck();
-
     Waves.init();
+
+    this.loadMenuByRole();
+
+    this._authenticationService.currentUser
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(user => {
+        this.loadMenuByRole();
+      });
 
     this._coreConfigService.config.pipe(takeUntil(this._unsubscribeAll)).subscribe(config => {
       this.coreConfig = config;
@@ -158,6 +163,19 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     this._title.setTitle(this.coreConfig?.app?.appTitle || 'FoodTrack');
+  }
+
+  private loadMenuByRole(): void {
+    const roleId = this._authenticationService.getRoleId();
+    const filteredMenu = MenuRoleHelper.getMenuByRole(roleId);
+
+    this.menu = [...filteredMenu];
+
+    const newMenuKey = `main-role-${roleId}-${new Date().getTime()}`;
+    this.currentMenuKey = newMenuKey;
+
+    this._coreMenuService.register(newMenuKey, this.menu);
+    this._coreMenuService.setCurrentMenu(newMenuKey);
   }
 
   ngOnDestroy(): void {

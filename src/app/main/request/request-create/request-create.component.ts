@@ -16,6 +16,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   userId = 0;
   companyId = 0;
   minDate = '';
+  toDateMax = '';
 
   companies: any[] = [];
   sessions: any[] = [];
@@ -113,6 +114,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
           isActive: row.isActive ?? true,
           lines: row.lines || []
         };
+        this.updateToDateMax();
 
         if (!this.model.companyName) {
           const company = this.companies.find((x: any) => Number(x.id) === Number(this.model.companyId));
@@ -132,6 +134,29 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     });
   }
 
+  private updateToDateMax(): void {
+  if (!this.model.fromDate) {
+    this.toDateMax = '';
+    return;
+  }
+
+  const fromDate = new Date(this.model.fromDate);
+  const year = fromDate.getFullYear();
+  const month = fromDate.getMonth();
+
+  // அந்த month-ஓட last date
+  const lastDate = new Date(year, month + 1, 0);
+
+  const maxYear = lastDate.getFullYear();
+  const maxMonth = ('0' + (lastDate.getMonth() + 1)).slice(-2);
+  const maxDay = ('0' + lastDate.getDate()).slice(-2);
+
+  this.toDateMax = `${maxYear}-${maxMonth}-${maxDay}`;
+
+  if (this.model.toDate && this.model.toDate > this.toDateMax) {
+    this.model.toDate = this.toDateMax;
+  }
+}
   buildSessionGroups(): void {
     this.sessionGroups = this.sessions.map((session: any, index: number) => {
       const lines = this.cuisines.map((cuisine: any) => ({
@@ -289,11 +314,20 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   goBack(): void {
     this.router.navigate(['/catering/request']);
   }
-  onFromDateChange(): void {
-  if (this.model.toDate && this.model.fromDate && this.model.toDate < this.model.fromDate) {
-    this.model.toDate = '';
+onFromDateChange(): void {
+  this.updateToDateMax();
+
+  if (this.model.toDate) {
+    if (this.model.fromDate && this.model.toDate < this.model.fromDate) {
+      this.model.toDate = '';
+      return;
+    }
+
+    if (this.toDateMax && this.model.toDate > this.toDateMax) {
+      this.model.toDate = this.toDateMax;
+    }
   }
-  }
+}
 
   private getTodayDate(): string {
     const today = new Date();

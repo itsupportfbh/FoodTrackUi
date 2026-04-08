@@ -42,6 +42,29 @@ export class AuthenticationService {
     return !!this.getStoredUser() && !!this.getToken();
   }
 
+  public getRoleId(): number {
+    const user = this.currentUserValue;
+    return Number(user?.roleId || user?.RoleId || user?.role || 0);
+  }
+
+  public clearAuthData(): void {
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
+    localStorage.removeItem('id');
+    localStorage.removeItem('companyId');
+    localStorage.removeItem('email');
+    localStorage.removeItem('username');
+
+    sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('id');
+    sessionStorage.removeItem('companyId');
+    sessionStorage.removeItem('email');
+    sessionStorage.removeItem('username');
+
+    this.currentUserSubject.next(null);
+  }
+
   login(email: string, password: string, rememberMe: boolean = true): Observable<any> {
     const url = `${environment.apiUrl}/Auth/Login`;
 
@@ -94,19 +117,7 @@ export class AuthenticationService {
     const rememberedEmail = localStorage.getItem('rememberedEmail');
     const rememberedPassword = localStorage.getItem('rememberedPassword');
 
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('token');
-    localStorage.removeItem('id');
-    localStorage.removeItem('companyId');
-    localStorage.removeItem('email');
-    localStorage.removeItem('username');
-
-    sessionStorage.removeItem('currentUser');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('id');
-    sessionStorage.removeItem('companyId');
-    sessionStorage.removeItem('email');
-    sessionStorage.removeItem('username');
+    this.clearAuthData();
 
     if (rememberedEmail) {
       localStorage.setItem('rememberedEmail', rememberedEmail);
@@ -115,7 +126,5 @@ export class AuthenticationService {
     if (rememberedPassword) {
       localStorage.setItem('rememberedPassword', rememberedPassword);
     }
-
-    this.currentUserSubject.next(null);
   }
 }
