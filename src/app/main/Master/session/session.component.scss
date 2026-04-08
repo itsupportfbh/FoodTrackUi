@@ -18,19 +18,17 @@
 .session-match-card {
   border-radius: 0.75rem;
   box-shadow: 0 4px 18px rgba(34, 41, 47, 0.08);
-  border: 1px solid #ebe9f1;
-  background: #fff;
+ // border: 1px solid #ebe9f1;
+//background: #fff;
   overflow: hidden;
 
-  .card-header {
-    border-bottom: 1px solid #f1f1f4 !important;
-    padding: 1rem 1.25rem !important;
-    background: #fff !important;
+   .card-header {
+    border-bottom: none !important;
+    padding: 1rem 1.25rem 0.45rem 1.25rem !important;
   }
 
   .card-body {
-    padding: 1rem 1.25rem 1.25rem !important;
-    background: #fff;
+    padding: 0.35rem 1.25rem 1.25rem 1.25rem !important;
   }
 
   .list-group {
@@ -41,23 +39,23 @@
     background: #fff;
   }
 
-  .list-group-item {
+ .list-group-item {
     border: 0 !important;
     border-bottom: 1px solid #ebe9f1 !important;
     border-radius: 0 !important;
-    margin: 0 !important;
-    padding: 0.95rem 1rem;
-    background: #fff;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 0 !important;
+    padding: 1rem 1.1rem;
+    transition: background-color 0.2s ease;
+    background-color: #fff;
 
     &:last-child {
       border-bottom: none !important;
     }
 
     &:hover {
-      background-color: #fafaff;
-      box-shadow: none !important;
       transform: none !important;
+      box-shadow: none !important;
+      background-color: #fafaff;
     }
   }
 
@@ -125,11 +123,7 @@
   overflow: visible;
 }
 
-.card-header {
-  border-bottom: 1px solid #ebe9f1;
-  padding: 1rem 1.25rem;
-  background: #fff;
-}
+
 
 .card-title {
   margin-bottom: 0;
@@ -140,7 +134,7 @@
 
 .card-body {
   padding: 1.25rem;
-  overflow: visible;
+ // overflow: visible;
 }
 
 // ===============================
@@ -392,12 +386,13 @@ textarea.form-control {
   .location-match-card .card-body,
   .session-match-card .card-body,
   .card-body {
-    padding: 0.9rem !important;
+    padding: 0.25rem 0.9rem 0.9rem 0.9rem !important;
   }
 
   .location-match-card .list-group-item,
   .session-match-card .list-group-item {
-    padding: 0.85rem;
+   padding: 0.85rem;
+  
   }
 
   .location-match-card .btn-outline-primary,

@@ -22,6 +22,7 @@ export class MenuRoleHelper {
 
       case 3:
         return this.filterMenus([
+           
           'Scanner'
         ]);
 

@@ -55,6 +55,54 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     this.passwordTextType = !this.passwordTextType;
   }
 
+  private getDefaultRouteByRole(roleId: number): string {
+    if (roleId === 1) {
+      return '/dashboard';
+    }
+
+    if (roleId === 2) {
+      return '/catering/request';
+    }
+
+    if (roleId === 3) {
+      return '/scanner/scanner';
+    }
+
+    return '/dashboard';
+  }
+
+  private isAllowedReturnUrl(roleId: number, url: string): boolean {
+    const cleanUrl = (url || '').toLowerCase();
+
+    if (!cleanUrl || cleanUrl === '/') {
+      return false;
+    }
+
+    if (roleId === 1) {
+      return (
+        cleanUrl.startsWith('/dashboard') ||
+        cleanUrl.startsWith('/master') ||
+        cleanUrl.startsWith('/catering/companymaster') ||
+        cleanUrl.startsWith('/scanner/listqr') ||
+        cleanUrl.startsWith('/catering/reports')
+      );
+    }
+
+    if (roleId === 2) {
+      return (
+        cleanUrl.startsWith('/dashboard') ||
+        cleanUrl.startsWith('/requestoverride/request-override-list') ||
+        cleanUrl.startsWith('/catering/request')
+      );
+    }
+
+    if (roleId === 3) {
+      return cleanUrl.startsWith('/scanner/scanner');
+    }
+
+    return false;
+  }
+
   onSubmit(): void {
     this.submitted = true;
     this.error = '';
@@ -68,7 +116,7 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     const email = (this.loginForm.value.email || '').trim();
     const password = this.loginForm.value.password || '';
 
-     this._authenticationService.clearAuthData();
+    this._authenticationService.clearAuthData();
 
     this._authenticationService.login(email, password, this.rememberMe).subscribe({
       next: (response: any) => {
@@ -83,11 +131,17 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
             localStorage.removeItem('rememberedPassword');
           }
 
-          // Login success ஆனதும் current tab-ku fresh active lock set பண்ணு
           this._tabSessionService.activateCurrentTab();
 
-          const targetUrl =
-            this.returnUrl && this.returnUrl !== '/' ? this.returnUrl : '/dashboard';
+          const roleId = Number(
+            response?.data?.roleId || response?.data?.RoleId || response?.data?.role || 0
+          );
+
+          let targetUrl = this.getDefaultRouteByRole(roleId);
+
+          if (this.isAllowedReturnUrl(roleId, this.returnUrl)) {
+            targetUrl = this.returnUrl;
+          }
 
           this._router.navigateByUrl(targetUrl);
         } else {
@@ -123,7 +177,7 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     });
 
     this.rememberMe = !!rememberedEmail;
-    this.returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/dashboard';
+    this.returnUrl = this._route.snapshot.queryParams['returnUrl'] || '';
 
     if (this._tabSessionService.isDuplicateBlocked()) {
       this._tabSessionService.clearDuplicateBlockedFlag();
