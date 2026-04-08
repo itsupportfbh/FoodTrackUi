@@ -21,7 +21,7 @@ export const menu: CoreMenu[] = [
         title: 'Location',
         translate: 'MENU.SAMPLE',
         type: 'item',
-        icon: 'file',
+        icon: 'map-pin',
         url: 'master/location'
       },
       {
@@ -29,7 +29,7 @@ export const menu: CoreMenu[] = [
         title: 'Session',
         translate: 'MENU.SAMPLE',
         type: 'item',
-        icon: 'file',
+        icon: 'clock',
         url: 'master/session'
       },
       {
@@ -37,7 +37,7 @@ export const menu: CoreMenu[] = [
         title: 'Cuisine',
         translate: 'MENU.SAMPLE',
         type: 'item',
-        icon: 'file',
+        icon: 'coffee',
         url: 'master/cuisine'
       },
       {
@@ -45,7 +45,7 @@ export const menu: CoreMenu[] = [
         title: 'Site Settings',
         translate: 'MENU.SAMPLE',
         type: 'item',
-        icon: 'file',
+        icon: 'tool',
         url: 'master/site_settings'
       }
     ]
@@ -55,7 +55,7 @@ export const menu: CoreMenu[] = [
     title: 'Company',
     translate: 'MENU.SAMPLE',
     type: 'item',
-    icon: 'file',
+    icon: 'globe',
     url: 'catering/CompanyMaster'
   },
   {
@@ -63,7 +63,7 @@ export const menu: CoreMenu[] = [
     title: 'Order',
     translate: 'MENU.SAMPLE',
     type: 'item',
-    icon: 'file',
+    icon: 'shopping-cart',
     url: 'catering/request'
   },
   {
@@ -71,7 +71,7 @@ export const menu: CoreMenu[] = [
     title: 'Order Override',
     translate: 'MENU.SAMPLE',
     type: 'item',
-    icon: 'file',
+    icon: 'edit-3',
     url: 'requestoverride/Request-override-list'
   },
   {
@@ -79,7 +79,7 @@ export const menu: CoreMenu[] = [
     title: 'Generate QR',
     translate: 'MENU.SAMPLE',
     type: 'item',
-    icon: 'file',
+    icon: 'grid',
     url: 'scanner/listqr'
   },
   {
@@ -87,7 +87,7 @@ export const menu: CoreMenu[] = [
     title: 'Scanner',
     translate: 'MENU.SAMPLE',
     type: 'item',
-    icon: 'file',
+    icon: 'camera',
     url: 'scanner/scanner'
   },
   {
@@ -95,7 +95,7 @@ export const menu: CoreMenu[] = [
     title: 'Reports',
     translate: 'MENU.SAMPLE',
     type: 'item',
-    icon: 'file',
+    icon: 'bar-chart-2',
     url: 'catering/reports'
   }
 ];
