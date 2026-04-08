@@ -5,56 +5,90 @@
         <i data-feather="activity"></i>
       </div>
 
-      <div>
-        <h3>Recent Scanner Activity</h3>
+      <div class="scanner-header-content">
+        <div class="header-top-row">
+          <h3>Recent Scanner Activity</h3>
+          <span class="live-badge">LIVE</span>
+        </div>
+
         <p>Latest important redemption logs</p>
+
+        <div class="scan-summary-row">
+          <div class="scan-box">
+            <strong>{{ todayScans }}</strong>
+            <span>Today</span>
+          </div>
+
+          <div class="scan-box">
+            <strong>{{ yesterdayScans }}</strong>
+            <span>Yesterday</span>
+          </div>
+
+          <div
+            class="scan-change"
+            [ngClass]="scanChange >= 0 ? 'up' : 'down'"
+          >
+            <i [attr.data-feather]="scanChange >= 0 ? 'trending-up' : 'trending-down'"></i>
+            <span>{{ scanChange >= 0 ? '+' : '' }}{{ scanChange }}%</span>
+          </div>
+        </div>
       </div>
     </div>
-
-    <button type="button" class="invalid-btn">
-      <i data-feather="alert-circle"></i>
-      <span>Invalid Scans</span>
-    </button>
   </div>
 
-  <div class="scanner-list">
-    <div class="scanner-item" *ngFor="let item of scannerActivities">
-      <div class="scanner-main">
-        <div
-          class="scanner-avatar"
-          [ngClass]="{
-            'avatar-redeemed': item.status === 'Redeemed',
-            'avatar-invalid': item.status === 'Invalid'
-          }"
-        >
-          <i
-            [attr.data-feather]="item.status === 'Redeemed' ? 'check-circle' : 'x-circle'"
-          ></i>
-        </div>
+  <div class="scanner-split-grid" *ngIf="scannerActivities?.length">
+    <div class="scanner-column">
+      <div class="scanner-item" *ngFor="let item of leftScannerActivities">
+        <div class="scanner-main">
+          <div class="scanner-content">
+            <div class="scanner-title-row">
+              <span class="qr-badge">{{ item.qrNo }}</span>
+              <span class="dot"></span>
+              <h5 class="company-name">{{ item.companyName }}</h5>
+            </div>
 
-        <div class="scanner-content">
-          <div class="scanner-title-row">
-            <h4>{{ item.qrNo }}</h4>
-            <span class="dot"></span>
-            <h5>{{ item.companyName }}</h5>
-          </div>
-
-          <div class="scanner-meta">
-            <span class="meta-chip">{{ item.session }}</span>
-            <span class="meta-time">{{ item.time }}</span>
+            <div class="scanner-meta">
+              <span class="meta-chip">{{ item.session || 'Session N/A' }}</span>
+              <span class="meta-separator">•</span>
+              <span class="meta-time">
+                <i data-feather="clock"></i>
+                {{ item.time || '-' }}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div
-        class="scanner-status"
-        [ngClass]="{
-          'status-redeemed': item.status === 'Redeemed',
-          'status-invalid': item.status === 'Invalid'
-        }"
-      >
-        {{ item.status }}
       </div>
     </div>
+
+    <div class="scanner-column">
+      <div class="scanner-item" *ngFor="let item of rightScannerActivities">
+        <div class="scanner-main">
+          <div class="scanner-content">
+            <div class="scanner-title-row">
+              <span class="qr-badge">{{ item.qrNo }}</span>
+              <span class="dot"></span>
+              <h5 class="company-name">{{ item.companyName }}</h5>
+            </div>
+
+            <div class="scanner-meta">
+              <span class="meta-chip">{{ item.session || 'Session N/A' }}</span>
+              <span class="meta-separator">•</span>
+              <span class="meta-time">
+                <i data-feather="clock"></i>
+                {{ item.time || '-' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!scannerActivities?.length">
+    <div class="empty-icon">
+      <i data-feather="inbox"></i>
+    </div>
+    <h4>No recent scanner activity</h4>
+    <p>No scanner logs available right now.</p>
   </div>
 </div>

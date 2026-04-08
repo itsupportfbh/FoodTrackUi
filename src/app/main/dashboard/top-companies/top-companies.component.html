@@ -6,13 +6,19 @@
       </div>
       <div>
         <h3>Top Company Performance</h3>
-        <p>Important company cards</p>
+        <p>Top companies by total orders</p>
       </div>
     </div>
   </div>
 
-  <div class="company-grid">
-    <div class="company-card" *ngFor="let item of topCompanies" [ngClass]="item.cardClass">
+  <div class="company-split-grid">
+
+  <!-- LEFT SIDE -->
+  <div class="company-column">
+    <div class="company-card"
+         *ngFor="let item of leftCompanies"
+         [ngClass]="item.cardClass">
+
       <div class="company-card-top">
         <div class="company-left">
           <div class="company-avatar" [ngClass]="item.avatarClass">
@@ -21,25 +27,49 @@
 
           <div class="company-text">
             <h4>{{ item.name }}</h4>
-            <span>Total Orders</span>
+            <span>{{ item.orders }} Orders</span>
           </div>
         </div>
 
-        <div class="rate-pill" [ngClass]="item.badgeClass">
-          {{ item.rate }}%
+      
+      </div>
+
+      <!-- <div class="company-card-body">
+        <div class="orders-value">{{ item.orders }}</div>
+
+       
+      </div> -->
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="company-column">
+    <div class="company-card"
+         *ngFor="let item of rightCompanies"
+         [ngClass]="item.cardClass">
+
+      <div class="company-card-top">
+        <div class="company-left">
+          <div class="company-avatar" [ngClass]="item.avatarClass">
+            {{ getInitials(item.name) }}
+          </div>
+
+          <div class="company-text">
+            <h4>{{ item.name }}</h4>
+            <span>{{ item.orders }} Orders</span>
+          </div>
         </div>
+
+       
       </div>
 
       <div class="company-card-body">
         <div class="orders-value">{{ item.orders }}</div>
 
-        <div class="redeemed-row">
-          <span>Redeemed {{ item.redeemed }}</span>
-         
-        </div>
-
-        
+       
       </div>
     </div>
   </div>
+
+</div>
 </div>
