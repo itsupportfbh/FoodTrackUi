@@ -76,14 +76,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       sub: '420 active today',
       icon: 'grid',
       theme: 'pink'
-    },
-    {
-      title: 'Scanner Hits',
-      value: '3,214',
-      sub: '89 failed scans',
-      icon: 'camera',
-      theme: 'success'
     }
+   
   ];
 
   sessionDemand: SessionDemandItem[] = [
@@ -217,8 +211,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         return 84;
       case 'QR Generated':
         return 76;
-      case 'Scanner Hits':
-        return 68;
+      
       default:
         return 50;
     }

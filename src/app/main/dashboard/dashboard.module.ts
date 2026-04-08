@@ -6,6 +6,7 @@ import { SessionDemandComponent } from './session-demand/session-demand.componen
 import { TopCompaniesComponent } from './top-companies/top-companies.component';
 import { TotalCompanySummaryComponent } from './total-company-summary/total-company-summary.component';
 import { CuisineSessionPerformanceComponent } from './cuisine-session-performance/cuisine-session-performance.component';
+import { RecentScannerActivityComponent } from './recent-scanner-activity/recent-scanner-activity.component';
 
 const routes: Routes = [
   {
@@ -21,7 +22,8 @@ const routes: Routes = [
     SessionDemandComponent,
     TopCompaniesComponent,
     TotalCompanySummaryComponent,
-    CuisineSessionPerformanceComponent
+    CuisineSessionPerformanceComponent,
+    RecentScannerActivityComponent
   ],
   imports: [
     CommonModule,

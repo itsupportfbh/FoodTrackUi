@@ -1,18 +1,12 @@
 <div class="summary-grid">
   <div class="summary-card" *ngFor="let item of summaryCards">
-    <div class="summary-top">
-      <div class="summary-icon" [ngClass]="'theme-' + item.theme">
-        <i [attr.data-feather]="item.icon"></i>
-      </div>
-
-      <div class="summary-badge" [ngClass]="'badge-' + item.theme">
-        {{ item.sub }}
-      </div>
-    </div>
-
     <div class="summary-body">
       <div class="summary-title">{{ item.title }}</div>
       <div class="summary-value">{{ item.value }}</div>
+    </div>
+
+    <div class="summary-icon" [ngClass]="'theme-' + item.theme">
+      <i [attr.data-feather]="item.icon"></i>
     </div>
   </div>
 </div>

@@ -1,174 +1,285 @@
 :host {
   display: block;
   width: 100%;
-  height: 100%;
 }
 
-.top-companies-card {
-  background: #ffffff;
-  border: 1px solid #ebe9f1;
-  border-radius: 18px;
-  box-shadow: 0 4px 14px rgba(34, 41, 47, 0.05);
-  padding: 1rem 1.05rem;
+.top-company-widget {
   width: 100%;
-  height: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 10px;
+  border: 1px solid #e9eef5;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.widget-header {
+  margin-bottom: 8px;
+}
+
+.widget-title-wrap {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f1f4a;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 10px;
+    color: #7b8ba3;
+    font-weight: 500;
+  }
 }
 
-.section-header {
+.widget-icon {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7367f0, #9d92ff);
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+
+  i {
+    width: 13px;
+    height: 13px;
+  }
 }
 
-.section-header h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #5e5873;
-  line-height: 1.2;
+.company-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
-.section-header p {
-  margin: 0.22rem 0 0;
-  font-size: 0.78rem;
-  color: #8e8ca2;
-  line-height: 1.4;
+.company-card {
+  border-radius: 14px;
+  padding: 10px;
+  border: 1px solid #e7edf5;
+  transition: all 0.2s ease;
+  overflow: hidden;
 }
 
-.section-icon {
-  width: 16px;
-  height: 16px;
-  min-width: 16px;
+.company-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.05);
 }
 
-.primary-text {
-  color: #7367f0;
+.card-green {
+  background: linear-gradient(180deg, #ffffff 0%, #f4fcf8 100%);
 }
 
-.companies-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  flex: 1;
+.card-purple {
+  background: linear-gradient(180deg, #ffffff 0%, #f8f6ff 100%);
 }
 
-.company-row {
+.card-blue {
+  background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
+}
+
+.card-orange {
+  background: linear-gradient(180deg, #ffffff 0%, #fff8f2 100%);
+}
+
+.company-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.85rem;
-  padding: 0.8rem 0.9rem;
-  border: 1px solid #ebe9f1;
-  border-radius: 14px;
-  background: #f8f8fb;
-  transition: all 0.2s ease;
-}
-
-.company-row:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(34, 41, 47, 0.06);
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .company-left {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 8px;
   min-width: 0;
 }
 
-.company-rank {
+.company-avatar {
   width: 30px;
   height: 30px;
   min-width: 30px;
   border-radius: 10px;
-  background: rgba(115, 103, 240, 0.12);
-  color: #7367f0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.78rem;
+  font-size: 10px;
   font-weight: 700;
+  color: #fff;
 }
 
-.company-details {
+.avatar-green {
+  background: linear-gradient(135deg, #10b981, #34d399);
+}
+
+.avatar-purple {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+}
+
+.avatar-blue {
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+}
+
+.avatar-orange {
+  background: linear-gradient(135deg, #f97316, #fb923c);
+}
+
+.company-text {
   min-width: 0;
+
+  h4 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #10214d;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  span {
+    display: block;
+    margin-top: 1px;
+    font-size: 10px;
+    color: #8091ab;
+    font-weight: 500;
+  }
 }
 
-.company-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #2c2c3a;
-  line-height: 1.3;
-  word-break: break-word;
-}
-
-.company-right {
-  display: flex;
-  align-items: baseline;
-  gap: 0.25rem;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.company-right strong {
-  font-size: 0.9rem;
+.rate-pill {
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 10px;
   font-weight: 700;
-  color: #2c2c3a;
+  white-space: nowrap;
 }
 
-.company-right span {
-  font-size: 0.74rem;
-  color: #9e9db8;
+.badge-green {
+  background: #e9faf1;
+  color: #0f8a5f;
 }
 
-@media (max-width: 767px) {
-  :host {
-    height: auto;
+.badge-purple {
+  background: #f2ecff;
+  color: #7c3aed;
+}
+
+.badge-blue {
+  background: #eaf4ff;
+  color: #2563eb;
+}
+
+.badge-orange {
+  background: #fff2e8;
+  color: #ea580c;
+}
+
+.company-card-body {
+  padding-left: 38px;
+}
+
+.orders-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: #071a45;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.redeemed-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 10px;
+  color: #7083a1;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 5px;
+  background: #e8edf5;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.progress-green {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.progress-purple {
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+}
+
+.progress-blue {
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+}
+
+.progress-orange {
+  background: linear-gradient(90deg, #f97316, #fb923c);
+}
+
+@media (max-width: 991.98px) {
+  .company-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .top-company-widget {
+    padding: 8px;
   }
 
-  .top-companies-card {
-    padding: 0.9rem;
-    border-radius: 16px;
-    height: auto;
+  .company-card {
+    padding: 9px;
   }
 
-  .section-header {
-    margin-bottom: 0.85rem;
+  .company-card-body {
+    padding-left: 0;
   }
 
-  .section-header h3 {
-    font-size: 0.94rem;
+  .widget-title-wrap h3 {
+    font-size: 13px;
   }
 
-  .section-header p {
-    font-size: 0.74rem;
+  .widget-title-wrap p {
+    font-size: 9px;
   }
 
-  .company-row {
-    padding: 0.72rem 0.8rem;
-    border-radius: 12px;
-  }
-
-  .company-rank {
+  .company-avatar {
     width: 28px;
     height: 28px;
     min-width: 28px;
-    font-size: 0.74rem;
+    font-size: 9px;
   }
 
-  .company-name {
-    font-size: 0.8rem;
+  .company-text h4 {
+    font-size: 11px;
   }
 
-  .company-right strong {
-    font-size: 0.84rem;
+  .orders-value {
+    font-size: 16px;
   }
 
-  .company-right span {
-    font-size: 0.7rem;
+  .rate-pill {
+    font-size: 9px;
+    padding: 3px 6px;
   }
 }
