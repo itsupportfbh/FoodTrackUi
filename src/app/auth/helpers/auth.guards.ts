@@ -48,7 +48,8 @@ export class AuthGuard implements CanActivate {
       return (
         cleanUrl.startsWith('/dashboard') ||
         cleanUrl.startsWith('/requestoverride/request-override-list') ||
-        cleanUrl.startsWith('/catering/request')
+        cleanUrl.startsWith('/catering/request')||
+        cleanUrl.startsWith('/requestoverride/request-override')
       );
     }
 
