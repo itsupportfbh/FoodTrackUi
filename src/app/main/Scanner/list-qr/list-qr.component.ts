@@ -210,7 +210,7 @@ filterRequests(): void {
   }
 
   openCreate(): void {
-    if (!this.canManageOrders) return;
+    
     this.router.navigate(['scanner/qrgenerate']);
   }
 
