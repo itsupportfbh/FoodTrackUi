@@ -80,41 +80,62 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
     return this.roleId === 1;
   }
 
-  loadPageMasters(): void {
-    this.reportService.getPageMasters(this.userId).subscribe({
-      next: (res: any) => {
-        const data = res?.data || {};
+ loadPageMasters(): void {
+  this.reportService.getPageMasters(this.userId).subscribe({
+    next: (res: any) => {
+      const data = res?.data || {};
 
-        this.companies = data.companies || [];
-        this.sessions = data.sessions || [];
-        this.cuisines = data.cuisines || [];
-        this.locations = data.locations || [];
+      this.companies = [
+        { id: null, name: 'All companies' },
+        ...(data.companies || [])
+      ];
 
-        if (this.roleId === 2) {
-          this.companyObj =
-            this.companies.find(
-              (x: any) => Number(x.id) === Number(data?.defaultCompanyId || this.defaultCompanyId)
-            ) || null;
-        }
+      this.sessions = [
+        { id: null, name: 'All sessions' },
+        ...(data.sessions || [])
+      ];
 
-        this.loadReport();
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', 'Failed to load page masters', 'error');
+      this.cuisines = [
+        { id: null, name: 'All cuisines' },
+        ...(data.cuisines || [])
+      ];
+
+      this.locations = [
+        { id: null, name: 'All locations' },
+        ...(data.locations || [])
+      ];
+
+      if (this.roleId === 2) {
+        this.companyObj =
+          this.companies.find(
+            (x: any) => Number(x.id) === Number(data?.defaultCompanyId || this.defaultCompanyId)
+          ) || this.companies[0];
+      } else {
+        this.companyObj = this.companies[0];
       }
-    });
-  }
+
+      this.sessionObj = this.sessions[0];
+      this.cuisineObj = this.cuisines[0];
+      this.locationObj = this.locations[0];
+
+      this.loadReport();
+    },
+    error: (err) => {
+      console.error(err);
+      Swal.fire('Error', 'Failed to load page masters', 'error');
+    }
+  });
+}
 
  loadReport(): void {
   const payload = {
     userId: this.userId,
-    companyId: this.companyObj ? Number(this.companyObj.id) : null,
+    companyId: this.companyObj?.id ? Number(this.companyObj.id) : null,
     fromDate: this.filter.fromDate || null,
     toDate: this.filter.toDate || null,
-    sessionId: this.sessionObj ? Number(this.sessionObj.id) : null,
-    cuisineId: this.cuisineObj ? Number(this.cuisineObj.id) : null,
-    locationId: this.locationObj ? Number(this.locationObj.id) : null
+    sessionId: this.sessionObj?.id ? Number(this.sessionObj.id) : null,
+    cuisineId: this.cuisineObj?.id ? Number(this.cuisineObj.id) : null,
+    locationId: this.locationObj?.id ? Number(this.locationObj.id) : null
   };
 
   this.reportService.getReportByDates(payload).subscribe({
@@ -135,24 +156,27 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
   });
 }
 
-  resetFilters(): void {
-    const today = new Date().toISOString().split('T')[0];
+ resetFilters(): void {
+  const today = new Date().toISOString().split('T')[0];
 
-    this.filter.fromDate = today;
-    this.filter.toDate = today;
-    this.sessionObj = null;
-    this.cuisineObj = null;
-    this.locationObj = null;
+  this.filter.fromDate = today;
+  this.filter.toDate = today;
 
-    if (this.roleId === 1) {
-      this.companyObj = null;
-    } else {
-      this.companyObj =
-        this.companies.find((x: any) => Number(x.id) === Number(this.defaultCompanyId)) || null;
-    }
+  this.sessionObj = this.sessions.length ? this.sessions[0] : null;
+  this.cuisineObj = this.cuisines.length ? this.cuisines[0] : null;
+  this.locationObj = this.locations.length ? this.locations[0] : null;
 
-    this.loadReport();
+  if (this.roleId === 1) {
+    this.companyObj = this.companies.length ? this.companies[0] : null;
+  } else {
+    this.companyObj =
+      this.companies.find((x: any) => Number(x.id) === Number(this.defaultCompanyId)) ||
+      this.companies[0] ||
+      null;
   }
+
+  this.loadReport();
+}
 
   printReport(): void {
   if (!this.rows || this.rows.length === 0) {
