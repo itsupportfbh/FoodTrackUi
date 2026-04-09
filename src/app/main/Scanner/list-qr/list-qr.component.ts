@@ -22,6 +22,8 @@ export class ListQRComponent implements OnInit, AfterViewInit, AfterViewChecked 
   roleId = 0;
   loading = false;
 
+  currentPage = 1;
+
   constructor(
     private router: Router,
     private scannerService: ScannerService
@@ -44,8 +46,34 @@ export class ListQRComponent implements OnInit, AfterViewInit, AfterViewChecked 
     return this.roleId !== 1;
   }
 
+  get totalPages(): number {
+    const total = this.filteredRows.length;
+    const size = Number(this.selectedOption) || 10;
+    return total > 0 ? Math.ceil(total / size) : 0;
+  }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
   get pagedRows(): any[] {
-    return this.filteredRows.slice(0, this.selectedOption);
+    const startIndex = (this.currentPage - 1) * this.selectedOption;
+    const endIndex = startIndex + this.selectedOption;
+    return this.filteredRows.slice(startIndex, endIndex);
+  }
+
+  get startRecord(): number {
+    if (this.filteredRows.length === 0) {
+      return 0;
+    }
+    return (this.currentPage - 1) * this.selectedOption + 1;
+  }
+
+  get endRecord(): number {
+    if (this.filteredRows.length === 0) {
+      return 0;
+    }
+    return Math.min(this.currentPage * this.selectedOption, this.filteredRows.length);
   }
 
   getCurrentUserData(): void {
@@ -71,151 +99,165 @@ export class ListQRComponent implements OnInit, AfterViewInit, AfterViewChecked 
   }
 
   loadQrList(): void {
-  this.loading = true;
+    this.loading = true;
 
-  const payload = {
-    userId: this.userId,
-    companyId: this.companyId,
-    isAdmin: this.isAdmin
-  };
+    const payload = {
+      userId: this.userId,
+      companyId: this.companyId,
+      isAdmin: this.isAdmin
+    };
 
-  this.scannerService.getallQR(payload).subscribe({
-    next: (res: any) => {
-      console.log('QR LIST RESPONSE:', res);
+    this.scannerService.getallQR(payload).subscribe({
+      next: (res: any) => {
+        console.log('QR LIST RESPONSE:', res);
 
-      const data = Array.isArray(res) ? res : (res?.data || []);
+        const data = Array.isArray(res) ? res : (res?.data || []);
 
-      this.rows = data.map((item: any) => ({
-        id: item.id,
-        companyId: item.companyId,
-        companyName: item.companyName,
-        companyEmail: item.companyEmail,
-        requestId: item.requestId,
-        requestNo: item.requestNo,
-        noofQR: item.noofQR,
-        qrValidFrom: item.qrValidFrom,
-        qrValidTill: item.qrValidTill,
-        qrImageBase64: item.qrImageBase64 || null,
-        qrImages: Array.isArray(item.qrImages) ? item.qrImages : []
-      }));
+        this.rows = data.map((item: any) => ({
+          id: item.id,
+          companyId: item.companyId,
+          companyName: item.companyName,
+          companyEmail: item.companyEmail,
+          requestId: item.requestId,
+          requestNo: item.requestNo,
+          noofQR: item.noofQR,
+          qrValidFrom: item.qrValidFrom,
+          qrValidTill: item.qrValidTill,
+          qrImageBase64: item.qrImageBase64 || null,
+          qrImages: Array.isArray(item.qrImages) ? item.qrImages : []
+        }));
 
-      this.filteredRows = [...this.rows];
-      this.loading = false;
-      feather.replace();
+        this.filteredRows = [...this.rows];
+        this.currentPage = 1;
+        this.loading = false;
 
-      console.log('API DATA:', data);
-console.log('MAPPED ROWS:', this.rows);
-console.log('NO OF QR VALUES:', this.rows.map(x => x.noofQR));
-    },
-    error: (err: any) => {
-      this.loading = false;
-      console.error('QR LIST ERROR:', err);
-      Swal.fire('Error', err?.error?.message || 'Failed to load QR list', 'error');
-    }
-  });
-}
+        feather.replace();
 
-sendMail(row: any): void {
-  console.log('MAIL ROW:', row);
-
-  const payload = {
-    id: row.id,
-    requestId: row.requestId,
-    companyId: row.companyId,
-      email: row.companyEmail
-
-  };
-
-  console.log('MAIL PAYLOAD:', payload);
-
-  this.scannerService.sendQrEmail(payload).subscribe({
-    next: (res: any) => {
-      console.log('MAIL SUCCESS:', res);
-      Swal.fire('Success', res?.message || 'Mail sent successfully', 'success');
-    },
-    error: (err: any) => {
-      console.error('MAIL ERROR:', err);
-      console.error('MAIL ERROR BODY:', err?.error);
-      Swal.fire('Error', err?.error?.message || 'Failed to send mail', 'error');
-    }
-  });
-}
-
-downloadFile(row: any): void {
-  const qrCodeRequestId = row?.qrCodeRequestId || row?.id || 0;
-
-  if (!qrCodeRequestId) {
-    console.error('Invalid row data:', row);
-    Swal.fire('Info', 'QR Code Request Id not found', 'info');
-    return;
-  }
-
-  this.scannerService.downloadQrZip(qrCodeRequestId).subscribe({
-    next: (blob: Blob) => {
-      if (!blob || blob.size === 0) {
-        Swal.fire('Info', 'ZIP file is empty', 'info');
-        return;
+        console.log('API DATA:', data);
+        console.log('MAPPED ROWS:', this.rows);
+        console.log('NO OF QR VALUES:', this.rows.map(x => x.noofQR));
+      },
+      error: (err: any) => {
+        this.loading = false;
+        console.error('QR LIST ERROR:', err);
+        Swal.fire('Error', err?.error?.message || 'Failed to load QR list', 'error');
       }
-
-      const companyName = (row.companyName || 'Company').replace(/\s+/g, '-');
-      const requestNo = (row.requestNo || 'qr-images').replace(/\s+/g, '-');
-      const fileName = `CSPL-${companyName}-${requestNo}.zip`;
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-
-      link.href = url;
-      link.download = fileName;
-      link.style.display = 'none';
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(url);
-
-      Swal.fire('Success', 'ZIP downloaded successfully', 'success');
-    },
-    error: (err: any) => {
-      console.error('ZIP DOWNLOAD ERROR:', err);
-      Swal.fire('Error', 'Failed to download ZIP file', 'error');
-    }
-  });
-}
-
-filterRequests(): void {
-  debugger
-  const text = (this.searchText || '').trim().toLowerCase();
-
-  if (!text) {
-    this.filteredRows = [...this.rows];
-    return;
+    });
   }
 
-  this.filteredRows = this.rows.filter((x: any) => {
-    const qtyText = String(x.noofQR ?? x.NoofQR ?? x.noOfQR ?? '')
-      .trim()
-      .toLowerCase();
+  sendMail(row: any): void {
+    console.log('MAIL ROW:', row);
 
-    return (
-      String(x.id ?? '').toLowerCase().includes(text) ||
-      String(x.requestId ?? '').toLowerCase().includes(text) ||
-      String(x.requestNo ?? '').toLowerCase().includes(text) ||
-      String(x.companyName ?? '').toLowerCase().includes(text) ||
-      String(x.companyEmail ?? '').toLowerCase().includes(text) ||
-      qtyText.includes(text) ||
-      this.displayDate(x.qrValidFrom).toLowerCase().includes(text) ||
-      this.displayDate(x.qrValidTill).toLowerCase().includes(text)
-    );
-  });
-}
+    const payload = {
+      id: row.id,
+      requestId: row.requestId,
+      companyId: row.companyId,
+      email: row.companyEmail
+    };
+
+    console.log('MAIL PAYLOAD:', payload);
+
+    this.scannerService.sendQrEmail(payload).subscribe({
+      next: (res: any) => {
+        console.log('MAIL SUCCESS:', res);
+        Swal.fire('Success', res?.message || 'Mail sent successfully', 'success');
+      },
+      error: (err: any) => {
+        console.error('MAIL ERROR:', err);
+        console.error('MAIL ERROR BODY:', err?.error);
+        Swal.fire('Error', err?.error?.message || 'Failed to send mail', 'error');
+      }
+    });
+  }
+
+  downloadFile(row: any): void {
+    const qrCodeRequestId = row?.qrCodeRequestId || row?.id || 0;
+
+    if (!qrCodeRequestId) {
+      console.error('Invalid row data:', row);
+      Swal.fire('Info', 'QR Code Request Id not found', 'info');
+      return;
+    }
+
+    this.scannerService.downloadQrZip(qrCodeRequestId).subscribe({
+      next: (blob: Blob) => {
+        if (!blob || blob.size === 0) {
+          Swal.fire('Info', 'ZIP file is empty', 'info');
+          return;
+        }
+
+        const companyName = (row.companyName || 'Company').replace(/\s+/g, '-');
+        const requestNo = (row.requestNo || 'qr-images').replace(/\s+/g, '-');
+        const fileName = `CSPL-${companyName}-${requestNo}.zip`;
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = fileName;
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(url);
+
+        Swal.fire('Success', 'ZIP downloaded successfully', 'success');
+      },
+      error: (err: any) => {
+        console.error('ZIP DOWNLOAD ERROR:', err);
+        Swal.fire('Error', 'Failed to download ZIP file', 'error');
+      }
+    });
+  }
+
+  filterRequests(): void {
+    const text = (this.searchText || '').trim().toLowerCase();
+
+    if (!text) {
+      this.filteredRows = [...this.rows];
+      this.currentPage = 1;
+      return;
+    }
+
+    this.filteredRows = this.rows.filter((x: any) => {
+      const qtyText = String(x.noofQR ?? x.NoofQR ?? x.noOfQR ?? '')
+        .trim()
+        .toLowerCase();
+
+      return (
+        String(x.id ?? '').toLowerCase().includes(text) ||
+        String(x.requestId ?? '').toLowerCase().includes(text) ||
+        String(x.requestNo ?? '').toLowerCase().includes(text) ||
+        String(x.companyName ?? '').toLowerCase().includes(text) ||
+        String(x.companyEmail ?? '').toLowerCase().includes(text) ||
+        qtyText.includes(text) ||
+        this.displayDate(x.qrValidFrom).toLowerCase().includes(text) ||
+        this.displayDate(x.qrValidTill).toLowerCase().includes(text)
+      );
+    });
+
+    this.currentPage = 1;
+  }
 
   onPageSizeChange(): void {
-    this.filteredRows = [...this.filteredRows];
+    this.currentPage = 1;
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) {
+      return;
+    }
+
+    this.currentPage = page;
+
+    setTimeout(() => {
+      feather.replace();
+    }, 0);
   }
 
   openCreate(): void {
-    
     this.router.navigate(['scanner/qrgenerate']);
   }
 
