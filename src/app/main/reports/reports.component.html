@@ -104,16 +104,16 @@
           <div></div>
         </div>
 
-        <div class="action-row">
-          <button type="button" class="btn btn-primary action-btn" (click)="loadReport()">
-            <i data-feather="search" class="mr-50"></i>
-            View Report
-          </button>
+        <div class="action-row compact-action-row">
+        <button type="button" class="btn btn-primary action-btn" (click)="loadReport()">
+          <i data-feather="search" class="mr-50"></i>
+          View Report
+        </button>
 
-          <button type="button" class="btn btn-outline-secondary action-btn" (click)="resetFilters()">
-            <i data-feather="refresh-cw" class="mr-50"></i>
-            Reset
-          </button>
+        <button type="button" class="btn btn-outline-secondary action-btn" (click)="resetFilters()">
+          <i data-feather="refresh-cw" class="mr-50"></i>
+          Reset
+        </button>
 
         <button
           type="button"
@@ -123,7 +123,27 @@
           <i data-feather="printer" class="mr-50"></i>
           Print
         </button>
-        </div>
+
+        <button
+          type="button"
+          class="btn btn-outline-success action-btn"
+          (click)="downloadExcel()"
+          [disabled]="rows.length === 0 || excelLoading">
+          <i data-feather="download" class="mr-50"></i>
+          {{ excelLoading ? 'Downloading...' : 'Excel Download' }}
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline-info action-btn"
+          (click)="openEmailPopup()"
+          [disabled]="rows.length === 0">
+          <i data-feather="mail" class="mr-50"></i>
+          Mail
+        </button>
+
+       
+      </div>
       </div>
 
      
@@ -177,6 +197,63 @@
           </tbody>
         </table>
       </div>
+    </div>
+  </div>
+</div>
+<div class="email-modal-backdrop" *ngIf="showEmailPopup">
+  <div class="email-modal-card">
+    <div class="email-modal-header">
+      <h5 class="mb-0">Send Report Mail</h5>
+      <button type="button" class="close-btn" (click)="closeEmailPopup()">&times;</button>
+    </div>
+
+    <div class="email-modal-body">
+      <div class="form-group">
+        <label>To Email <span class="text-danger">*</span></label>
+        <input
+          type="email"
+          class="form-control report-input"
+          [(ngModel)]="emailForm.toEmail"
+          name="toEmail"
+          placeholder="Enter recipient email"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Subject</label>
+        <input
+          type="text"
+          class="form-control report-input"
+          [(ngModel)]="emailForm.subject"
+          name="subject"
+          placeholder="Enter subject"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Message</label>
+        <textarea
+          rows="4"
+          class="form-control report-textarea"
+          [(ngModel)]="emailForm.body"
+          name="body"
+          placeholder="Enter message"></textarea>
+      </div>
+    </div>
+
+    <div class="email-modal-footer">
+      <button type="button" class="btn btn-outline-secondary action-btn-sm" (click)="closeEmailPopup()">
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary action-btn-sm"
+        (click)="sendReportEmail()"
+        [disabled]="emailSending">
+        <i data-feather="send" class="mr-50"></i>
+        {{ emailSending ? 'Sending...' : 'Send Mail' }}
+      </button>
     </div>
   </div>
 </div>

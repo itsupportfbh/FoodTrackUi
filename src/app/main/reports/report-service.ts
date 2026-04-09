@@ -18,4 +18,13 @@ export class ReportService {
   getReportByDates(payload: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/GetReportByDates`, payload);
   }
+  exportReportExcel(payload: any): Observable<Blob> {
+  return this.http.post(`${this.baseUrl}/ExportReportExcel`, payload, {
+    responseType: 'blob'
+  });
+  }
+
+  sendReportEmail(payload: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/SendReportEmail`, payload);
+  }
 }
