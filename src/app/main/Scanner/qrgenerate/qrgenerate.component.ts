@@ -409,7 +409,7 @@ isProcessing = false;
 
       Swal.fire(
         'Success',
-        'QR generated, saved and email sent successfully',
+        'QR generated  and Email sent successfully ',
         'success'
       ).then(() => {
         this.router.navigate(['/scanner/listqr']);
