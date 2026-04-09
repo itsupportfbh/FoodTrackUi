@@ -30,4 +30,8 @@ export class RequestService {
   deleteRequest(id: number, userId: number): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/DeleteRequest/${id}?userId=${userId}`);
   }
+
+   getOrderDate(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/GetOrderDays`);
+  }
 }

@@ -17,7 +17,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
   searchText = '';
   selectedOption = 10;
   pageNumber = 0;
-
+  orderDays = 3;
   userId = 0;
   companyId = 0;
   isAdmin = false;
@@ -41,6 +41,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
     this.isAdmin = role.includes('admin');
 
     this.loadRequests();
+    this.loadorderDate();
   }
    get isOwnerView(): boolean {
     return this.companyId === 0;
@@ -76,6 +77,20 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
       }
     });
   }
+
+  loadorderDate(): void {
+    this.requestService.getOrderDate().subscribe({
+      next: (res: any) => {
+        this.orderDays = res || 3;
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire('Error', 'Failed to load order days', 'error');
+      }
+    });
+  }
+
+
   getInitials(name: string): string {
     if (!name) return '';
     return name
@@ -139,6 +154,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
           next: (res: any) => {
             Swal.fire('Deleted', res?.message || 'Request deleted successfully', 'success');
             this.loadRequests();
+            this.loadorderDate();
           },
           error: (err) => {
             console.error(err);
@@ -202,7 +218,7 @@ openOverride(row: any): void {
                 />
               </div>
               <div class="override-helper">
-                Must be at least 3 days ahead and within request range
+                Must be at least ${this.orderDays} days ahead and within request range
               </div>
             </div>
 
@@ -294,7 +310,7 @@ openOverride(row: any): void {
 
       if (!this.isAtLeastThreeDaysBefore(selFrom)) {
         Swal.showValidationMessage(
-          'Override/edit must be done at least 3 days before the override from date'
+          `Override/edit must be done at least ${this.orderDays} days before the override from date`
         );
         return false;
       }
@@ -512,7 +528,7 @@ isAtLeastThreeDaysBefore(fromDate: Date): boolean {
   const minAllowed = new Date(
     todayOnly.getFullYear(),
     todayOnly.getMonth(),
-    todayOnly.getDate() + 3
+    todayOnly.getDate() + this.orderDays
   );
 
   return selected.getTime() >= minAllowed.getTime();

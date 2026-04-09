@@ -19,6 +19,7 @@ export class SitesettingsComponent implements OnInit, AfterViewInit {
   lateLunchCutOffTime = '';
   dinnerCutOffTime = '';
   lateDinnerCutOffTime = '';
+  orderDate = 0;
 
   selectedSiteSetting: any = null;
   userId: string | null = null;
@@ -76,6 +77,9 @@ export class SitesettingsComponent implements OnInit, AfterViewInit {
 
     this.lateDinnerCutOffTime =
       data?.lateDinnerCutOffTime ?? data?.LateDinnerCutOffTime ?? '';
+
+      this.orderDate =
+      data?.orderDays ?? data?.orderDays ?? 0;
   }
 
   private resetFormValues(): void {
@@ -84,6 +88,7 @@ export class SitesettingsComponent implements OnInit, AfterViewInit {
     this.lateLunchCutOffTime = '';
     this.dinnerCutOffTime = '';
     this.lateDinnerCutOffTime = '';
+    this.orderDate = 0;
   }
 
   private resetFormState(): void {
@@ -121,6 +126,7 @@ export class SitesettingsComponent implements OnInit, AfterViewInit {
       lateLunchCutOffTime: this.lateLunchCutOffTime || '',
       dinnerCutOffTime: this.dinnerCutOffTime || '',
       lateDinnerCutOffTime: this.lateDinnerCutOffTime || '',
+      orderDays: this.orderDate || 0,
       isActive: true,
       createdDate:
         this.selectedSiteSetting?.createdDate ??

@@ -22,7 +22,7 @@
 
       <div class="card-body">
         <form #siteForm="ngForm" (ngSubmit)="onSubmit(siteForm)">
-          <div class="form-group">
+          <div style="display: none;" class="form-group">
             <label for="breakfastCutOffTime">Breakfast Cut Off Time</label>
             <input
               type="text"
@@ -35,7 +35,7 @@
             />
           </div>
 
-          <div class="form-group">
+          <div style="display: none;" class="form-group">
             <label for="lunchCutOffTime">Lunch Cut Off Time</label>
             <input
               type="text"
@@ -48,7 +48,7 @@
             />
           </div>
 
-          <div class="form-group">
+          <div style="display: none;" class="form-group">
             <label for="lateLunchCutOffTime">Late Lunch Cut Off Time</label>
             <input
               type="text"
@@ -61,7 +61,7 @@
             />
           </div>
 
-          <div class="form-group">
+          <div style="display: none;" class="form-group">
             <label for="dinnerCutOffTime">Dinner Cut Off Time</label>
             <input
               type="text"
@@ -74,7 +74,7 @@
             />
           </div>
 
-          <div class="form-group">
+          <div  style="display: none;" class="form-group">
             <label for="lateDinnerCutOffTime">Late Dinner Cut Off Time</label>
             <input
               type="text"
@@ -83,6 +83,20 @@
               class="form-control"
               [(ngModel)]="lateDinnerCutOffTime"
               placeholder="Enter late dinner cut off time"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="orderDate">Order Start Date </label>
+            <small class="text-muted"> Minimum 3 days advance required</small>
+            <input
+              type="text"
+              id="orderDate"
+              name="orderDate"
+              class="form-control"
+              [(ngModel)]="orderDate"
+              placeholder="Enter order start date"
               required
             />
           </div>
