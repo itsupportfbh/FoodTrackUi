@@ -64,7 +64,7 @@
             <td colspan="7" class="text-center py-2">Loading...</td>
           </tr>
 
-          <tr *ngFor="let row of filteredRows">
+          <tr *ngFor="let row of pagedRows">
             <td class="request-no">{{ row.requestNo || '-' }}</td>
             <td>{{ row.companyName || '-' }}</td>
             <td>{{ row.companyEmail || '-' }}</td>
