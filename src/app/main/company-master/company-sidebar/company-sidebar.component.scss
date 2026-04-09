@@ -31,3 +31,9 @@
   height: 100%;
   padding: 0;
 }
+.session-timing-modal ~ .company-sidebar-container,
+.session-timing-modal ~ .core-sidebar,
+body.modal-open .company-sidebar-container {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

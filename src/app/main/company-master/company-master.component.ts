@@ -58,65 +58,81 @@ export class CompanyMasterComponent implements OnInit {
     this.loadCompanies();
   }
 
-  loadCompanies(): void {
+loadCompanies(): void {
   this.companyService.getCompanies().subscribe({
     next: (res: any) => {
-      this.rows = [...(res.data || [])];
-      this.tempRows = [...(res.data || [])];
+      const data = Array.isArray(res) ? res : (res?.data || []);
+
+      this.rows = [...data];
+      this.tempRows = [...data];
 
       setTimeout(() => {
         feather.replace();
       }, 0);
     },
     error: (err) => {
-      console.error(err);
-    }
-  });
-}
-deleteCompany(row: any): void {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: `Do you want to delete ${row.companyName || 'this company'}?`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it',
-    cancelButtonText: 'Cancel',
-    customClass: {
-      confirmButton: 'btn btn-danger',
-      cancelButton: 'btn btn-outline-secondary ml-1'
-    },
-    buttonsStyling: false
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.companyService.deleteCompany(row.id).subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Deleted',
-            text: 'Company deleted successfully',
-            customClass: {
-              confirmButton: 'btn btn-primary'
-            },
-            buttonsStyling: false
-          });
+      console.error('Load companies error:', err);
+      this.rows = [];
+      this.tempRows = [];
 
-          this.loadCompanies();
+      Swal.fire({
+        icon: 'error',
+        title: 'Load Failed',
+        text: err?.error?.message || 'Unable to load company list',
+        customClass: {
+          confirmButton: 'btn btn-primary'
         },
-        error: (err) => {
-          Swal.fire({
-            icon: 'error',
-            title: 'Delete failed',
-            text: err?.error?.message || 'Something went wrong',
-            customClass: {
-              confirmButton: 'btn btn-primary'
-            },
-            buttonsStyling: false
-          });
-        }
+        buttonsStyling: false
       });
     }
   });
 }
+
+  deleteCompany(row: any): void {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Do you want to delete ${row.companyName || 'this company'}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        confirmButton: 'btn btn-danger',
+        cancelButton: 'btn btn-outline-secondary ml-1'
+      },
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.companyService.deleteCompany(row.id).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted',
+              text: 'Company deleted successfully',
+              customClass: {
+                confirmButton: 'btn btn-primary'
+              },
+              buttonsStyling: false
+            });
+
+            this.loadCompanies();
+          },
+          error: (err) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Delete failed',
+              text: err?.error?.message || 'Something went wrong',
+              customClass: {
+                confirmButton: 'btn btn-primary'
+              },
+              buttonsStyling: false
+            });
+          }
+        });
+      }
+    });
+  }
+
   openCompanySidebar(): void {
     this.resetForm();
     this.showSidebar = true;
@@ -132,55 +148,71 @@ deleteCompany(row: any): void {
     this.resetForm();
   }
 
-  editCompany(row: any): void {
-  this.companyService.getCompanyById(row.id).subscribe({
-    next: (res) => {
-      const data = res?.data || res;
+onCompanySaved(): void {
+  debugger
+  this.closeCompanySidebar();
 
-      this.model = {
-        id: data.id,
-        companyCode: data.companyCode || '',
-        companyName: data.companyName || '',
-        contactPerson: data.contactPerson || '',
-        contactNo: data.contactNo || '',
-        email: data.email || '',
-        password: '',
-        addressLine1: data.addressLine1 || '',
-        addressLine2: data.addressLine2 || '',
-        city: data.city || '',
-        stateName: data.stateName || '',
-        postalCode: data.postalCode || '',
-        isActive: data.isActive ?? true,
-        userId: 1,
-
-        username: data.username || '',
-        userContactNo: data.userContactNo || '',
-
-        locationIds: data.locationIds || [],
-        sessionIds: data.sessionIds || [],
-        cuisineIds: data.cuisineIds || []
-      };
-
-      this.confirmPassword = '';
-      this.showSidebar = true;
-
-      setTimeout(() => {
-        this.sidebarService.getSidebarRegistry('new-company-sidebar')?.open();
-      }, 0);
-    },
-    error: (err) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'Failed',
-        text: err?.error?.message || 'Unable to load company details',
-        customClass: {
-          confirmButton: 'btn btn-primary'
-        },
-        buttonsStyling: false
-      });
-    }
-  });
+  setTimeout(() => {
+    this.loadCompanies();
+  }, 200);
 }
+
+
+  onCompanySidebarClosed(): void {
+    this.sidebarService.getSidebarRegistry('new-company-sidebar')?.close();
+    this.showSidebar = false;
+  }
+
+  editCompany(row: any): void {
+    this.companyService.getCompanyById(row.id).subscribe({
+      next: (res) => {
+        const data = res?.data || res;
+
+        this.model = {
+          id: data.id,
+          companyCode: data.companyCode || '',
+          companyName: data.companyName || '',
+          contactPerson: data.contactPerson || '',
+          contactNo: data.contactNo || '',
+          email: data.email || '',
+          password: '',
+          addressLine1: data.addressLine1 || '',
+          addressLine2: data.addressLine2 || '',
+          city: data.city || '',
+          stateName: data.stateName || '',
+          postalCode: data.postalCode || '',
+          isActive: data.isActive ?? true,
+          userId: 1,
+
+          username: data.username || '',
+          userContactNo: data.userContactNo || '',
+
+          locationIds: data.locationIds || [],
+          sessionIds: data.sessionIds || (data.sessionTimings || []).map((x: any) => x.sessionId),
+          sessionTimings: data.sessionTimings || [],
+          cuisineIds: data.cuisineIds || []
+        };
+
+        this.confirmPassword = '';
+        this.showSidebar = true;
+
+        setTimeout(() => {
+          this.sidebarService.getSidebarRegistry('new-company-sidebar')?.open();
+        }, 0);
+      },
+      error: (err) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed',
+          text: err?.error?.message || 'Unable to load company details',
+          customClass: {
+            confirmButton: 'btn btn-primary'
+          },
+          buttonsStyling: false
+        });
+      }
+    });
+  }
 
   submit(form: NgForm): void {
     if (form.invalid) return;

@@ -8,98 +8,211 @@
   </div>
 
   <div class="company-sidebar-body">
-   <form #companyForm="ngForm" (ngSubmit)="submit(companyForm)">
-  <div class="form-group">
-    <label class="form-label">Company Code</label>
-    <input type="text" class="form-control" name="companyCode" [(ngModel)]="model.companyCode" required />
-  </div>
+    <form #companyForm="ngForm" (ngSubmit)="submit(companyForm)">
+      <div class="form-group">
+        <label class="form-label">Company Code</label>
+        <input
+          type="text"
+          class="form-control"
+          name="companyCode"
+          [(ngModel)]="model.companyCode"
+          required
+        />
+      </div>
 
-  <div class="form-group">
-    <label class="form-label">Company Name</label>
-    <input type="text" class="form-control" name="companyName" [(ngModel)]="model.companyName" required />
-  </div>
+      <div class="form-group">
+        <label class="form-label">Company Name</label>
+        <input
+          type="text"
+          class="form-control"
+          name="companyName"
+          [(ngModel)]="model.companyName"
+          required
+        />
+      </div>
 
- 
+      <div class="form-group">
+        <label class="form-label">Contact Person</label>
+        <input
+          type="text"
+          class="form-control"
+          name="contactPerson"
+          [(ngModel)]="model.contactPerson"
+          [readonly]="!!model.id"
+        />
+      </div>
 
-  <div class="form-group">
-    <label class="form-label">Contact Person</label>
-   <input
-  type="text"
-  class="form-control"
-  name="contactPerson"
-  [(ngModel)]="model.contactPerson"
-  [readonly]="!!model.id"
-/>
-  </div>
- <div class="form-group">
-    <label class="form-label">Contact Email</label>
-    <input type="email" class="form-control" name="email" [(ngModel)]="model.email" required />
-  </div>
-    <div class="form-group" *ngIf="!model.id">
-    <label class="form-label">Password</label>
-    <input type="password" class="form-control" name="password" [(ngModel)]="model.password" required />
-  </div>
-  <div class="form-group">
-    <label class="form-label">Contact No</label>
-    <input type="text" class="form-control" name="contactNo" [(ngModel)]="model.contactNo" />
-  </div>
+      <div class="form-group">
+        <label class="form-label">Contact Email</label>
+        <input
+          type="email"
+          class="form-control"
+          name="email"
+          [(ngModel)]="model.email"
+          required
+        />
+      </div>
 
+      <div class="form-group" *ngIf="!model.id">
+        <label class="form-label">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          name="password"
+          [(ngModel)]="model.password"
+          required
+        />
+      </div>
 
+      <div class="form-group">
+        <label class="form-label">Contact No</label>
+        <input
+          type="text"
+          class="form-control"
+          name="contactNo"
+          [(ngModel)]="model.contactNo"
+        />
+      </div>
 
+      <div class="form-group">
+        <label class="form-label">Locations</label>
+        <ng-select
+          [items]="locationList"
+          bindLabel="locationName"
+          bindValue="id"
+          [multiple]="true"
+          [closeOnSelect]="false"
+          name="locationIds"
+          [(ngModel)]="model.locationIds">
+        </ng-select>
+      </div>
 
+      <div class="form-group">
+        <label class="form-label">Sessions</label>
+        <ng-select
+          [items]="sessionList"
+          bindLabel="sessionName"
+          bindValue="id"
+          [multiple]="true"
+          [closeOnSelect]="false"
+          name="sessionIds"
+          [(ngModel)]="model.sessionIds"
+          (ngModelChange)="onSessionChange()">
+        </ng-select>
+      </div>
 
-  <div class="form-group">
-    <label class="form-label">Locations</label>
-    <ng-select
-      [items]="locationList"
-      bindLabel="locationName"
-      bindValue="id"
-      [multiple]="true"
-      [closeOnSelect]="false"
-      name="locationIds"
-      [(ngModel)]="model.locationIds">
-    </ng-select>
-  </div>
+      <div class="form-group" *ngIf="model.sessionIds && model.sessionIds.length > 0">
+        <label class="form-label">Session Timings</label>
 
-  <div class="form-group">
-    <label class="form-label">Sessions</label>
-    <ng-select
-      [items]="sessionList"
-      bindLabel="sessionName"
-      bindValue="id"
-      [multiple]="true"
-      [closeOnSelect]="false"
-      name="sessionIds"
-      [(ngModel)]="model.sessionIds">
-    </ng-select>
-  </div>
+        <div class="session-timings-list">
+          <div class="session-timing-item border rounded p-1 mb-1" *ngFor="let timing of model.sessionTimings">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ getSessionName(timing.sessionId) }}</strong>
+              </div>
 
-  <div class="form-group">
-    <label class="form-label">Items / Cuisines</label>
-    <ng-select
-      [items]="cuisineList"
-      bindLabel="cuisineName"
-      bindValue="id"
-      [multiple]="true"
-      [closeOnSelect]="false"
-      name="cuisineIds"
-      [(ngModel)]="model.cuisineIds">
-    </ng-select>
-  </div>
-  <div class="form-group">
-    <label class="form-label">Address</label>
-    <textarea class="form-control" name="addressLine1" [(ngModel)]="model.addressLine1"></textarea>
-  </div>
+              <div>
+                <span *ngIf="timing.fromTime && timing.toTime; else noTiming">
+                  {{ timing.fromTime }} - {{ timing.toTime }}
+                </span>
 
-  <div class="d-flex mt-2">
-    <button type="submit" class="btn btn-primary mr-1">
-      {{ model.id ? 'Update' : 'Submit' }}
-    </button>
+                <ng-template #noTiming>
+                  <span class="text-danger">Timing not set</span>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <button type="button" class="btn btn-outline-secondary" (click)="closeCompanySidebar()">
-      Cancel
-    </button>
-  </div>
-</form>
+      <div class="form-group">
+        <label class="form-label">Items / Cuisines</label>
+        <ng-select
+          [items]="cuisineList"
+          bindLabel="cuisineName"
+          bindValue="id"
+          [multiple]="true"
+          [closeOnSelect]="false"
+          name="cuisineIds"
+          [(ngModel)]="model.cuisineIds">
+        </ng-select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Address</label>
+        <textarea
+          class="form-control"
+          name="addressLine1"
+          [(ngModel)]="model.addressLine1">
+        </textarea>
+      </div>
+
+      <div class="d-flex mt-2 gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1">
+          {{ model.id ? 'Update' : 'Submit' }}
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary flex-grow-1"
+          (click)="closeCompanySidebar()">
+          Cancel
+        </button>
+      </div>
+    </form>
   </div>
 </div>
+
+<ng-template #sessionTimingModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Set Session Timings</h5>
+    <button type="button" class="close" aria-label="Close" (click)="closeSessionTimingModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <div *ngFor="let timing of model.sessionTimings; let i = index" class="mb-2 border rounded p-1">
+      <div class="row">
+        <div class="col-md-4">
+          <label class="form-label">Session</label>
+          <input
+            type="text"
+            class="form-control"
+            [value]="getSessionName(timing.sessionId)"
+            readonly
+          />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">From Time</label>
+          <input
+            type="time"
+            class="form-control"
+            [(ngModel)]="timing.fromTime"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">To Time</label>
+          <input
+            type="time"
+            class="form-control"
+            [(ngModel)]="timing.toTime"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="closeSessionTimingModal()">
+      Cancel
+    </button>
+    <button type="button" class="btn btn-primary" (click)="saveSessionTimings()">
+      Save Timings
+    </button>
+  </div>
+</ng-template>

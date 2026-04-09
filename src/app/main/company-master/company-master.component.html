@@ -223,16 +223,17 @@
   <div class="company-page-overlay" *ngIf="showSidebar" (click)="closeCompanySidebar()"></div>
 
   <core-sidebar
-    *ngIf="showSidebar"
-    class="modal modal-slide-in sidebar-todo-modal"
-    name="new-company-sidebar"
-    overlayClass="company-sidebar-overlay"
-  >
-    <app-company-sidebar
-      [showSidebar]="showSidebar"
-      [editData]="model"
-      (saved)="loadCompanies(); closeCompanySidebar()"
-      (closed)="closeCompanySidebar()"
-    ></app-company-sidebar>
-  </core-sidebar>
+  *ngIf="showSidebar"
+  class="modal modal-slide-in sidebar-todo-modal"
+  name="new-company-sidebar"
+  overlayClass="company-sidebar-overlay"
+>
+  <app-company-sidebar
+    [showSidebar]="showSidebar"
+    [editData]="model"
+    (saved)="onCompanySaved()"
+    (closed)="onCompanySidebarClosed()"
+  ></app-company-sidebar>
+</core-sidebar>
+ 
 </div>
