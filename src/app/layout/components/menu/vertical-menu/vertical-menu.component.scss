@@ -1,0 +1,76 @@
+.navbar-header {
+  height: 74px !important;
+  padding: 0 14px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.header-row {
+  width: 100%;
+  height: 100%;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.navbar-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  text-decoration: none;
+}
+
+.brand-logo {
+  display: flex !important;
+  align-items: center !important;
+  height: 100%;
+}
+
+.brand-logo img {
+  height: 38px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.brand-text {
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 100%;
+  font-size: 18px !important;
+  font-weight: 600;
+  line-height: 1;
+  color: #7367f0;
+  white-space: nowrap;
+}
+
+.nav-toggle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.nav-toggle .nav-link {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  min-width: 28px;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.toggle-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}

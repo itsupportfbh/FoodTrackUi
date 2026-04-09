@@ -103,6 +103,64 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     return false;
   }
 
+  private setAuthDataToLocalStorage(responseData: any, email: string): void {
+    const token =
+      responseData?.token ||
+      responseData?.Token ||
+      responseData?.accessToken ||
+      responseData?.jwtToken ||
+      '';
+
+    const userId =
+      responseData?.id ||
+      responseData?.Id ||
+      responseData?.userId ||
+      responseData?.UserId ||
+      0;
+
+    const companyId =
+      responseData?.companyId ||
+      responseData?.CompanyId ||
+      0;
+
+    const roleId =
+      responseData?.roleId ||
+      responseData?.RoleId ||
+      responseData?.role ||
+      0;
+
+    const currentUser = {
+      ...responseData,
+      id: Number(userId || 0),
+      companyId: Number(companyId || 0),
+      roleId: Number(roleId || 0),
+      email: responseData?.email || responseData?.Email || email
+    };
+
+    if (token) {
+      localStorage.setItem('token', token);
+    }
+
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    localStorage.setItem('id', String(currentUser.id || ''));
+    localStorage.setItem('companyId', String(currentUser.companyId || ''));
+    localStorage.setItem('email', currentUser.email || email || '');
+
+    // optional extra values if needed elsewhere
+    localStorage.setItem('roleId', String(currentUser.roleId || ''));
+    localStorage.setItem('isLoggedIn', 'true');
+  }
+
+  private handleRememberMe(email: string, password: string): void {
+    if (this.rememberMe) {
+      localStorage.setItem('rememberedEmail', email);
+      localStorage.setItem('rememberedPassword', password);
+    } else {
+      localStorage.removeItem('rememberedEmail');
+      localStorage.removeItem('rememberedPassword');
+    }
+  }
+
   onSubmit(): void {
     this.submitted = true;
     this.error = '';
@@ -116,6 +174,8 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     const email = (this.loginForm.value.email || '').trim();
     const password = this.loginForm.value.password || '';
 
+    // old auth data clear pannalam
+    // but fresh login success aana பிறகு localStorage la manual-ah set pannuvom
     this._authenticationService.clearAuthData();
 
     this._authenticationService.login(email, password, this.rememberMe).subscribe({
@@ -123,13 +183,11 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
         this.loading = false;
 
         if (response?.success && response?.data) {
-          if (this.rememberMe) {
-            localStorage.setItem('rememberedEmail', email);
-            localStorage.setItem('rememberedPassword', password);
-          } else {
-            localStorage.removeItem('rememberedEmail');
-            localStorage.removeItem('rememberedPassword');
-          }
+          // remember me fields மட்டும் checkbox based
+          this.handleRememberMe(email, password);
+
+          // remember me false இருந்தாலும் auth data localStorage la save ஆகும்
+          this.setAuthDataToLocalStorage(response.data, email);
 
           this._tabSessionService.activateCurrentTab();
 
