@@ -17,7 +17,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   companyId = 0;
   minDate = '';
   toDateMax = '';
-
+  orderDays = 3;
   companies: any[] = [];
   sessions: any[] = [];
   cuisines: any[] = [];
@@ -76,6 +76,9 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
         this.sessions = data.sessions || [];
         this.cuisines = data.cuisines || [];
         this.locations = data.locations || [];
+
+        this.orderDays = data.orderDays || 3;
+        this.minDate = this.getDateAfterDays(this.orderDays);
 
         if (!this.isEditMode && this.companies.length > 0) {
           this.model.companyId = Number(this.companies[0].id || 0);
