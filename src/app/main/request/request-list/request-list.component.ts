@@ -16,6 +16,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
 
   searchText = '';
   selectedOption = 10;
+  pageNumber = 0;
 
   userId = 0;
   companyId = 0;
@@ -67,6 +68,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
       next: (res: any) => {
         this.rows = res?.data || [];
         this.filteredRows = [...this.rows];
+        this.pageNumber = 0;
       },
       error: (err) => {
         console.error(err);
@@ -98,9 +100,11 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
       (x.fromDate || '').toString().toLowerCase().includes(text) ||
       (x.toDate || '').toString().toLowerCase().includes(text)
     );
+      this.pageNumber = 0;
   }
 
   onPageSizeChange(): void {
+     this.pageNumber = 0;
     this.filteredRows = [...this.filteredRows];
   }
 
@@ -577,5 +581,9 @@ toInputDate(value: any): string {
   const dd = String(d.getDate()).padStart(2, '0');
 
   return `${yyyy}-${mm}-${dd}`;
+}
+getPageEnd(rowCount: number, offset: number, pageSize: number): number {
+  const end = (offset + 1) * pageSize;
+  return end > rowCount ? rowCount : end;
 }
 }
