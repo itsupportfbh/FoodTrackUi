@@ -96,7 +96,7 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
   backendQrImage = '';
   qrImageBase64Only = '';
   backendUniqueCode = '';
-
+isProcessing = false;
   qrRequest: QrCodeRequestModel = this.getEmptyModel();
 
   constructor(
@@ -281,7 +281,9 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  generateQrCodes(): void {
+ generateQrCodes(): void {
+  if (this.isProcessing) return;
+
   if (!this.isFormValid()) {
     Swal.fire('Validation', 'Please fill all required fields', 'warning');
     return;
@@ -306,6 +308,8 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
     createdDate: new Date().toISOString(),
     updatedDate: new Date().toISOString()
   };
+
+  this.isProcessing = true;
 
   this.backendQrImage = '';
   this.backendQrText = '';
@@ -400,19 +404,20 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
   ).subscribe({
     next: (mailRes: any) => {
       console.log('Email sent:', mailRes);
-
+      this.isProcessing = false;
       this.loadRequestDropdown();
 
       Swal.fire(
-  'Success',
-  'QR generated, saved and email sent successfully',
-  'success'
-).then(() => {
-  this.router.navigate(['/scanner/listqr']);
-});
+        'Success',
+        'QR generated, saved and email sent successfully',
+        'success'
+      ).then(() => {
+        this.router.navigate(['/scanner/listqr']);
+      });
     },
     error: (err: any) => {
       console.error('Generate/Save/Mail error:', err);
+      this.isProcessing = false;
 
       let errorMessage = 'Failed to complete QR process';
       if (err?.error?.message) {
@@ -425,7 +430,6 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
     }
   });
 }
-
  
   onSubmit(): Observable<any> {
   const firstQr = this.generatedQrList?.length ? this.generatedQrList[0] : null;
