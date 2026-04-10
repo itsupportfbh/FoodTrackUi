@@ -98,26 +98,42 @@
               [footerHeight]="50"
               [scrollbarH]="true"
             >
-              <ngx-datatable-column name="Company" prop="companyName" [width]="220">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  <div class="d-flex align-items-center">
-                    <div
-                      class="avatar mr-1 ml-0"
-                      [ngClass]="{
-                        'bg-light-success': row.isActive,
-                        'bg-light-secondary': !row.isActive
-                      }"
-                    >
-                      <div class="avatar-content">{{ getInitials(row.companyName) }}</div>
-                    </div>
+            <ngx-datatable-column name="Company Name" prop="companyName" [width]="220">
+  <ng-template let-row="row" ngx-datatable-cell-template>
+    <div class="d-flex align-items-center company-cell-wrap">
+      <div
+        class="avatar mr-1 ml-0"
+        [ngClass]="{
+          'bg-light-success': row.isActive,
+          'bg-light-secondary': !row.isActive
+        }"
+      >
+        <div class="avatar-content">{{ getInitials(row.companyName) }}</div>
+      </div>
 
-                    <div class="cell-line-height">
-                      <span class="font-weight-bold d-block">{{ row.companyName }}</span>
-                      <span class="text-muted font-small-2">{{ row.companyCode }}</span>
-                    </div>
-                  </div>
-                </ng-template>
-              </ngx-datatable-column>
+      <div class="cell-line-height company-text-wrap">
+        <span
+          class="font-weight-bold d-block company-name-text"
+          [ngbTooltip]="row.companyName && row.companyName.length > 18 ? companyTooltip : null"
+          container="body"
+          placement="top"
+          tooltipClass="modern-grid-tooltip"
+        >
+          {{ row.companyName?.length > 18 ? (row.companyName | slice:0:18) + '...' : row.companyName }}
+        </span>
+
+        <ng-template #companyTooltip>
+          <div class="tooltip-card">
+            <div class="tooltip-title">Company Name</div>
+            <div class="tooltip-value">{{ row.companyName }}</div>
+          </div>
+        </ng-template>
+
+        <span class="text-muted font-small-2">{{ row.companyCode }}</span>
+      </div>
+    </div>
+  </ng-template>
+</ngx-datatable-column>
 
            <ngx-datatable-column name="Name" prop="contactPerson" [width]="160">
   <ng-template ngx-datatable-cell-template let-value="value">
@@ -133,7 +149,7 @@
 
     <ng-template #contactTooltip>
       <div class="tooltip-card">
-        <div class="tooltip-title">Contact Person</div>
+        <div class="tooltip-title">Name</div>
         <div class="tooltip-value">{{ value }}</div>
       </div>
     </ng-template>
@@ -207,16 +223,17 @@
   <div class="company-page-overlay" *ngIf="showSidebar" (click)="closeCompanySidebar()"></div>
 
   <core-sidebar
-    *ngIf="showSidebar"
-    class="modal modal-slide-in sidebar-todo-modal"
-    name="new-company-sidebar"
-    overlayClass="company-sidebar-overlay"
-  >
-    <app-company-sidebar
-      [showSidebar]="showSidebar"
-      [editData]="model"
-      (saved)="loadCompanies(); closeCompanySidebar()"
-      (closed)="closeCompanySidebar()"
-    ></app-company-sidebar>
-  </core-sidebar>
+  *ngIf="showSidebar"
+  class="modal modal-slide-in sidebar-todo-modal"
+  name="new-company-sidebar"
+  overlayClass="company-sidebar-overlay"
+>
+  <app-company-sidebar
+    [showSidebar]="showSidebar"
+    [editData]="model"
+    (saved)="onCompanySaved()"
+    (closed)="onCompanySidebarClosed()"
+  ></app-company-sidebar>
+</core-sidebar>
+ 
 </div>

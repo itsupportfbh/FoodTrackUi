@@ -44,6 +44,16 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
   reportPrintObjectUrl: string | null = null;
   reportPrintSafeUrl: SafeResourceUrl | null = null;
   sessionCuisineTotals: any[] = [];
+  excelLoading = false;
+  emailSending = false;
+  showEmailPopup = false;
+
+
+  emailForm = {
+    toEmail: '',
+    subject: 'Report By Dates',
+    body: 'Please find the attached report.'
+  };
 
   constructor(
     private reportService: ReportService,
@@ -567,5 +577,124 @@ private buildSessionCuisineTotals(): void {
       }))
     };
   });
+}
+downloadExcel(): void {
+  if (!this.rows || this.rows.length === 0) {
+    Swal.fire('Info', 'No data available to download', 'info');
+    return;
+  }
+
+  this.excelLoading = true;
+
+  this.reportService.exportReportExcel(this.buildPayload()).subscribe({
+    next: (blob: Blob) => {
+      this.excelLoading = false;
+
+      if (!blob || blob.size === 0) {
+        Swal.fire('Info', 'Excel file is empty', 'info');
+        return;
+      }
+
+      const fileName = `CSPL_ReportByDates_${this.getDateFileText()}.xlsx`;
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+
+      a.href = url;
+      a.download = fileName;
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+    },
+    error: (err) => {
+      this.excelLoading = false;
+      console.error(err);
+      Swal.fire('Error', err?.error?.message || 'Failed to download excel', 'error');
+    }
+  });
+}
+
+openEmailPopup(): void {
+  if (!this.rows || this.rows.length === 0) {
+    Swal.fire('Info', 'No data available to mail', 'info');
+    return;
+  }
+
+  this.emailForm = {
+    toEmail: '',
+    subject: 'CSPL Food Track App Report By Dates',
+    body: 'Dear Sir/Madam,\n\nGreetings from CSPL.\n\nPlease find the attached Food Track App Report By Dates for your reference.\n\nRegards,\nCSPL Team'
+  };
+
+  this.showEmailPopup = true;
+  setTimeout(() => feather.replace());
+}
+
+closeEmailPopup(): void {
+  this.showEmailPopup = false;
+}
+
+sendReportEmail(): void {
+  if (!this.emailForm.toEmail || !this.isValidEmail(this.emailForm.toEmail)) {
+    Swal.fire('Validation', 'Please enter a valid email address', 'warning');
+    return;
+  }
+
+  if (!this.rows || this.rows.length === 0) {
+    Swal.fire('Info', 'No data available to mail', 'info');
+    return;
+  }
+
+  const payload = {
+    ...this.buildPayload(),
+    toEmail: this.emailForm.toEmail,
+    subject: this.emailForm.subject || 'Report By Dates',
+    body: this.emailForm.body || 'Please find the attached report.'
+  };
+
+  this.emailSending = true;
+
+  this.reportService.sendReportEmail(payload).subscribe({
+    next: (res: any) => {
+      this.emailSending = false;
+      this.showEmailPopup = false;
+      Swal.fire('Success', res?.message || 'Report mail sent successfully', 'success');
+    },
+    error: (err) => {
+      this.emailSending = false;
+      console.error(err);
+      Swal.fire('Error', err?.error?.message || 'Failed to send report mail', 'error');
+    }
+  });
+}
+
+
+
+private buildPayload(): any {
+  return {
+    userId: this.userId,
+    companyId: this.companyObj?.id ? Number(this.companyObj.id) : null,
+    fromDate: this.filter.fromDate || null,
+    toDate: this.filter.toDate || null,
+    sessionId: this.sessionObj?.id ? Number(this.sessionObj.id) : null,
+    cuisineId: this.cuisineObj?.id ? Number(this.cuisineObj.id) : null,
+    locationId: this.locationObj?.id ? Number(this.locationObj.id) : null
+  };
+}
+
+private getDateFileText(): string {
+  debugger
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hour = String(now.getHours()).padStart(2, '0');
+  const minute = String(now.getMinutes()).padStart(2, '0');
+  const company = this.companies.find(x=>x.id == this.companyObj?.id)
+
+  return `${day}-${month}-${year}-${company.name}`;
+}
+
+private isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 } 

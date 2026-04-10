@@ -16,7 +16,8 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
 
   searchText = '';
   selectedOption = 10;
-
+  pageNumber = 0;
+  orderDays = 3;
   userId = 0;
   companyId = 0;
   isAdmin = false;
@@ -29,8 +30,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
 
   ngOnInit(): void {
     const currentUserRaw = localStorage.getItem('currentUser');
-
-    if (currentUserRaw) {
+      if (currentUserRaw) {
       const currentUser = JSON.parse(currentUserRaw);
       this.userId = Number(currentUser.id || 0);
       this.companyId = Number(currentUser.companyId || 0);
@@ -41,6 +41,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
     this.isAdmin = role.includes('admin');
 
     this.loadRequests();
+    this.loadorderDate();
   }
    get isOwnerView(): boolean {
     return this.companyId === 0;
@@ -68,6 +69,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
       next: (res: any) => {
         this.rows = res?.data || [];
         this.filteredRows = [...this.rows];
+        this.pageNumber = 0;
       },
       error: (err) => {
         console.error(err);
@@ -75,6 +77,20 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
       }
     });
   }
+
+  loadorderDate(): void {
+    this.requestService.getOrderDate().subscribe({
+      next: (res: any) => {
+        this.orderDays = res || 3;
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire('Error', 'Failed to load order days', 'error');
+      }
+    });
+  }
+
+
   getInitials(name: string): string {
     if (!name) return '';
     return name
@@ -99,9 +115,11 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
       (x.fromDate || '').toString().toLowerCase().includes(text) ||
       (x.toDate || '').toString().toLowerCase().includes(text)
     );
+      this.pageNumber = 0;
   }
 
   onPageSizeChange(): void {
+     this.pageNumber = 0;
     this.filteredRows = [...this.filteredRows];
   }
 
@@ -136,6 +154,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
           next: (res: any) => {
             Swal.fire('Deleted', res?.message || 'Request deleted successfully', 'success');
             this.loadRequests();
+            this.loadorderDate();
           },
           error: (err) => {
             console.error(err);
@@ -199,7 +218,7 @@ openOverride(row: any): void {
                 />
               </div>
               <div class="override-helper">
-                Must be at least 3 days ahead and within request range
+                Must be at least ${this.orderDays} days ahead and within request range
               </div>
             </div>
 
@@ -260,7 +279,7 @@ openOverride(row: any): void {
     },
     
     preConfirm: () => {
-      
+      debugger
       const fromDate = (document.getElementById('overrideFromDate') as HTMLInputElement)?.value;
       const toDate = (document.getElementById('overrideToDate') as HTMLInputElement)?.value;
 
@@ -291,7 +310,7 @@ openOverride(row: any): void {
 
       if (!this.isAtLeastThreeDaysBefore(selFrom)) {
         Swal.showValidationMessage(
-          'Override/edit must be done at least 3 days before the override from date'
+          `Override/edit must be done at least ${this.orderDays} days before the override from date`
         );
         return false;
       }
@@ -299,17 +318,18 @@ openOverride(row: any): void {
       return { fromDate, toDate };
     }
   } as any).then((result: any) => {
-    if (result.isConfirmed && result.value) {
-      this.router.navigate(['/requestoverride/Request-override'], {
-        queryParams: {
-          requestHeaderId: row.id,
-          fromDate: result.value.fromDate,
-          toDate: result.value.toDate
-        }
-      });
+   if (result.isConfirmed && result.value) {
+  this.router.navigate(['/requestoverride/Request-override'], {
+    queryParams: {
+      requestHeaderId: row.id,
+      fromDate: result.value.fromDate,
+      toDate: result.value.toDate
     }
   });
 }
+      });
+    }
+ 
 
   openOverrideList(row: any): void {
     this.router.navigate(['/catering/request-override-list'], {
@@ -508,7 +528,7 @@ isAtLeastThreeDaysBefore(fromDate: Date): boolean {
   const minAllowed = new Date(
     todayOnly.getFullYear(),
     todayOnly.getMonth(),
-    todayOnly.getDate() + 3
+    todayOnly.getDate() + this.orderDays
   );
 
   return selected.getTime() >= minAllowed.getTime();
@@ -577,5 +597,9 @@ toInputDate(value: any): string {
   const dd = String(d.getDate()).padStart(2, '0');
 
   return `${yyyy}-${mm}-${dd}`;
+}
+getPageEnd(rowCount: number, offset: number, pageSize: number): number {
+  const end = (offset + 1) * pageSize;
+  return end > rowCount ? rowCount : end;
 }
 }

@@ -2,19 +2,60 @@
   <div class="section-header">
     <div>
       <h3>Session Demand</h3>
-      <p>Today's order distribution by meal session</p>
+      <p>Today's quantity distribution by meal session</p>
     </div>
 
     <i data-feather="pie-chart" class="section-icon primary-text"></i>
   </div>
 
   <div class="donut-top-section">
-    <div class="donut-wrapper">
-      <div class="donut-chart" [style.background]="donutGradient"></div>
+    <div
+      class="donut-wrapper"
+      (mouseleave)="hideTooltip()"
+    >
+      <svg class="donut-svg" viewBox="0 0 220 220">
+        <!-- Base ring -->
+        <circle
+          cx="110"
+          cy="110"
+          r="70"
+          fill="none"
+          stroke="#ebe9f1"
+          stroke-width="28"
+        ></circle>
+
+        <!-- Dynamic slices -->
+        <circle
+          *ngFor="let item of sessionDemand"
+          class="donut-slice"
+          cx="110"
+          cy="110"
+          r="70"
+          fill="none"
+          [attr.stroke]="item.color"
+          stroke-width="28"
+          [attr.stroke-dasharray]="item.strokeDasharray"
+          [attr.stroke-dashoffset]="item.strokeDashoffset"
+          transform="rotate(-90 110 110)"
+          (mouseenter)="showTooltip(item, $event)"
+          (mousemove)="moveTooltip($event)"
+        ></circle>
+      </svg>
 
       <div class="donut-center">
         <strong>{{ getSessionTotalOrders() }}</strong>
-        <span>Total Orders</span>
+        <span>Total Quantity</span>
+      </div>
+
+      <div
+        class="chart-tooltip"
+        *ngIf="tooltipVisible && tooltipData"
+        [style.left.px]="tooltipX"
+        [style.top.px]="tooltipY"
+      >
+        <div class="tooltip-title">{{ tooltipData.label }}</div>
+        <div>{{ tooltipData.count }} Quantity</div>
+        <div>{{ tooltipData.value }}%</div>
       </div>
     </div>
   </div>
@@ -29,7 +70,7 @@
 
           <div class="legend-text">
             <div class="legend-label">{{ item.label }}</div>
-            <div class="legend-sub">{{ item.count }} orders</div>
+            <div class="legend-sub">{{ item.count }} Quantity</div>
           </div>
         </div>
 
@@ -48,7 +89,7 @@
 
           <div class="legend-text">
             <div class="legend-label">{{ item.label }}</div>
-            <div class="legend-sub">{{ item.count }} orders</div>
+            <div class="legend-sub">{{ item.count }} Quantity</div>
           </div>
         </div>
 

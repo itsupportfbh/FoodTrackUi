@@ -17,7 +17,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   companyId = 0;
   minDate = '';
   toDateMax = '';
-
+  orderDays = 3;
   companies: any[] = [];
   sessions: any[] = [];
   cuisines: any[] = [];
@@ -43,9 +43,9 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   ) {}
 
   ngOnInit(): void {
-    this.minDate = this.getTodayDate();
-    const currentUserRaw = localStorage.getItem('currentUser');
+    this.minDate = this.getDateAfterDays(3);
 
+    const currentUserRaw = localStorage.getItem('currentUser');
     if (currentUserRaw) {
       const currentUser = JSON.parse(currentUserRaw);
       this.userId = Number(currentUser.id || 0);
@@ -58,7 +58,6 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       this.loadMasters();
     });
   }
-  
 
   ngAfterViewInit(): void {
     feather.replace();
@@ -77,6 +76,9 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
         this.sessions = data.sessions || [];
         this.cuisines = data.cuisines || [];
         this.locations = data.locations || [];
+
+        this.orderDays = data.orderDays || 3;
+        this.minDate = this.getDateAfterDays(this.orderDays);
 
         if (!this.isEditMode && this.companies.length > 0) {
           this.model.companyId = Number(this.companies[0].id || 0);
@@ -114,6 +116,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
           isActive: row.isActive ?? true,
           lines: row.lines || []
         };
+
         this.updateToDateMax();
 
         if (!this.model.companyName) {
@@ -134,40 +137,21 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     });
   }
 
-  private updateToDateMax(): void {
-  if (!this.model.fromDate) {
-    this.toDateMax = '';
-    return;
-  }
-
-  const fromDate = new Date(this.model.fromDate);
-  const year = fromDate.getFullYear();
-  const month = fromDate.getMonth();
-
-  // அந்த month-ஓட last date
-  const lastDate = new Date(year, month + 1, 0);
-
-  const maxYear = lastDate.getFullYear();
-  const maxMonth = ('0' + (lastDate.getMonth() + 1)).slice(-2);
-  const maxDay = ('0' + lastDate.getDate()).slice(-2);
-
-  this.toDateMax = `${maxYear}-${maxMonth}-${maxDay}`;
-
-  if (this.model.toDate && this.model.toDate > this.toDateMax) {
-    this.model.toDate = this.toDateMax;
-  }
-}
   buildSessionGroups(): void {
     this.sessionGroups = this.sessions.map((session: any, index: number) => {
       const lines = this.cuisines.map((cuisine: any) => ({
-        id: 0,
         sessionId: Number(session.id || 0),
         sessionName: session.name || '',
         cuisineId: Number(cuisine.id || 0),
         cuisineName: cuisine.name || '',
-        locationId: null,
-        locationObj: null,
-        qty: 0
+        details: [
+          {
+            id: 0,
+            locationId: null,
+            locationObj: null,
+            qty: 0
+          }
+        ]
       }));
 
       return {
@@ -188,20 +172,25 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
     this.sessionGroups.forEach((group: any) => {
       group.lines.forEach((line: any) => {
-        const existing = existingLines.find((x: any) =>
+        const matches = existingLines.filter((x: any) =>
           Number(x.sessionId) === Number(line.sessionId) &&
           Number(x.cuisineId) === Number(line.cuisineId)
         );
 
-        if (existing) {
-          line.id = Number(existing.id || 0);
-          line.locationId = Number(existing.locationId || 0) || null;
-          line.qty = Number(existing.qty || 0);
+        if (matches.length > 0) {
+          line.details = matches.map((existing: any) => {
+            const locationId = Number(existing.locationId || 0) || null;
+            const selectedLocation = this.locations.find(
+              (loc: any) => Number(loc.id) === Number(locationId)
+            );
 
-          const selectedLocation = this.locations.find(
-            (loc: any) => Number(loc.id) === Number(line.locationId)
-          );
-          line.locationObj = selectedLocation || null;
+            return {
+              id: Number(existing.id || 0),
+              locationId,
+              locationObj: selectedLocation || null,
+              qty: Number(existing.qty || 0)
+            };
+          });
         }
       });
     });
@@ -214,15 +203,26 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     setTimeout(() => feather.replace());
   }
 
-  onLocationChange(line: any): void {
-    line.locationId = line.locationObj ? Number(line.locationObj.id) : null;
-    this.onLineChange();
+  addLocationRow(line: any): void {
+    line.details.push({
+      id: 0,
+      locationId: null,
+      locationObj: null,
+      qty: 0
+    });
+
+    setTimeout(() => feather.replace());
   }
 
-  syncLinesFromGroups(): void {
-    this.model.lines = this.sessionGroups
-      .reduce((acc: any[], group: any) => acc.concat(group.lines || []), [])
-      .filter((line: any) => Number(line.locationId) > 0 || Number(line.qty) > 0);
+  removeLocationRow(line: any, detailIndex: number): void {
+    line.details.splice(detailIndex, 1);
+    this.onLineChange();
+    setTimeout(() => feather.replace());
+  }
+
+  onDetailLocationChange(detail: any): void {
+    detail.locationId = detail.locationObj ? Number(detail.locationObj.id) : null;
+    this.onLineChange();
   }
 
   onLineChange(): void {
@@ -230,14 +230,33 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     this.calculateTotalQty();
   }
 
-  calculateTotalQty(): void {
-    const allLines = this.sessionGroups.reduce(
-      (acc: any[], group: any) => acc.concat(group.lines || []),
-      []
-    );
+  syncLinesFromGroups(): void {
+    this.model.lines = this.sessionGroups
+      .reduce((acc: any[], group: any) => acc.concat(group.lines || []), [])
+      .reduce((acc: any[], line: any) => {
+        const detailRows = (line.details || []).map((detail: any) => ({
+          id: detail.id || 0,
+          sessionId: line.sessionId,
+          sessionName: line.sessionName,
+          cuisineId: line.cuisineId,
+          cuisineName: line.cuisineName,
+          locationId: detail.locationId,
+          locationObj: detail.locationObj,
+          qty: Number(detail.qty) || 0
+        }));
 
-    this.model.totalQty = allLines.reduce(
-      (sum: number, line: any) => sum + (Number(line.qty) || 0),
+        return acc.concat(detailRows);
+      }, [])
+      .filter((row: any) => Number(row.locationId) > 0 || Number(row.qty) > 0);
+  }
+
+  calculateTotalQty(): void {
+    const allDetails = this.sessionGroups
+      .reduce((acc: any[], group: any) => acc.concat(group.lines || []), [])
+      .reduce((acc: any[], line: any) => acc.concat(line.details || []), []);
+
+    this.model.totalQty = allDetails.reduce(
+      (sum: number, detail: any) => sum + (Number(detail.qty) || 0),
       0
     );
   }
@@ -256,16 +275,30 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     this.syncLinesFromGroups();
     this.calculateTotalQty();
 
+    if (this.hasDuplicateLocations()) {
+      Swal.fire(
+        'Validation',
+        'Same cuisine cannot have duplicate locations in the same session',
+        'warning'
+      );
+      return;
+    }
+
     const validLines = this.sessionGroups
       .reduce((acc: any[], group: any) => acc.concat(group.lines || []), [])
-      .filter((x: any) => x.locationId && Number(x.qty) > 0)
-      .map((x: any) => ({
-        Id: x.id || 0,
-        SessionId: x.sessionId,
-        CuisineId: x.cuisineId,
-        LocationId: x.locationId,
-        Qty: Number(x.qty) || 0
-      }));
+      .reduce((acc: any[], line: any) => {
+        const validDetails = (line.details || [])
+          .filter((d: any) => d.locationId && Number(d.qty) > 0)
+          .map((d: any) => ({
+            Id: d.id || 0,
+            SessionId: line.sessionId,
+            CuisineId: line.cuisineId,
+            LocationId: d.locationId,
+            Qty: Number(d.qty) || 0
+          }));
+
+        return acc.concat(validDetails);
+      }, []);
 
     if (!validLines.length) {
       Swal.fire('Validation', 'Please select location and qty for at least one row', 'warning');
@@ -296,6 +329,24 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     });
   }
 
+  private hasDuplicateLocations(): boolean {
+    for (const group of this.sessionGroups) {
+      for (const line of group.lines || []) {
+        const selectedIds = (line.details || [])
+          .map((d: any) => Number(d.locationId || 0))
+          .filter((id: number) => id > 0);
+
+        const uniqueIds = new Set(selectedIds);
+
+        if (selectedIds.length !== uniqueIds.size) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   resetForm(): void {
     this.model = {
       id: this.isEditMode ? this.id : 0,
@@ -314,26 +365,53 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   goBack(): void {
     this.router.navigate(['/catering/request']);
   }
-onFromDateChange(): void {
-  this.updateToDateMax();
 
-  if (this.model.toDate) {
-    if (this.model.fromDate && this.model.toDate < this.model.fromDate) {
-      this.model.toDate = '';
+  onFromDateChange(): void {
+    this.updateToDateMax();
+
+    if (this.model.toDate) {
+      if (this.model.fromDate && this.model.toDate < this.model.fromDate) {
+        this.model.toDate = '';
+        return;
+      }
+
+      if (this.toDateMax && this.model.toDate > this.toDateMax) {
+        this.model.toDate = this.toDateMax;
+      }
+    }
+  }
+
+  private updateToDateMax(): void {
+    if (!this.model.fromDate) {
+      this.toDateMax = '';
       return;
     }
 
-    if (this.toDateMax && this.model.toDate > this.toDateMax) {
+    const fromDate = new Date(this.model.fromDate);
+    const year = fromDate.getFullYear();
+    const month = fromDate.getMonth();
+
+    const lastDate = new Date(year, month + 1, 0);
+
+    const maxYear = lastDate.getFullYear();
+    const maxMonth = ('0' + (lastDate.getMonth() + 1)).slice(-2);
+    const maxDay = ('0' + lastDate.getDate()).slice(-2);
+
+    this.toDateMax = `${maxYear}-${maxMonth}-${maxDay}`;
+
+    if (this.model.toDate && this.model.toDate > this.toDateMax) {
       this.model.toDate = this.toDateMax;
     }
   }
-}
 
-  private getTodayDate(): string {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = ('0' + (today.getMonth() + 1)).slice(-2);
-    const day = ('0' + today.getDate()).slice(-2);
+  private getDateAfterDays(days: number): string {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
     return `${year}-${month}-${day}`;
   }
 
@@ -349,5 +427,4 @@ onFromDateChange(): void {
 
     return `${year}-${month}-${day}`;
   }
- 
 }

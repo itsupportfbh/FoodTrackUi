@@ -1,6 +1,6 @@
 <div class="request-list-page">
   <div class="card request-list-card request-create-card">
-    <div class="card-header border-bottom d-flex justify-content-between align-items-center flex-wrap">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
       <div class="d-flex align-items-center create-header-left">
         <button type="button" class="btn btn-outline-primary back-btn mr-1" (click)="goBack()">
           <i data-feather="arrow-left"></i>
@@ -32,9 +32,12 @@
             class="form-control form-control-sm create-input"
             [(ngModel)]="model.fromDate"
             name="fromDate"
-             [min]="minDate"
-             (change)="onFromDateChange()"
+            [min]="minDate"
+            (change)="onFromDateChange()"
           />
+           <small class="text-muted">
+  Minimum {{ orderDays }} days advance required
+</small>
         </div>
 
         <div class="form-group">
@@ -83,51 +86,77 @@
               <table class="table create-line-table mb-0">
                 <thead>
                   <tr>
-                    <th>Cuisine</th>
-                    <th>Location</th>
-                    <th>Qty</th>
+                    <th class="cuisine-col">Cuisine</th>
+                    <th class="location-col">Location</th>
+                    <th class="qty-col">Qty</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  <tr *ngFor="let line of group.lines; let li = index">
-                    <td>
-                      <input
-                        type="text"
-                        class="form-control form-control-sm create-input readonly-input"
-                        [ngModel]="line.cuisineName"
-                        [name]="'cuisineName_' + gi + '_' + li"
-                        readonly
-                      />
-                    </td>
+                  <ng-container *ngFor="let line of group.lines; let li = index">
+                    <ng-container *ngFor="let detail of line.details; let di = index">
+                      <tr>
+                        <td>
+                          <div class="cuisine-cell">
+                            <input
+                              type="text"
+                              class="form-control form-control-sm create-input readonly-input"
+                              [ngModel]="line.cuisineName"
+                              [name]="'cuisineName_' + gi + '_' + li + '_' + di"
+                              readonly
+                            />
 
-                    <td>
-                      <ng-select
-                        class="table-ng-select"
-                        [items]="locations"
-                        bindLabel="name"
-                        [(ngModel)]="line.locationObj"
-                        [name]="'locationId_' + gi + '_' + li"
-                        (change)="onLocationChange(line)"
-                        [clearable]="true"
-                        [searchable]="true"
-                        appendTo="body"
-                        [placeholder]="line.locationObj ? '' : 'Select Location'">
-                      </ng-select>
-                    </td>
+                            <button
+                              *ngIf="di === 0"
+                              type="button"
+                              class="btn btn-sm btn-outline-primary add-location-btn"
+                              (click)="addLocationRow(line)"
+                            >
+                              + Add
+                            </button>
+                          </div>
+                        </td>
 
-                    <td>
-                      <input
-                        type="number"
-                        min="0"
-                        class="form-control form-control-sm create-input"
-                        [(ngModel)]="line.qty"
-                        [name]="'qty_' + gi + '_' + li"
-                        (input)="onLineChange()"
-                        placeholder="Enter qty"
-                      />
-                    </td>
-                  </tr>
+                        <td>
+                          <ng-select
+                            class="table-ng-select"
+                            [items]="locations"
+                            bindLabel="name"
+                            [(ngModel)]="detail.locationObj"
+                            [name]="'locationId_' + gi + '_' + li + '_' + di"
+                            (change)="onDetailLocationChange(detail)"
+                            [clearable]="true"
+                            [searchable]="true"
+                            appendTo="body"
+                            [placeholder]="detail.locationObj ? '' : 'Select Location'">
+                          </ng-select>
+                        </td>
+
+                        <td>
+                          <div class="qty-cell">
+                            <input
+                              type="number"
+                              min="0"
+                              class="form-control form-control-sm create-input"
+                              [(ngModel)]="detail.qty"
+                              [name]="'qty_' + gi + '_' + li + '_' + di"
+                              (input)="onLineChange()"
+                              placeholder="Enter qty"
+                            />
+
+                            <button
+                              *ngIf="line.details.length > 1"
+                              type="button"
+                              class="btn btn-sm btn-outline-danger remove-location-btn"
+                              (click)="removeLocationRow(line, di)"
+                            >
+                              <i data-feather="trash-2"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </ng-container>
+                  </ng-container>
 
                   <tr *ngIf="!group.lines || group.lines.length === 0">
                     <td colspan="3" class="text-center text-muted py-2">No cuisines available</td>
