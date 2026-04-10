@@ -16,7 +16,7 @@
 }
 
 .card-title {
-  color: #7367f0;
+  color: #6F3C2F;
   font-weight: 600;
   font-size: 1.2rem;
 }
@@ -94,7 +94,7 @@
 .accordion-header {
   width: 100%;
   border: 0;
-  background: linear-gradient(118deg, #7367f0, #9e95f5);
+  background: linear-gradient(118deg, #6F3C2F, #c96c55);
   color: #fff;
   padding: 0.9rem 1rem;
   display: flex;
@@ -257,7 +257,7 @@
 
 ::ng-deep .request-create-card .ng-select.ng-select-focused .ng-select-container,
 ::ng-deep .request-create-card .ng-select.ng-select-opened .ng-select-container {
-  border-color: #7367f0 !important;
+  border-color: #6F3C2F !important;
   box-shadow: 0 0 0 0.2rem rgba(115, 103, 240, 0.15) !important;
 }
 
@@ -277,12 +277,12 @@
 
 ::ng-deep .ng-dropdown-panel .ng-option.ng-option-marked {
   background: #f8f7ff !important;
-  color: #5e50ee !important;
+  color: #6F3C2F !important;
 }
 
 ::ng-deep .ng-dropdown-panel .ng-option.ng-option-selected {
   background: #f1efff !important;
-  color: #5e50ee !important;
+  color: #6F3C2F !important;
   font-weight: 600;
 }
 

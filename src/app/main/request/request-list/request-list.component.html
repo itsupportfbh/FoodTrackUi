@@ -123,7 +123,7 @@
     <span
       (click)="viewRequestDetails(row)"
       title="View Details"
-      style="cursor:pointer;font-size:18px;color:#6f61e8;">
+      style="cursor:pointer;font-size:18px;color:#6F3C2F;">
       <i class="fas fa-eye"></i>
     </span>
   </ng-template>
@@ -200,22 +200,32 @@
                       <i data-feather="edit" class="action-icon"></i>
                     </button> -->
 
-                    <button
+                    <!-- <button
                       type="button"
                       class="btn btn-outline-danger p-0 d-flex align-items-center justify-content-center action-icon-btn"
                       (click)="deleteRequest(row)"
                       title="Delete"
                     >
                       <i data-feather="trash-2" class="action-icon"></i>
-                    </button>
-
+                    </button> -->
+                 <button
+                  type="button"
+                  class="btn btn-outline-danger p-0 d-flex align-items-center justify-content-center ml-1"
+                  style="width: 28px; height: 28px;"
+                  (click)="deleteRequest(row)"
+                  [disabled]="isEditMode"
+                  title="Delete"
+                >
+                  <i data-feather="trash" style="width: 14px; height: 14px;"></i>
+                </button>
                     <button
                       type="button"
                       class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center action-icon-btn"
+                      style="width: 28px; height: 28px;"
                       (click)="openOverride(row)"
                       title="Override"
                     >
-                      <i data-feather="sliders" class="action-icon"></i>
+                      <i data-feather="sliders"  style="width: 14px; height: 14px;"></i>
                     </button>
 
                     <!-- <button
