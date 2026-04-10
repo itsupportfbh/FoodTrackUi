@@ -1,2 +1,352 @@
 @import '@core/scss/base/core/menu/menu-types/vertical-menu.scss';
 @import '@core/scss/base/core/menu/menu-types/vertical-overlay-menu.scss';
+
+/* =========================
+   SIDEBAR ROOT
+========================= */
+.vertical-layout.vertical-menu-modern .main-menu {
+  display: flex;
+  flex-direction: column;
+  background: #6F3C2F !important;
+}
+
+.main-menu.menu-fixed {
+  background-color: #6F3C2F !important;
+}
+
+/* =========================
+   HEADER
+========================= */
+.navbar-header {
+  height: 74px !important;
+  padding: 0 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  background-color: #6F3C2F !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+.header-row {
+  width: 100%;
+  height: 100%;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.navbar-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  text-decoration: none !important;
+}
+
+.brand-logo {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100%;
+}
+
+.brand-logo img {
+  height: 36px !important;
+  width: auto !important;
+  display: block;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.brand-text {
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 75%;
+  font-size: 7px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  color: #ffffff !important;
+  white-space: nowrap;
+}
+
+/* =========================
+   TOGGLE ICON
+========================= */
+.nav-toggle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.nav-toggle .nav-link {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  min-width: 28px;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.toggle-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  color: #f5ede9 !important;
+}
+
+/* =========================
+   MENU WRAPPER
+========================= */
+.menu-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 74px);
+  min-height: 0;
+  background: #6F3C2F !important;
+}
+
+.main-menu-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  background-color: #6F3C2F !important;
+}
+
+/* Remove scroll white shadow */
+.main-menu .shadow-bottom {
+  display: none !important;
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+.main-menu.menu-fixed .navigation,
+.main-menu.menu-fixed .navigation-main {
+  background-color: #6F3C2F !important;
+  padding-top: 8px;
+}
+
+/* Top-level links */
+.main-menu.menu-fixed .navigation > li > a {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px;
+  color: #F5EDE9 !important;
+  background: transparent !important;
+  border-radius: 12px !important;
+  margin: 6px 12px !important;
+  padding: 14px 16px !important;
+  min-height: 25px;
+  transition: all 0.2s ease;
+}
+
+/* Top-level icon + text */
+.main-menu.menu-fixed .navigation > li > a i,
+.main-menu.menu-fixed .navigation > li > a svg,
+.main-menu.menu-fixed .navigation > li > a span,
+.main-menu.menu-fixed .navigation > li > a [data-feather] {
+  color: #F5EDE9 !important;
+  stroke: #F5EDE9 !important;
+  fill: none !important;
+}
+
+/* Standard icon sizing */
+.main-menu.menu-fixed .navigation > li > a i,
+.main-menu.menu-fixed .navigation > li > a svg,
+.main-menu.menu-fixed .navigation > li > ul > li > a i,
+.main-menu.menu-fixed .navigation > li > ul > li > a svg,
+.main-menu.menu-fixed [data-feather] {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  font-size: 20px !important;
+  stroke-width: 2 !important;
+  vertical-align: middle !important;
+}
+
+/* Hover */
+.main-menu.menu-fixed .navigation > li > a:hover {
+  background-color: #845043 !important;
+  color: #ffffff !important;
+}
+
+/* Active / open */
+.main-menu.menu-fixed .navigation > li.active > a,
+.main-menu.menu-fixed .navigation > li.open > a,
+.main-menu.menu-fixed .navigation > li.sidebar-group-active > a {
+  background-color: #9A5B49 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Parent container should not look boxed */
+.main-menu.menu-fixed .navigation > li.open {
+  background: transparent !important;
+}
+
+/* Arrow */
+.main-menu.menu-fixed .navigation li.has-sub > a:after {
+  border-color: #F5EDE9 !important;
+}
+
+/* =========================
+   SUBMENU
+========================= */
+.main-menu.menu-fixed .navigation > li > ul {
+  background: transparent !important;
+  padding: 4px 0 6px 0 !important;
+}
+
+.main-menu.menu-fixed .navigation > li > ul > li {
+  background: transparent !important;
+}
+
+.main-menu.menu-fixed .navigation > li > ul > li > a {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px;
+  background: transparent !important;
+  color: #F5EDE9 !important;
+  margin: 4px 20px 4px 30px !important;
+  padding: 12px 14px !important;
+  border-radius: 10px !important;
+  min-height: 46px;
+  transition: all 0.2s ease;
+}
+
+.main-menu.menu-fixed .navigation > li > ul > li > a:hover {
+  background-color: #845043 !important;
+  color: #ffffff !important;
+}
+
+.main-menu.menu-fixed .navigation > li > ul > li.active > a {
+  background-color: #A86552 !important;
+  color: #ffffff !important;
+}
+
+/* Submenu icon/text */
+.main-menu.menu-fixed .navigation > li > ul > li > a i,
+.main-menu.menu-fixed .navigation > li > ul > li > a svg,
+.main-menu.menu-fixed .navigation > li > ul > li > a span,
+.main-menu.menu-fixed .navigation > li > ul > li > a [data-feather] {
+  color: #F5EDE9 !important;
+  stroke: #F5EDE9 !important;
+  fill: none !important;
+}
+
+/* =========================
+   FEATHER ICON FIX
+========================= */
+.main-menu.menu-fixed [data-feather] {
+  stroke: currentColor !important;
+  fill: none !important;
+}
+
+/* =========================
+   SUPPORT CARD
+========================= */
+.sidebar-support-card {
+  margin: 14px 14px 16px !important;
+  border-radius: 24px !important;
+  background: #F7EFEA !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14) !important;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.support-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #E9D6CB !important;
+  color: #6F3C2F !important;
+  font-size: 16px;
+  font-weight: 700;
+  border-bottom: 1px solid #e4cfc4;
+}
+
+.support-icon {
+  width: 16px !important;
+  height: 16px !important;
+  color: #6F3C2F !important;
+  stroke: #6F3C2F !important;
+}
+
+.support-card-body {
+  padding: 14px 16px !important;
+  background: #F7EFEA !important;
+}
+
+.support-item {
+  margin-bottom: 14px;
+}
+
+.support-item:last-child {
+  margin-bottom: 0;
+}
+
+.support-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8D7B73;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+
+.support-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #5C463F;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+/* Hide support card when collapsed */
+.vertical-layout.vertical-menu-modern.menu-collapsed .sidebar-support-card {
+  display: none !important;
+}
+/* Footer same as sidebar brown */
+.footer,
+.footer.footer-static,
+.footer.footer-light,
+.footer.footer-dark {
+  background-color: #6F3C2F !important;
+  color: #F5EDE9 !important;
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+.footer .footer-text,
+.footer span,
+.footer p,
+.footer a,
+.footer .clearfix {
+  color: #F5EDE9 !important;
+}
+
+.footer a:hover {
+  color: #ffffff !important;
+}
+.app-content,
+.content-wrapper,
+.content-body {
+  background-color: #f8f8f8;
+}
+
+.footer::before,
+.footer::after {
+  background: transparent !important;
+}

@@ -152,3 +152,16 @@
 .vertical-layout.vertical-menu-modern.menu-collapsed .sidebar-support-card {
   display: none;
 }
+.support-toggle-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #6F3C2F;
+  line-height: 1;
+}
+.support-toggle-icon {
+  width: 16px !important;
+  height: 16px !important;
+  color: #6F3C2F !important;
+  stroke: #6F3C2F !important;
+  flex-shrink: 0;
+}

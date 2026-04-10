@@ -146,18 +146,22 @@
         </textarea>
       </div>
 
-      <div class="d-flex mt-2 gap-2">
-        <button type="submit" class="btn btn-primary flex-grow-1">
-          {{ model.id ? 'Update' : 'Submit' }}
-        </button>
+<div class="d-flex align-items-center mt-2">
+  <button
+    type="submit"
+    class="btn btn-primary btn-sm mr-1"
+    style="min-width: 110px; height: 38px;">
+    {{ model.id ? 'Update' : 'Submit' }}
+  </button>
 
-        <button
-          type="button"
-          class="btn btn-outline-secondary flex-grow-1"
-          (click)="closeCompanySidebar()">
-          Cancel
-        </button>
-      </div>
+  <button
+    type="button"
+    class="btn btn-outline-secondary btn-sm"
+    style="min-width: 110px; height: 38px;"
+    (click)="closeCompanySidebar()">
+    Cancel
+  </button>
+</div>
     </form>
   </div>
 </div>
