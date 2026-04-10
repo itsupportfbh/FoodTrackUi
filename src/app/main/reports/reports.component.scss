@@ -1,5 +1,5 @@
 .report-page {
-  padding: 1.25rem;
+ // padding: 1.25rem;
   background: #f8f8fc;
   min-height: 100%;
 }
@@ -14,23 +14,23 @@
 
 .report-card-header {
   padding: 1.15rem 1.4rem;
-  border-bottom: 1px solid #ebe9f1;
+ // border-bottom: 1px solid #ebe9f1;
   background: #fff;
 }
 
 .card-title {
   margin: 0;
   color: #6F3C2F;
-  font-weight: 600;
-  font-size: 1.7rem;
-  line-height: 1.2;
+  font-weight: 700;
+  font-size: 1.20rem;
+  line-height: 1.1;
 }
 
 .report-card-header small {
   display: inline-block;
   margin-top: 0.3rem;
   color: #8e8aa3;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .filter-panel {
@@ -241,7 +241,7 @@
 
 ::ng-deep .report-card .ng-select.ng-select-focused .ng-select-container,
 ::ng-deep .report-card .ng-select.ng-select-opened .ng-select-container {
-  border-color: #7367f0 !important;
+  border-color: #6F3C2F !important;
   box-shadow: 0 0 0 0.2rem rgba(115, 103, 240, 0.15) !important;
 }
 
@@ -261,12 +261,12 @@
 
 ::ng-deep .ng-dropdown-panel .ng-option.ng-option-marked {
   background: #f8f7ff !important;
-  color: #5e50ee !important;
+  color: #6F3C2F !important;
 }
 
 ::ng-deep .ng-dropdown-panel .ng-option.ng-option-selected {
   background: #f1efff !important;
-  color: #5e50ee !important;
+  color: #6F3C2F !important;
   font-weight: 600;
 }
 
@@ -345,7 +345,7 @@
 .session-total {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #7367f0;
+  color: #6F3C2F;
   background: rgba(115, 103, 240, 0.12);
   padding: 0.3rem 0.7rem;
   border-radius: 999px;
@@ -374,7 +374,7 @@
 }
 
 .cuisine-value {
-  color: #7367f0;
+  color: #6F3C2F;
   font-size: 1rem;
   font-weight: 700;
 }
@@ -467,7 +467,7 @@
 }
 
 .compact-mode .card-title {
-  font-size: 1.35rem;
+  font-size: 1rem;
 }
 
 .compact-mode .action-btn {

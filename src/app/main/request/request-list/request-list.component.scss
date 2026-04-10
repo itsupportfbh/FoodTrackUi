@@ -13,7 +13,7 @@
   margin-bottom: 0.25rem;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #6f61e8;
+  color: #6F3C2F;
 }
 
 .request-toolbar-row {
@@ -105,7 +105,7 @@
 }
 
 .view-icon-btn:hover {
-  color: #7367f0;
+  color: #6F3C2F;
   transform: scale(1.08);
 }
 
@@ -219,3 +219,57 @@
     align-items: flex-start;
   }
 }
+  .btn-outline-primary,
+  .btn-outline-danger {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.45rem;
+    padding: 0;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Edit button
+  .btn-outline-primary {
+    border: 1px solid #6F3C2F !important;
+    color: #6F3C2F !important;
+    background-color: #fff !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: #6F3C2F !important;
+      border-color: #6F3C2F !important;
+      color: #fff !important;
+      box-shadow: none !important;
+    }
+  }
+
+  // Delete button
+  .btn-outline-danger {
+    border: 1px solid #ea5455 !important;
+    color: #ea5455 !important;
+    background-color: #fff !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: #ea5455 !important;
+      border-color: #ea5455 !important;
+      color: #fff !important;
+      box-shadow: none !important;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .btn-outline-primary i,
+  .btn-outline-danger i {
+    width: 16px;
+    height: 16px;
+  }
