@@ -110,11 +110,10 @@ export class ScannerComponent implements OnInit, OnDestroy {
     console.log('Scanned QR:', decodedText);
 
     try {
-      const qrData = JSON.parse(decodedText);
-      const UniqueCode = qrData.UniqueCode;
-      const RequestId = qrData.RequestId;
 
-      const response = await this.scannerService.validateScanAsync(UniqueCode, RequestId, this.companyId).toPromise();
+      const UniqueCode = decodedText;
+
+      const response = await this.scannerService.validateScanAsync(UniqueCode).toPromise();
 
       console.log('Validation successful:', response);
 

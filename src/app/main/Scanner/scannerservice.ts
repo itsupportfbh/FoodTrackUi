@@ -63,9 +63,9 @@ downloadQrZip(qrCodeRequestId: number): Observable<Blob> {
   }
 
     // Validate scanned QR code
-    validateScanAsync(UniqueCode: string, RequestId: number, companyId: number): Observable<any> {
+    validateScanAsync(UniqueCode: string): Observable<any> {
     debugger;
-    return this.http.get<any>(`${this.apiUrl}/ValidateScan?UniqueCode=${UniqueCode}&RequestId=${RequestId}&CompanyId=${companyId}`);
+    return this.http.get<any>(`${this.apiUrl}/ValidateScan?UniqueCode=${UniqueCode}`);
   }
   
 }
