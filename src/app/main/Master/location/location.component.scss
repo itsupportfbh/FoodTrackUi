@@ -73,68 +73,48 @@
     justify-content: center;
   }
 
+  // Edit button
+  .btn-outline-primary {
+    border: 1px solid #6F3C2F !important;
+    color: #6F3C2F !important;
+    background-color: #fff !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: #6F3C2F !important;
+      border-color: #6F3C2F !important;
+      color: #fff !important;
+      box-shadow: none !important;
+    }
+  }
+
+  // Delete button
+  .btn-outline-danger {
+    border: 1px solid #ea5455 !important;
+    color: #ea5455 !important;
+    background-color: #fff !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: #ea5455 !important;
+      border-color: #ea5455 !important;
+      color: #fff !important;
+      box-shadow: none !important;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
   .btn-outline-primary i,
   .btn-outline-danger i {
     width: 16px;
     height: 16px;
   }
-}
-
-.card {
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 18px rgba(34, 41, 47, 0.1);
-  border: 1px solid #ebe9f1;
-  background: #fff;
-}
-
-.card-header {
- // border-bottom: 1px solid #ebe9f1;
-  padding: 1rem 1.25rem;
-}
-
-.card-title {
-  margin-bottom: 0;
-  font-weight: 600;
-  color: #5e5873;
-}
-
-.card-body {
-  padding: 1.25rem;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  font-weight: 500;
-  color: #5e5873;
-  margin-bottom: 0.5rem;
-  display: inline-block;
-}
-
-.form-control {
-  border: 1px solid #d8d6de;
-  border-radius: 0.357rem;
-  min-height: 38px;
-  box-shadow: none;
-  color: #6e6b7b;
-
-  &:focus {
-    border-color: #7367f0;
-    box-shadow: 0 0 0 0.2rem rgba(115, 103, 240, 0.15);
-  }
-}
-
-textarea.form-control {
-  min-height: 100px;
-  resize: vertical;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 @media (max-width: 767.98px) {
@@ -159,5 +139,41 @@ textarea.form-control {
   .session-match-card .btn-outline-danger {
     width: 36px;
     height: 36px;
+  }
+}
+
+.location-match-card,
+.session-match-card,
+.card {
+  .btn-danger {
+    background-color: #ea5455 !important;
+    border-color: #ea5455 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .btn-danger:hover,
+  .btn-danger:focus,
+  .btn-danger:active {
+    background-color: #dc3f40 !important;
+    border-color: #dc3f40 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .btn-secondary {
+    background-color: #82868b !important;
+    border-color: #82868b !important;
+    color: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .btn-secondary:hover,
+  .btn-secondary:focus,
+  .btn-secondary:active {
+    background-color: #6f7377 !important;
+    border-color: #6f7377 !important;
+    color: #fff !important;
+    box-shadow: none !important;
   }
 }

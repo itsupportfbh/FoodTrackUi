@@ -8,14 +8,14 @@
       >
         <h4
           class="card-title"
-          style="display: flex; align-items: center; gap: 10px; margin: 0; font-size: 1.25rem; font-weight: 600; color: #7367f0;"
+          style="display: flex; align-items: center; gap: 10px; margin: 0; font-size: 1.25rem; font-weight: 600; color: #6F3C2F;"
         >
           <span
             style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; background-color: #e5f0f3; border-radius: 50%;"
           >
             <i
               data-feather="map-pin"
-              style="width: 18px; height: 18px; color: #7367f0;"
+              style="width: 18px; height: 18px; color: #6F3C2F !important;"
             ></i>
           </span>
           Location List
@@ -24,7 +24,7 @@
         <button
           type="button"
           (click)="createlocations()"
-          style="background-color:#7367f0; color:white; border:none; padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;"
+          style="background-color:#6F3C2F; color:white; border:none; padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;"
         >
            <i data-feather="plus-circle" style="width:14px; height:14px;"></i>
           Create
@@ -45,7 +45,7 @@
               >
                 <div
                   class="avatar"
-                  style="background-color: #7367f0; color: white; width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;"
+                  style="background-color: #6F3C2F; color: white; width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;"
                 >
                   <i data-feather="map-pin" style="width: 16px; height: 16px;"></i>
                 </div>
@@ -93,7 +93,7 @@
             <div
               style="width: 52px; height: 52px; margin: 0 auto 10px; border-radius: 50%; background: #f3f2ff; display:flex; align-items:center; justify-content:center;"
             >
-              <i data-feather="map" style="width: 20px; height: 20px; color:#7367f0;"></i>
+              <i data-feather="map" style="width: 20px; height: 20px; color:#6F3C2F;"></i>
             </div>
             <h6 class="mb-25">No locations found</h6>
             <p class="text-muted mb-0">Click create button to add a new location.</p>
@@ -145,7 +145,7 @@
               type="submit"
               class="btn mr-1"
               [disabled]="!addForm.valid"
-              style="background-color:#7367f0; color:white; padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;"
+              style="background-color:#6F3C2F; color:white; padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;"
             >
               <i data-feather="check-circle" style="width:14px; height:14px;"></i>
               Submit
@@ -155,7 +155,7 @@
               type="button"
               class="btn btn-danger mr-1"
               (click)="cancel()"
-              style="padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;"
+             
             >
               <i data-feather="x-circle" style="width:14px; height:14px;"></i>
               Cancel
@@ -166,7 +166,7 @@
               class="btn btn-secondary"
               *ngIf="resetButton"
               (click)="reset()"
-              style="padding:6px 14px; font-size:0.9rem; border-radius:4px; display:flex; align-items:center; gap:6px;"
+            
             >
               <i data-feather="rotate-ccw" style="width:14px; height:14px;"></i>
               Reset
