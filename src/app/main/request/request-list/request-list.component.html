@@ -240,11 +240,11 @@
                 let-offset="offset"
               >
                 <div class="datatable-footer-inner w-100 px-2">
-                  <div class="page-count text-muted">
+                  <!-- <div class="page-count text-muted">
                     Showing {{ rowCount === 0 ? 0 : (offset * pageSize) + 1 }}
                     to {{ getPageEnd(rowCount, offset, pageSize) }}
                     of {{ rowCount }} entries
-                  </div>
+                  </div> -->
 
                   <datatable-pager
                     [page]="curPage"
@@ -263,9 +263,9 @@
             </ngx-datatable-footer>
             </ngx-datatable>
 
-            <div *ngIf="filteredRows.length === 0" class="text-center text-muted py-2">
+            <!-- <div *ngIf="filteredRows.length === 0" class="text-center text-muted py-2">
               No data available
-            </div>
+            </div> -->
           </div>
         </div>
       </section>

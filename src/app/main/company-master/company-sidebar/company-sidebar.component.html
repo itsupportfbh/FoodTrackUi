@@ -101,30 +101,29 @@
         </ng-select>
       </div>
 
-      <div class="form-group" *ngIf="model.sessionIds && model.sessionIds.length > 0">
-        <label class="form-label">Session Timings</label>
+      <div class="form-group" *ngIf="model.id && model.sessionIds && model.sessionIds.length > 0">
+  <label class="form-label">Session Timings</label>
 
-        <div class="session-timings-list">
-          <div class="session-timing-item border rounded p-1 mb-1" *ngFor="let timing of model.sessionTimings">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <strong>{{ getSessionName(timing.sessionId) }}</strong>
-              </div>
+  <div class="session-timings-list">
+    <div class="session-timing-item border rounded p-1 mb-1" *ngFor="let timing of model.sessionTimings">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ getSessionName(timing.sessionId) }}</strong>
+        </div>
 
-              <div>
-                <span *ngIf="timing.fromTime && timing.toTime; else noTiming">
-                  {{ timing.fromTime }} - {{ timing.toTime }}
-                </span>
+        <div>
+          <span *ngIf="timing.fromTime && timing.toTime; else noTiming">
+            {{ timing.fromTime }} - {{ timing.toTime }}
+          </span>
 
-                <ng-template #noTiming>
-                  <span class="text-danger">Timing not set</span>
-                </ng-template>
-              </div>
-            </div>
-          </div>
+          <ng-template #noTiming>
+            <span class="text-danger">Timing not set</span>
+          </ng-template>
         </div>
       </div>
-
+    </div>
+  </div>
+</div>
       <div class="form-group">
         <label class="form-label">Items / Cuisines</label>
         <ng-select
