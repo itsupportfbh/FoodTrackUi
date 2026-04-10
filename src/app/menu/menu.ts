@@ -97,5 +97,13 @@ export const menu: CoreMenu[] = [
     type: 'item',
     icon: 'bar-chart-2',
     url: 'catering/reports'
+  },
+    {
+    id: 'users',
+    title: 'Users',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'user-plus',
+    url: 'users/users-list'
   }
 ];

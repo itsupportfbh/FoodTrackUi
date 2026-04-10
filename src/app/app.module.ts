@@ -58,6 +58,14 @@ const appRoutes: Routes = [
         m => m.RequestOverrideModule
       )
   },
+    {
+    path: 'users',
+    canActivate: [AuthGuard],
+    loadChildren: () =>
+      import('./main/users/users.module').then(
+        m => m.UsersModule
+      )
+  },
   {
     path: 'dashboard',
     canActivate: [AuthGuard],
