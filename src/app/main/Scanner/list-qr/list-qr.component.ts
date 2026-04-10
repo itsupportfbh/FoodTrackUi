@@ -170,47 +170,56 @@ export class ListQRComponent implements OnInit, AfterViewInit, AfterViewChecked 
     });
   }
 
-  downloadFile(row: any): void {
-    const qrCodeRequestId = row?.qrCodeRequestId || row?.id || 0;
+ downloadFile(row: any): void {
+  const qrCodeRequestId = row?.qrCodeRequestId || row?.id || 0;
 
-    if (!qrCodeRequestId) {
-      console.error('Invalid row data:', row);
-      Swal.fire('Info', 'QR Code Request Id not found', 'info');
-      return;
-    }
-
-    this.scannerService.downloadQrZip(qrCodeRequestId).subscribe({
-      next: (blob: Blob) => {
-        if (!blob || blob.size === 0) {
-          Swal.fire('Info', 'ZIP file is empty', 'info');
-          return;
-        }
-
-        const companyName = (row.companyName || 'Company').replace(/\s+/g, '-');
-        const requestNo = (row.requestNo || 'qr-images').replace(/\s+/g, '-');
-        const fileName = `CSPL-${companyName}-${requestNo}.zip`;
-
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-
-        link.href = url;
-        link.download = fileName;
-        link.style.display = 'none';
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        window.URL.revokeObjectURL(url);
-
-        Swal.fire('Success', 'ZIP downloaded successfully', 'success');
-      },
-      error: (err: any) => {
-        console.error('ZIP DOWNLOAD ERROR:', err);
-        Swal.fire('Error', 'Failed to download ZIP file', 'error');
-      }
-    });
+  if (!qrCodeRequestId) {
+    console.error('Invalid row data:', row);
+    Swal.fire('Info', 'QR Code Request Id not found', 'info');
+    return;
   }
+
+  this.scannerService.downloadQrZip(qrCodeRequestId).subscribe({
+    next: (blob: Blob) => {
+      if (!blob || blob.size === 0) {
+        Swal.fire('Info', 'ZIP file is empty', 'info');
+        return;
+      }
+
+      const companyName = this.sanitizeFileName(row?.companyName || 'Company');
+      const requestNo = this.sanitizeFileName(row?.requestNo || 'qr-images');
+      const fileName = `CSPL-${companyName}-${requestNo}.zip`;
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      link.href = url;
+      link.download = fileName;
+      link.style.display = 'none';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(url);
+
+      Swal.fire('Success', 'ZIP downloaded successfully', 'success');
+    },
+    error: (err: any) => {
+      console.error('ZIP DOWNLOAD ERROR:', err);
+      Swal.fire('Error', 'Failed to download ZIP file', 'error');
+    }
+  });
+}
+
+private sanitizeFileName(value: string): string {
+  return String(value || '')
+    .trim()
+    .replace(/[\/\\:*?"<>|]+/g, '-')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
   filterRequests(): void {
     const text = (this.searchText || '').trim().toLowerCase();
