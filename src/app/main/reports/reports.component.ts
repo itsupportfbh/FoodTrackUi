@@ -595,7 +595,7 @@ downloadExcel(): void {
         return;
       }
 
-      const fileName = `ReportByDates_${this.getDateFileText()}.xlsx`;
+      const fileName = `CSPL_ReportByDates_${this.getDateFileText()}.xlsx`;
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
 
@@ -621,8 +621,8 @@ openEmailPopup(): void {
 
   this.emailForm = {
     toEmail: '',
-    subject: 'Report By Dates',
-    body: 'Please find the attached report.'
+    subject: 'CSPL Food Track App Report By Dates',
+    body: 'Dear Sir/Madam,\n\nGreetings from CSPL.\n\nPlease find the attached Food Track App Report By Dates for your reference.\n\nRegards,\nCSPL Team'
   };
 
   this.showEmailPopup = true;
@@ -682,14 +682,16 @@ private buildPayload(): any {
 }
 
 private getDateFileText(): string {
+  debugger
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
   const hour = String(now.getHours()).padStart(2, '0');
   const minute = String(now.getMinutes()).padStart(2, '0');
+  const company = this.companies.find(x=>x.id == this.companyObj?.id)
 
-  return `${year}${month}${day}_${hour}${minute}`;
+  return `${day}-${month}-${year}-${company.name}`;
 }
 
 private isValidEmail(email: string): boolean {
