@@ -1,0 +1,84 @@
+.btn-outline-primary,
+.btn-outline-danger {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.45rem;
+  padding: 0;
+  background: #fff !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none !important;
+}
+
+// Edit button
+.btn-outline-primary {
+  border: 1px solid #6f3c2f !important;
+  color: #6f3c2f !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+  background-color: #6f3c2f !important;
+  border-color: #6f3c2f !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+// Delete button
+.btn-outline-danger {
+  border: 1px solid #ea5455 !important;
+  color: #ea5455 !important;
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus,
+.btn-outline-danger:active {
+  background-color: #ea5455 !important;
+  border-color: #ea5455 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.btn-outline-primary i,
+.btn-outline-danger i {
+  width: 16px;
+  height: 16px;
+}
+
+.location-match-card,
+.session-match-card,
+.card {
+  .btn-danger {
+    background-color: #ea5455 !important;
+    border-color: #ea5455 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .btn-danger:hover,
+  .btn-danger:focus,
+  .btn-danger:active {
+    background-color: #dc3f40 !important;
+    border-color: #dc3f40 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .btn-secondary {
+    background-color: #82868b !important;
+    border-color: #82868b !important;
+    color: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .btn-secondary:hover,
+  .btn-secondary:focus,
+  .btn-secondary:active {
+    background-color: #6f7377 !important;
+    border-color: #6f7377 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+  }
+}

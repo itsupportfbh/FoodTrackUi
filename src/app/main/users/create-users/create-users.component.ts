@@ -338,7 +338,7 @@ getFinalCompanyId(): number | null {
   this.prepareCreateDefaults();
 }
 onCancel(form: any): void {
-  this.resetFormState(form);
+  //this.resetFormState(form);
   this.toggleSidebar('new-user-sidebar');
 }
 }
