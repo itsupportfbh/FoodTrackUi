@@ -1,0 +1,207 @@
+<div class="slideout-content">
+  <div class="modalsd modal-slide-in sdfade new-user-modal" id="modals-slide-in">
+    <div class="modal-dialog">
+      <form
+        class="add-new-user modal-content pt-0"
+        #newUserForm="ngForm"
+        (ngSubmit)="submit(newUserForm)"
+        novalidate
+      >
+        <button
+          type="button"
+          class="close"
+          aria-label="Close"
+          (click)="onCancel(newUserForm)"
+        >
+          ×
+        </button>
+
+        <div class="modal-header mb-1">
+          <h5 class="modal-title">{{ isEditMode ? 'Edit User' : 'New User' }}</h5>
+        </div>
+
+        <div class="modal-body flex-grow-1">
+          <div *ngIf="isLoadingUser" class="text-center py-2">
+            <div class="spinner-border spinner-border-sm text-primary mr-50"></div>
+            <span>Loading user details...</span>
+          </div>
+
+          <ng-container *ngIf="!isLoadingUser">
+            <div class="form-group" *ngIf="isSuperAdmin">
+              <label class="form-label" for="companyId">Company</label>
+              <select
+                id="companyId"
+                class="form-control"
+                name="companyId"
+                [(ngModel)]="selectedCompanyId"
+                #FCompanyRef="ngModel"
+                [class.is-invalid]="newUserForm.submitted && FCompanyRef.invalid"
+                required
+              >
+                <option [ngValue]="null">Select Company</option>
+                <option *ngFor="let company of companyList" [ngValue]="company.id">
+                  {{ company.companyName || company.name }}
+                </option>
+              </select>
+
+              <span *ngIf="newUserForm.submitted && FCompanyRef.invalid" class="invalid-form">
+                <small class="form-text text-danger" *ngIf="FCompanyRef.errors?.required">
+                  Company is required!
+                </small>
+              </span>
+            </div>
+
+            <div class="form-group" *ngIf="!isSuperAdmin">
+              <label class="form-label" for="companyName">Company</label>
+              <textarea
+                id="companyName"
+                class="form-control"
+                name="companyName"
+                [(ngModel)]="companyName"
+                rows="2"
+                disabled
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="basic-icon-default-uname">Username</label>
+              <input
+                type="text"
+                id="basic-icon-default-uname"
+                class="form-control dt-uname"
+                placeholder="Enter username"
+                name="userName"
+                [(ngModel)]="username"
+                #FUserNameRef="ngModel"
+                [class.is-invalid]="newUserForm.submitted && FUserNameRef.invalid"
+                required
+              />
+
+              <span *ngIf="newUserForm.submitted && FUserNameRef.invalid" class="invalid-form">
+                <small class="form-text text-danger" *ngIf="FUserNameRef.errors?.required">
+                  Username is required!
+                </small>
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="basic-icon-default-email">Email</label>
+              <input
+                type="email"
+                id="basic-icon-default-email"
+                class="form-control dt-email"
+                placeholder="john.doe@example.com"
+                name="email"
+                [(ngModel)]="email"
+                #FEmailRef="ngModel"
+                [class.is-invalid]="newUserForm.submitted && FEmailRef.invalid"
+                required
+                email
+              />
+
+              <span *ngIf="newUserForm.submitted && FEmailRef.invalid" class="invalid-form">
+                <small class="form-text text-danger" *ngIf="FEmailRef.errors?.required">
+                  Email is required!
+                </small>
+                <small class="form-text text-danger" *ngIf="FEmailRef.errors?.email">
+                  Enter valid email!
+                </small>
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="basic-icon-default-password">
+                Password 
+              </label>
+              <input
+                type="password"
+                id="basic-icon-default-password"
+                class="form-control"
+                placeholder="Enter password"
+                name="password"
+                [(ngModel)]="password"
+                #FPasswordRef="ngModel"
+                [required]="!isEditMode"
+                 [disabled]="isEditMode"
+                [class.is-invalid]="newUserForm.submitted && FPasswordRef.invalid"
+                minlength="6"
+              />
+
+              <span *ngIf="newUserForm.submitted && FPasswordRef.invalid" class="invalid-form">
+                <small class="form-text text-danger" *ngIf="FPasswordRef.errors?.required">
+                  Password is required!
+                </small>
+                <small class="form-text text-danger" *ngIf="FPasswordRef.errors?.minlength">
+                  Password must be at least 6 characters!
+                </small>
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="basic-icon-default-confirm-password">Confirm Password</label>
+              <input
+                type="password"
+                id="basic-icon-default-confirm-password"
+                class="form-control"
+                placeholder="Enter confirm password"
+                name="confirmPassword"
+                [(ngModel)]="confirmPassword"
+                #FConfirmPasswordRef="ngModel"
+                 [disabled]="isEditMode"
+                [required]="!isEditMode && !!password"
+                [class.is-invalid]="newUserForm.submitted && (FConfirmPasswordRef.invalid || passwordMismatch)"
+              />
+
+              <span *ngIf="newUserForm.submitted && FConfirmPasswordRef.invalid" class="invalid-form">
+                <small class="form-text text-danger" *ngIf="FConfirmPasswordRef.errors?.required">
+                  Confirm password is required!
+                </small>
+              </span>
+
+              <span *ngIf="newUserForm.submitted && !FConfirmPasswordRef.invalid && passwordMismatch" class="invalid-form">
+                <small class="form-text text-danger">
+                  Password and Confirm Password must match!
+                </small>
+              </span>
+            </div>
+
+            <div class="form-group mb-2">
+              <label class="form-label d-block">Is Active</label>
+              <div class="custom-control custom-switch custom-switch-primary">
+                <input
+                  type="checkbox"
+                  class="custom-control-input"
+                  id="isActiveToggle"
+                  name="isActive"
+                  [(ngModel)]="isActive"
+                />
+                <label class="custom-control-label" for="isActiveToggle">
+                  {{ isActive ? 'Active' : 'Inactive' }}
+                </label>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary mr-1"
+              rippleEffect
+              [disabled]="isSubmitting"
+            >
+              {{ isSubmitting ? 'Submitting...' : (isEditMode ? 'Update' : 'Submit') }}
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="onCancel(newUserForm)"
+              rippleEffect
+              [disabled]="isSubmitting"
+            >
+              Cancel
+            </button>
+          </ng-container>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
