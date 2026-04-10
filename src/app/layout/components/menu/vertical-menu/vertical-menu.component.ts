@@ -8,7 +8,7 @@ import { PerfectScrollbarDirective } from 'ngx-perfect-scrollbar';
 import { CoreConfigService } from '@core/services/config.service';
 import { CoreMenuService } from '@core/components/core-menu/core-menu.service';
 import { CoreSidebarService } from '@core/components/core-sidebar/core-sidebar.service';
-
+import * as feather from 'feather-icons';
 @Component({
   selector: 'vertical-menu',
   templateUrl: './vertical-menu.component.html',
@@ -20,7 +20,7 @@ export class VerticalMenuComponent implements OnInit, OnDestroy {
   menu: any;
   isCollapsed: boolean;
   isScrolled: boolean = false;
-
+public isSupportExpanded = false;
   // Private
   private _unsubscribeAll: Subject<any>;
 
@@ -141,4 +141,12 @@ export class VerticalMenuComponent implements OnInit, OnDestroy {
       this._coreConfigService.setConfig({ layout: { menu: { collapsed: true } } }, { emitEvent: true });
     }
   }
+ toggleSupportCard(): void {
+  this.isSupportExpanded = !this.isSupportExpanded;
+
+  setTimeout(() => {
+    feather.replace();
+  });
+}
+
 }

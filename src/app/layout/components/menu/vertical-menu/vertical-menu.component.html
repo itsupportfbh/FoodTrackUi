@@ -30,28 +30,35 @@
   <ul class="navigation navigation-main" layout="vertical" core-menu></ul>
 </div>
 
-  <div class="sidebar-support-card" *ngIf="!isCollapsed">
-    <div class="support-card-header">
+<div class="sidebar-support-card" *ngIf="!isCollapsed">
+  <div class="support-card-header clickable" (click)="toggleSupportCard()">
+    <div class="support-title-wrap">
       <i data-feather="clock" class="support-icon"></i>
       <span>Support Info</span>
     </div>
 
-    <div class="support-card-body">
-      <div class="support-item">
-        <div class="support-label">Office Hours</div>
-        <div class="support-value">9.00am to 5.00pm</div>
-      </div>
+    <i
+      [attr.data-feather]="isSupportExpanded ? 'chevron-up' : 'chevron-down'"
+      class="support-toggle-icon">
+    </i>
+  </div>
 
-      <div class="support-item">
-        <div class="support-label">Contact Person</div>
-        <div class="support-value">Mr. Suriya / Ms. Sangari</div>
-      </div>
+  <div class="support-card-body" *ngIf="isSupportExpanded">
+    <div class="support-item">
+      <div class="support-label">Office Hours</div>
+      <div class="support-value">9.00am to 5.00pm</div>
+    </div>
 
-      <div class="support-item mb-0">
-        <div class="support-label">Contact No</div>
-        <div class="support-value">6369 9660 / 9783 9069</div>
-      </div>
+    <div class="support-item">
+      <div class="support-label">Contact Person</div>
+      <div class="support-value">Mr. Suriya / Ms. Sangari</div>
+    </div>
+
+    <div class="support-item mb-0">
+      <div class="support-label">Contact No</div>
+      <div class="support-value">6369 9660 / 9783 9069</div>
     </div>
   </div>
+</div>
 </div>
 
