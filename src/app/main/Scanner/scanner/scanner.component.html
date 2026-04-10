@@ -1,34 +1,82 @@
 <div class="scanner-page">
-  <div class="scanner-card">
+  <div class="scanner-container">
+    <!-- Header Section -->
     <div class="scanner-header">
-      <h2>QR Scanner</h2>
-      <p>Front / Back camera scanner for customer QR code</p>
+      <div class="header-content">
+        <h1 class="header-title">
+          <i class="fas fa-qrcode"></i> QR Code Scanner
+        </h1>
+        <p class="header-subtitle">Scan customer QR codes to validate requests</p>
+      </div>
     </div>
 
-    <div class="scanner-body">
-      <div id="qr-reader" class="qr-reader-box"></div>
+    <!-- Main Scanner Card -->
+    <div class="scanner-card">
+      <div class="scanner-body">
+        <!-- Instructions -->
+        <div class="instructions-banner">
+          <i class="fas fa-info-circle"></i>
+          <span>Position the QR code within the camera frame to scan</span>
+        </div>
 
-      <div
-        class="status-box"
-        [ngClass]="{
-          'status-success': scanStatus === 'success',
-          'status-error': scanStatus === 'error',
-          'status-permission': scanStatus === 'permission'
-        }"
-      >
-        {{ statusMessage }}
-      </div>
-      
-<!-- 
-      <div class="result-box" *ngIf="scannedText">
-        <label>Scanned QR Text</label>
-        <div class="result-value">{{ scannedText }}</div>
-      </div> -->
+        <!-- QR Reader -->
+        <div class="qr-reader-wrapper">
+          <div id="qr-reader" class="qr-reader-box"></div>
+        </div>
 
-      <div class="action-row">
-        <button type="button" class="btn btn-primary btn-sm" (click)="restartScanner()">
-          Restart Scanner
-        </button>
+        <!-- Status Indicator -->
+        <div
+          class="status-box"
+          [ngClass]="{
+            'status-idle': scanStatus === 'idle',
+            'status-success': scanStatus === 'success',
+            'status-error': scanStatus === 'error',
+            'status-permission': scanStatus === 'permission'
+          }"
+        >
+          <div class="status-content">
+            <i
+              [class]="{
+                'fas fa-hourglass-start': scanStatus === 'idle',
+                'fas fa-check-circle': scanStatus === 'success',
+                'fas fa-exclamation-circle': scanStatus === 'error',
+                'fas fa-lock': scanStatus === 'permission'
+              }"
+              class="status-icon"
+            ></i>
+            <span class="status-text">{{ statusMessage }}</span>
+          </div>
+        </div>
+
+        <!-- Scanned Result -->
+        <div class="result-section" *ngIf="scannedText">
+          <div class="result-card">
+            <label class="result-label">
+              <i class="fas fa-check"></i> Scanned QR Code
+            </label>
+            <div class="result-value">{{ scannedText }}</div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-row">
+          <button
+            type="button"
+            class="btn btn-primary btn-lg"
+            (click)="resetForNextScan()"
+            *ngIf="scanStatus === 'success'"
+          >
+            <i class="fas fa-sync"></i> Scan Next
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary btn-lg"
+            (click)="ngOnInit()"
+            *ngIf="scanStatus === 'error' || scanStatus === 'permission'"
+          >
+            <i class="fas fa-redo"></i> Retry Scanner
+          </button>
+        </div>
       </div>
     </div>
   </div>
