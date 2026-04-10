@@ -9,13 +9,27 @@ import { Observable, throwError } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
+export interface RequestDropdownItem {
+  requestId: number;
+  overrideId: number | null;
+  requestNo?: string;
+  companyId: number;
+  companyName: string;
+  companyEmail?: string;
+  qty: number;
+  fromDate: string;
+  tillDate: string;
+  sourceType?: string;
+  displayText?: string;
+}
 
 export interface QrCodeRequestModel {
   id: number;
   companyId: number;
   companyName: string;
   companyEmail?: string;
-  requestId: string | null;
+  requestId: number | null;
+  overrideId: number | null;
   requestNo?: string;
   noofQR: number;
   TotalQty: number;
@@ -50,6 +64,7 @@ export interface SaveQrCodeRequestModel {
   companyName: string;
   companyEmail?: string;
   requestId: number;
+  overrideId: number | null;
   requestNo: string;
   noofQR: number;
   TotalQty: number;
@@ -75,7 +90,8 @@ interface GeneratedQrItem {
   companyId: number;
   companyName: string;
   companyEmail?: string;
-  requestId: string | null;
+  requestId: number | null;
+  overrideId: number | null;
   qrValidFrom: string;
   qrValidTill: string;
 }
@@ -88,7 +104,7 @@ interface GeneratedQrItem {
 export class QRgenerateComponent implements OnInit, AfterViewInit {
   qrForm!: FormGroup;
 
-  requestList: any[] = [];
+  requestList: RequestDropdownItem[] = [];
   generatedQrList: GeneratedQrItem[] = [];
   qrImagesdownload: any[] = [];
 
@@ -96,14 +112,14 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
   backendQrImage = '';
   qrImageBase64Only = '';
   backendUniqueCode = '';
-isProcessing = false;
+  isProcessing = false;
+
   qrRequest: QrCodeRequestModel = this.getEmptyModel();
 
   constructor(
     private fb: FormBuilder,
     private scannersettingsService: ScannerService,
-      private router: Router
-
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -126,7 +142,8 @@ isProcessing = false;
       companyId: [0, Validators.required],
       companyName: ['', Validators.required],
       companyEmail: [''],
-      requestId: ['', Validators.required],
+      requestId: [null, Validators.required],
+      overrideId: [null],
       requestNo: [''],
       noofQR: [0, Validators.required],
       qrValidFrom: ['', Validators.required],
@@ -142,7 +159,7 @@ isProcessing = false;
     });
   }
 
-  getEmptyModel(): QrCodeRequestModel {
+  private getEmptyModel(): QrCodeRequestModel {
     const now = new Date().toISOString();
 
     return {
@@ -151,6 +168,7 @@ isProcessing = false;
       companyName: '',
       companyEmail: '',
       requestId: null,
+      overrideId: null,
       requestNo: '',
       noofQR: 0,
       TotalQty: 0,
@@ -164,7 +182,7 @@ isProcessing = false;
     };
   }
 
-  createQrImageGroup(): FormGroup {
+  private createQrImageGroup(): FormGroup {
     return this.fb.group({
       id: [0],
       qrcoderequestid: [0],
@@ -207,8 +225,15 @@ isProcessing = false;
   loadRequestDropdown(): void {
     this.scannersettingsService.getRequestDropdown().subscribe({
       next: (res: any) => {
-        this.requestList = res?.data || res || [];
+        this.requestList = (res?.data || res || []) as RequestDropdownItem[];
+
         this.qrRequest.requestId = null;
+        this.qrRequest.overrideId = null;
+
+        this.qrForm.patchValue({
+          requestId: null,
+          overrideId: null
+        });
       },
       error: () => {
         Swal.fire('Error', 'Failed to load request dropdown', 'error');
@@ -218,11 +243,28 @@ isProcessing = false;
 
   onRequestChange(): void {
     const selected = this.requestList.find(
+      x =>
+        String(x.requestId) === String(this.qrRequest.requestId) &&
+        String(x.overrideId ?? '') === String(this.qrRequest.overrideId ?? '')
+    );
+
+    if (selected) {
+      this.applySelectedRequest(selected);
+      return;
+    }
+
+    const fallback = this.requestList.find(
       x => String(x.requestId) === String(this.qrRequest.requestId)
     );
 
-    if (!selected) return;
+    if (fallback) {
+      this.applySelectedRequest(fallback);
+    }
+  }
 
+  private applySelectedRequest(selected: RequestDropdownItem): void {
+    this.qrRequest.requestId = Number(selected.requestId || 0);
+    this.qrRequest.overrideId = this.normalizeOverrideId(selected.overrideId);
     this.qrRequest.companyId = Number(selected.companyId || 0);
     this.qrRequest.companyName = selected.companyName || '';
     this.qrRequest.companyEmail = selected.companyEmail || '';
@@ -231,6 +273,18 @@ isProcessing = false;
     this.qrRequest.noofQR = Number(selected.qty || 0);
     this.qrRequest.qrValidFrom = selected.fromDate || '';
     this.qrRequest.qrValidTill = selected.tillDate || '';
+
+    this.qrForm.patchValue({
+      requestId: this.qrRequest.requestId,
+      overrideId: this.qrRequest.overrideId,
+      companyId: this.qrRequest.companyId,
+      companyName: this.qrRequest.companyName,
+      companyEmail: this.qrRequest.companyEmail,
+      requestNo: this.qrRequest.requestNo,
+      noofQR: this.qrRequest.noofQR,
+      qrValidFrom: this.qrRequest.qrValidFrom,
+      qrValidTill: this.qrRequest.qrValidTill
+    });
   }
 
   private isFormValid(): boolean {
@@ -260,13 +314,23 @@ isProcessing = false;
     return date.toISOString();
   }
 
+  private normalizeOverrideId(value: any): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    const num = Number(value);
+    return isNaN(num) ? null : num;
+  }
+
   private syncFormFromRequest(firstQr: GeneratedQrItem | null): void {
     this.qrForm.patchValue({
       id: this.qrRequest.id || 0,
       companyId: Number(this.qrRequest.companyId || 0),
       companyName: this.qrRequest.companyName || '',
       companyEmail: this.qrRequest.companyEmail || '',
-      requestId: this.qrRequest.requestId || '',
+      requestId: this.qrRequest.requestId ?? null,
+      overrideId: this.qrRequest.overrideId ?? null,
       requestNo: this.qrRequest.requestNo || '',
       noofQR: Number(this.qrRequest.noofQR ?? this.qrRequest.TotalQty ?? 0),
       qrValidFrom: this.qrRequest.qrValidFrom || '',
@@ -281,246 +345,266 @@ isProcessing = false;
     });
   }
 
- generateQrCodes(): void {
-  if (this.isProcessing) return;
+  generateQrCodes(): void {
+    if (this.isProcessing) return;
 
-  if (!this.isFormValid()) {
-    Swal.fire('Validation', 'Please fill all required fields', 'warning');
-    return;
-  }
-
-  const from = new Date(this.qrRequest.qrValidFrom);
-  const till = new Date(this.qrRequest.qrValidTill);
-
-  if (!isNaN(from.getTime()) && !isNaN(till.getTime()) && till < from) {
-    Swal.fire(
-      'Invalid Date',
-      'Valid Till must be greater than or equal to Valid From',
-      'warning'
-    );
-    return;
-  }
-
-  const payload = {
-    ...this.qrRequest,
-    id: this.qrRequest.id || 0,
-    noofQR: Number(this.qrRequest.noofQR ?? this.qrRequest.TotalQty ?? 0),
-    createdDate: new Date().toISOString(),
-    updatedDate: new Date().toISOString()
-  };
-
-  this.isProcessing = true;
-
-  this.backendQrImage = '';
-  this.backendQrText = '';
-  this.qrImageBase64Only = '';
-  this.backendUniqueCode = '';
-  this.generatedQrList = [];
-
-  console.log('FINAL GENERATE PAYLOAD:', payload);
-
-  this.scannersettingsService.generateQR(payload).pipe(
-    switchMap((res: any) => {
-      console.log('QR response:', res);
-
-      const qrList =
-        Array.isArray(res) ? res :
-        Array.isArray(res?.data) ? res.data :
-        Array.isArray(res?.qrImages) ? res.qrImages :
-        Array.isArray(res?.result) ? res.result :
-        res ? [res] : [];
-
-      if (!qrList.length) {
-        throw new Error('No QR data returned from backend');
-      }
-
-      const firstQr = qrList[0];
-
-      const imageBase64 =
-        firstQr?.imageBase64 ||
-        firstQr?.ImageBase64 ||
-        firstQr?.imageBytes ||
-        firstQr?.ImageBytes ||
-        firstQr?.qrImageBase64 ||
-        firstQr?.qrCodeImageBase64 ||
-        '';
-
-      const qrText =
-        firstQr?.text ||
-        firstQr?.Text ||
-        firstQr?.qrText ||
-        firstQr?.qrCodeText ||
-        `Request: ${this.qrRequest.requestId}`;
-
-      const uniqueCode =
-        firstQr?.uniqueCode ||
-        firstQr?.UniqueCode ||
-        '';
-
-      if (!imageBase64) {
-        throw new Error('QR image data not found in response');
-      }
-
-      this.backendQrImage = `data:image/png;base64,${imageBase64}`;
-      this.qrImageBase64Only = imageBase64;
-      this.backendQrText = qrText;
-      this.backendUniqueCode = uniqueCode;
-
-      this.generatedQrList = qrList.map((item: any, index: number) => ({
-        qrNo: index + 1,
-        qrText:
-          item?.text ||
-          item?.Text ||
-          item?.qrText ||
-          item?.qrCodeText ||
-          '',
-        imageBase64:
-          item?.imageBase64 ||
-          item?.ImageBase64 ||
-          item?.imageBytes ||
-          item?.ImageBytes ||
-          item?.qrCodeImageBase64 ||
-          '',
-        serialNo: item?.serialNo || item?.SerialNo || index + 1,
-        uniqueCode: item?.uniqueCode || item?.UniqueCode || '',
-        isUsed: item?.isUsed ?? item?.IsUsed ?? false,
-        usedDate: item?.usedDate || item?.UsedDate || null,
-        companyId: this.qrRequest.companyId,
-        companyName: this.qrRequest.companyName,
-        companyEmail: this.qrRequest.companyEmail,
-        requestId: this.qrRequest.requestId,
-        qrValidFrom: this.qrRequest.qrValidFrom,
-        qrValidTill: this.qrRequest.qrValidTill
-      }));
-
-      this.syncFormFromRequest(this.generatedQrList[0] || null);
-
-      return this.onSubmit();
-    }),
-    switchMap((saveRes: any) => {
-      console.log('Saved QR Request:', saveRes);
-      return this.sendEmail();
-    })
-  ).subscribe({
-    next: (mailRes: any) => {
-      console.log('Email sent:', mailRes);
-      this.isProcessing = false;
-      this.loadRequestDropdown();
-
-      Swal.fire(
-        'Success',
-        'QR generated  and Email sent successfully ',
-        'success'
-      ).then(() => {
-        this.router.navigate(['/scanner/listqr']);
-      });
-    },
-    error: (err: any) => {
-      console.error('Generate/Save/Mail error:', err);
-      this.isProcessing = false;
-
-      let errorMessage = 'Failed to complete QR process';
-      if (err?.error?.message) {
-        errorMessage = err.error.message;
-      } else if (err?.message) {
-        errorMessage = err.message;
-      }
-
-      Swal.fire('Error', errorMessage, 'error');
+    if (!this.isFormValid()) {
+      Swal.fire('Validation', 'Please fill all required fields', 'warning');
+      return;
     }
-  });
-}
- 
+
+    const from = new Date(this.qrRequest.qrValidFrom);
+    const till = new Date(this.qrRequest.qrValidTill);
+
+    if (!isNaN(from.getTime()) && !isNaN(till.getTime()) && till < from) {
+      Swal.fire(
+        'Invalid Date',
+        'Valid Till must be greater than or equal to Valid From',
+        'warning'
+      );
+      return;
+    }
+
+    const payload = {
+      ...this.qrRequest,
+      id: this.qrRequest.id || 0,
+      requestId: Number(this.qrRequest.requestId || 0),
+      overrideId: this.normalizeOverrideId(this.qrRequest.overrideId),
+      noofQR: Number(this.qrRequest.noofQR ?? this.qrRequest.TotalQty ?? 0),
+      createdDate: new Date().toISOString(),
+      updatedDate: new Date().toISOString()
+    };
+
+    this.isProcessing = true;
+    this.backendQrImage = '';
+    this.backendQrText = '';
+    this.qrImageBase64Only = '';
+    this.backendUniqueCode = '';
+    this.generatedQrList = [];
+
+    console.log('FINAL GENERATE PAYLOAD:', payload);
+
+    this.scannersettingsService
+      .generateQR(payload)
+      .pipe(
+        switchMap((res: any) => {
+          console.log('QR response:', res);
+
+          const qrList = Array.isArray(res)
+            ? res
+            : Array.isArray(res?.data)
+              ? res.data
+              : Array.isArray(res?.qrImages)
+                ? res.qrImages
+                : Array.isArray(res?.result)
+                  ? res.result
+                  : res
+                    ? [res]
+                    : [];
+
+          if (!qrList.length) {
+            throw new Error('No QR data returned from backend');
+          }
+
+          const firstQr = qrList[0];
+
+          const imageBase64 =
+            firstQr?.imageBase64 ||
+            firstQr?.ImageBase64 ||
+            firstQr?.imageBytes ||
+            firstQr?.ImageBytes ||
+            firstQr?.qrImageBase64 ||
+            firstQr?.qrCodeImageBase64 ||
+            '';
+
+          const qrText =
+            firstQr?.text ||
+            firstQr?.Text ||
+            firstQr?.qrText ||
+            firstQr?.qrCodeText ||
+            `Request: ${this.qrRequest.requestId}`;
+
+          const uniqueCode =
+            firstQr?.uniqueCode ||
+            firstQr?.UniqueCode ||
+            '';
+
+          if (!imageBase64) {
+            throw new Error('QR image data not found in response');
+          }
+
+          this.backendQrImage = `data:image/png;base64,${imageBase64}`;
+          this.qrImageBase64Only = imageBase64;
+          this.backendQrText = qrText;
+          this.backendUniqueCode = uniqueCode;
+
+          this.generatedQrList = qrList.map((item: any, index: number) => ({
+            qrNo: index + 1,
+            qrText:
+              item?.text ||
+              item?.Text ||
+              item?.qrText ||
+              item?.qrCodeText ||
+              '',
+            imageBase64:
+              item?.imageBase64 ||
+              item?.ImageBase64 ||
+              item?.imageBytes ||
+              item?.ImageBytes ||
+              item?.qrCodeImageBase64 ||
+              '',
+            serialNo: item?.serialNo || item?.SerialNo || index + 1,
+            uniqueCode: item?.uniqueCode || item?.UniqueCode || '',
+            isUsed: item?.isUsed ?? item?.IsUsed ?? false,
+            usedDate: item?.usedDate || item?.UsedDate || null,
+            companyId: this.qrRequest.companyId,
+            companyName: this.qrRequest.companyName,
+            companyEmail: this.qrRequest.companyEmail,
+            requestId: this.qrRequest.requestId,
+            overrideId: this.qrRequest.overrideId,
+            qrValidFrom: this.qrRequest.qrValidFrom,
+            qrValidTill: this.qrRequest.qrValidTill
+          }));
+
+          this.syncFormFromRequest(this.generatedQrList[0] || null);
+
+          return this.onSubmit();
+        }),
+        switchMap((saveRes: any) => {
+          console.log('Saved QR Request:', saveRes);
+          return this.sendEmail();
+        })
+      )
+      .subscribe({
+        next: (mailRes: any) => {
+          console.log('Email sent:', mailRes);
+          this.isProcessing = false;
+          this.loadRequestDropdown();
+
+          Swal.fire(
+            'Success',
+            'QR generated and email sent successfully',
+            'success'
+          ).then(() => {
+            this.router.navigate(['/scanner/listqr']);
+          });
+        },
+        error: (err: any) => {
+          console.error('Generate/Save/Mail error:', err);
+          this.isProcessing = false;
+
+          let errorMessage = 'Failed to complete QR process';
+          if (err?.error?.message) {
+            errorMessage = err.error.message;
+          } else if (err?.message) {
+            errorMessage = err.message;
+          }
+
+          Swal.fire('Error', errorMessage, 'error');
+        }
+      });
+  }
+
   onSubmit(): Observable<any> {
-  const firstQr = this.generatedQrList?.length ? this.generatedQrList[0] : null;
-  this.syncFormFromRequest(firstQr);
+    const firstQr = this.generatedQrList?.length ? this.generatedQrList[0] : null;
+    this.syncFormFromRequest(firstQr);
 
-  if (this.qrForm.invalid) {
-    this.qrForm.markAllAsTouched();
-    console.log('Form Errors:', this.getFormValidationErrors());
-    Swal.fire('Validation', 'Please fill all required fields', 'warning');
-    return throwError(() => new Error('Form is invalid'));
-  }
+    if (this.qrForm.invalid) {
+      this.qrForm.markAllAsTouched();
+      console.log('Form Errors:', this.getFormValidationErrors());
+      Swal.fire('Validation', 'Please fill all required fields', 'warning');
+      return throwError(() => new Error('Form is invalid'));
+    }
 
-  if (!this.generatedQrList || this.generatedQrList.length === 0) {
-    Swal.fire('Validation', 'Please generate QR before saving', 'warning');
-    return throwError(() => new Error('Please generate QR before saving'));
-  }
+    if (!this.generatedQrList || this.generatedQrList.length === 0) {
+      Swal.fire('Validation', 'Please generate QR before saving', 'warning');
+      return throwError(() => new Error('Please generate QR before saving'));
+    }
 
-  const formValue = this.qrForm.getRawValue();
-  const now = new Date().toISOString();
+    const formValue = this.qrForm.getRawValue();
+    const now = new Date().toISOString();
 
-  const totalQty = Number(formValue.noofQR || this.qrRequest.TotalQty || 0);
-  if (totalQty <= 0) {
-    Swal.fire('Validation', 'Invalid QR quantity', 'warning');
-    return throwError(() => new Error('Invalid QR quantity'));
-  }
+    const totalQty = Number(formValue.noofQR || this.qrRequest.TotalQty || 0);
+    if (totalQty <= 0) {
+      Swal.fire('Validation', 'Invalid QR quantity', 'warning');
+      return throwError(() => new Error('Invalid QR quantity'));
+    }
 
-  const fromDate = this.toIsoDate(formValue.qrValidFrom);
-  const tillDate = this.toIsoDate(formValue.qrValidTill);
+    const fromDate = this.toIsoDate(formValue.qrValidFrom);
+    const tillDate = this.toIsoDate(formValue.qrValidTill);
 
-  if (!fromDate || !tillDate) {
-    Swal.fire('Validation', 'QR valid dates are invalid', 'warning');
-    return throwError(() => new Error('QR valid dates are invalid'));
-  }
+    if (!fromDate || !tillDate) {
+      Swal.fire('Validation', 'QR valid dates are invalid', 'warning');
+      return throwError(() => new Error('QR valid dates are invalid'));
+    }
 
-  if (new Date(fromDate).getTime() > new Date(tillDate).getTime()) {
-    Swal.fire(
-      'Validation',
-      'QR Valid Till must be greater than or equal to QR Valid From',
-      'warning'
+    if (new Date(fromDate).getTime() > new Date(tillDate).getTime()) {
+      Swal.fire(
+        'Validation',
+        'QR Valid Till must be greater than or equal to QR Valid From',
+        'warning'
+      );
+      return throwError(() => new Error('QR valid date range is invalid'));
+    }
+
+    const createdBy = Number(formValue.createdBy || this.qrRequest.createdBy || 1);
+    const updatedBy = Number(formValue.updatedBy || this.qrRequest.updatedBy || 1);
+    const createdDate = this.qrRequest.createdDate || now;
+    const normalizedOverrideId = this.normalizeOverrideId(formValue.overrideId);
+
+    const selectedRequest =
+      this.requestList.find(
+        x =>
+          String(x.requestId) === String(formValue.requestId) &&
+          String(x.overrideId ?? '') === String(normalizedOverrideId ?? '')
+      ) ||
+      this.requestList.find(
+        x => String(x.requestId) === String(formValue.requestId)
+      );
+
+    const qrImages: QrImage[] = this.generatedQrList.map(
+      (qr: GeneratedQrItem, index: number) => ({
+        id: 0,
+        qrcoderequestid: 0,
+        qrCodeImageBase64: qr.imageBase64 || this.qrImageBase64Only || '',
+        qrCodeText: qr.qrText || '',
+        serialNo: Number(qr.serialNo ?? index + 1),
+        uniqueCode: qr.uniqueCode || '',
+        isUsed: qr.isUsed ?? false,
+        usedDate: qr.usedDate ? this.toIsoDate(qr.usedDate) : null,
+        isActive: true,
+        createdDate: now,
+        createdBy: String(createdBy),
+        updatedDate: now,
+        updatedBy: String(updatedBy)
+      })
     );
-    return throwError(() => new Error('QR valid date range is invalid'));
+
+    const model: SaveQrCodeRequestModel = {
+      id: Number(formValue.id || 0),
+      companyId: Number(formValue.companyId || 0),
+      companyName: formValue.companyName || '',
+      companyEmail: formValue.companyEmail || '',
+      requestId: Number(formValue.requestId || 0),
+      overrideId: normalizedOverrideId,
+      requestNo: selectedRequest?.requestNo || this.qrRequest.requestNo || '',
+      noofQR: totalQty,
+      TotalQty: totalQty,
+      qrValidFrom: fromDate,
+      qrValidTill: tillDate,
+      isActive: formValue.isActive ?? true,
+      createdDate: createdDate,
+      updatedDate: now,
+      createdBy: createdBy,
+      updatedBy: updatedBy,
+      qrImageBase64: this.qrImageBase64Only || firstQr?.imageBase64 || '',
+      qrImages: qrImages
+    };
+
+    console.log('Final save payload:', model);
+
+    return this.scannersettingsService.addOrUpdateQr(model);
   }
-
-  const createdBy = Number(formValue.createdBy || this.qrRequest.createdBy || 1);
-  const updatedBy = Number(formValue.updatedBy || this.qrRequest.updatedBy || 1);
-  const createdDate = this.qrRequest.createdDate || now;
-
-  const selectedRequest = this.requestList.find(
-    x => String(x.requestId) === String(formValue.requestId)
-  );
-
-  const qrImages: QrImage[] = this.generatedQrList.map((qr: GeneratedQrItem, index: number) => ({
-    id: 0,
-    qrcoderequestid: 0,
-    qrCodeImageBase64: qr.imageBase64 || this.qrImageBase64Only || '',
-    qrCodeText: qr.qrText || '',
-    serialNo: Number(qr.serialNo ?? index + 1),
-    uniqueCode: qr.uniqueCode || '',
-    isUsed: qr.isUsed ?? false,
-    usedDate: qr.usedDate ? this.toIsoDate(qr.usedDate) : null,
-    isActive: true,
-    createdDate: now,
-    createdBy: String(createdBy),
-    updatedDate: now,
-    updatedBy: String(updatedBy)
-  }));
-
-  const model: SaveQrCodeRequestModel = {
-    id: Number(formValue.id || 0),
-    companyId: Number(formValue.companyId || 0),
-    companyName: formValue.companyName || '',
-    companyEmail: formValue.companyEmail || '',
-    requestId: Number(formValue.requestId || 0),
-    requestNo: selectedRequest?.requestNo || this.qrRequest.requestNo || '',
-    noofQR: totalQty,
-    TotalQty: totalQty,
-    qrValidFrom: fromDate,
-    qrValidTill: tillDate,
-    isActive: formValue.isActive ?? true,
-    createdDate: createdDate,
-    updatedDate: now,
-    createdBy: createdBy,
-    updatedBy: updatedBy,
-    qrImageBase64: this.qrImageBase64Only || firstQr?.imageBase64 || '',
-    qrImages: qrImages
-  };
-
-  console.log('Final save payload:', model);
-
-  return this.scannersettingsService.addOrUpdateQr(model);
-}
 
   getFormValidationErrors(): any {
     const errors: any = {};
@@ -561,7 +645,14 @@ isProcessing = false;
   }
 
   saveQrRequest(): void {
-    this.onSubmit();
+    this.onSubmit().subscribe({
+      next: () => {
+        Swal.fire('Success', 'QR request saved successfully', 'success');
+      },
+      error: err => {
+        console.error(err);
+      }
+    });
   }
 
   clearForm(): void {
@@ -578,6 +669,7 @@ isProcessing = false;
       companyName: '',
       companyEmail: '',
       requestId: null,
+      overrideId: null,
       requestNo: '',
       noofQR: 0,
       qrValidFrom: '',
@@ -598,22 +690,22 @@ isProcessing = false;
     this.addQrImage();
   }
 
- sendEmail(): Observable<any> {
-  const emailPayload = {
-    email: this.qrRequest.companyEmail,
-    companyName: this.qrRequest.companyName,
-    requestId: this.qrRequest.requestId,
-    qrItems: this.generatedQrList.map((qr: any) => ({
-      uniqueCode: qr.uniqueCode || '',
-      qrText: qr.qrText || '',
-      qrImageBase64: qr.imageBase64 || ''
-    }))
-  };
+  sendEmail(): Observable<any> {
+    const emailPayload = {
+      email: this.qrRequest.companyEmail,
+      companyName: this.qrRequest.companyName,
+      requestId: this.qrRequest.requestId,
+      qrItems: this.generatedQrList.map((qr: GeneratedQrItem) => ({
+        uniqueCode: qr.uniqueCode || '',
+        qrText: qr.qrText || '',
+        qrImageBase64: qr.imageBase64 || ''
+      }))
+    };
 
-  console.log('Final email payload:', emailPayload);
+    console.log('Final email payload:', emailPayload);
 
-  return this.scannersettingsService.sendQrEmail(emailPayload);
-}
+    return this.scannersettingsService.sendQrEmail(emailPayload);
+  }
 
   async downloadAllQrs(): Promise<void> {
     if (!this.generatedQrList || this.generatedQrList.length === 0) {
@@ -624,8 +716,8 @@ isProcessing = false;
     try {
       const zip = new JSZip();
 
-      this.generatedQrList.forEach((qr: any, index: number) => {
-        const base64 = qr.imageBase64 || qr.qrCodeImageBase64 || '';
+      this.generatedQrList.forEach((qr: GeneratedQrItem, index: number) => {
+        const base64 = qr.imageBase64 || '';
         if (!base64) return;
 
         const fileName = `${qr.uniqueCode || 'qr-' + (index + 1)}.png`;
