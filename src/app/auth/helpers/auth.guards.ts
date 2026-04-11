@@ -52,7 +52,7 @@ export class AuthGuard implements CanActivate {
     if (roleId === 2) {
       return (
         cleanUrl.startsWith('/dashboard') ||
-        cleanUrl.startsWith('/requestoverride/request-override-list') ||
+        cleanUrl.startsWith('requestoverride/Request-override-list') ||
         cleanUrl.startsWith('/catering/request') ||
         cleanUrl.startsWith('/requestoverride/request-override') ||
         cleanUrl.startsWith('/catering/reports') ||

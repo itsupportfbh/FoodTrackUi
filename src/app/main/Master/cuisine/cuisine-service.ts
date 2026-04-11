@@ -6,7 +6,7 @@ import { environment } from 'environments/environment';
   providedIn: 'root'
 })
 export class CuisineService {
-  private apiUrl = `${environment.apiUrl}/api/Cuisine`;
+  private apiUrl = `${environment.apiUrl}/Cuisine`;
 
   constructor(private http: HttpClient) {}
 

@@ -54,18 +54,56 @@
 .sidebar-todo-modal .company-sidebar-header {
   border-bottom: 1px solid #ebe9f1;
 }
+
 .action-icon-btn {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
   border-radius: 6px;
   padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  transition: all 0.2s ease;
 }
 
 .action-icon {
-  width: 14px;
-  height: 14px;
+  font-size: 13px;
+  line-height: 1;
+  transition: color 0.2s ease;
 }
+
+/* Edit */
+.btn-outline-primary.action-icon-btn {
+  border-color: #6f3c2f !important;
+  color: #6f3c2f !important;
+}
+
+.btn-outline-primary.action-icon-btn:hover {
+  background-color: #6f3c2f !important;
+  border-color: #6f3c2f !important;
+}
+
+.btn-outline-primary.action-icon-btn:hover .action-icon {
+  color: #fff !important;
+}
+
+/* Delete */
+.btn-outline-danger.action-icon-btn {
+  border-color: #ea5455 !important;
+  color: #ea5455 !important;
+}
+
+.btn-outline-danger.action-icon-btn:hover {
+  background-color: #ea5455 !important;
+  border-color: #ea5455 !important;
+}
+
+.btn-outline-danger.action-icon-btn:hover .action-icon {
+  color: #fff !important;
+}
+
 .contact-person-text {
   display: inline-block;
   max-width: 100%;
@@ -122,7 +160,7 @@
   letter-spacing: 0.4px;
   padding: 8px 12px 4px;
   border-bottom: 1px solid #f1f2f6;
-   background: linear-gradient(135deg, #6F3C2F, #d57158);
+   background: linear-gradient(135deg, #9C8CFF, #6F61E8);
 }
 
 .tooltip-value {

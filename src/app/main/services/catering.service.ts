@@ -60,7 +60,7 @@ export class CateringService {
     return this.http.post(this.url + CateringApiUrls.billingGenerateMonthly, payload);
   }
   getAllCuisine() {
-    return this.http.get(this.url + `/api/Cuisine/GetCuisines`);
+    return this.http.get(this.url + `/Cuisine/GetCuisines`);
   }
   getSession() {
     return this.http.get<any>(`${environment.apiUrl}${SessionApiUrls.GetAllSession}`);
@@ -69,6 +69,6 @@ export class CateringService {
     return this.http.get<any>(`${environment.apiUrl}${LocationApiUrls.GetAllLocation}`);
   }
 getCompanyById(id: number) {
-  return this.http.get<any>(`${environment.apiUrl}/api/Company/${id}`);
+  return this.http.get<any>(`${environment.apiUrl}/Company/${id}`);
 }
 }
