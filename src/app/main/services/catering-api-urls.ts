@@ -1,15 +1,15 @@
 export const CateringApiUrls = {
-  companyList: '/api/company/list',
-  companySave: '/api/company/save',
-  companyDelete:(id:number) =>`/api/company/${id}`,
+  companyList: '/company/list',
+  companySave: '/company/save',
+  companyDelete: (id: number) => `/company/${id}`,
 
-  mealPlanByCompany: (companyId: number) => `/api/mealplan/by-company/${companyId}`,
-  mealPlanOverrides: (mealPlanId: number) => `/api/mealplan/overrides/${mealPlanId}`,
-  mealPlanSave: '/api/mealplan/save',
-  mealPlanSaveOverride: '/api/mealplan/save-override',
-  mealPlanFinalQty: '/api/mealplan/final-qty',
+  mealPlanByCompany: (companyId: number) => `/mealplan/by-company/${companyId}`,
+  mealPlanOverrides: (mealPlanId: number) => `/mealplan/overrides/${mealPlanId}`,
+  mealPlanSave: '/mealplan/save',
+  mealPlanSaveOverride: '/mealplan/save-override',
+  mealPlanFinalQty: '/mealplan/final-qty',
 
-  scannerValidateAndSave: '/api/scanner/validate-and-save',
+  scannerValidateAndSave: '/scanner/validate-and-save',
 
-  billingGenerateMonthly: '/api/billing/generate-monthly'
+  billingGenerateMonthly: '/billing/generate-monthly'
 };
