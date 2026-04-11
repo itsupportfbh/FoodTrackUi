@@ -383,7 +383,7 @@ console.log('Mapped lines:', this.model.lines);
             text: res?.message || 'Override saved successfully',
             confirmButtonColor: '#7367f0'
           }).then(() => {
-            this.router.navigate(['/catering/request-override-list'], {
+            this.router.navigate(['/requestoverride/Request-override-list'], {
               queryParams: {
                 requestHeaderId: this.requestHeaderId,
                 requestNo: this.model.header.requestNo
