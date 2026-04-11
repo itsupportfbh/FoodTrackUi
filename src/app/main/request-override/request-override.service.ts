@@ -49,7 +49,7 @@ export interface SaveRequestOverrideLine {
 }
 @Injectable({ providedIn: 'root' })
 export class RequestOverrideService {
-  private baseUrl = `${environment.apiUrl}/api/RequestOverride`;
+  private baseUrl = `${environment.apiUrl}/RequestOverride`;
 
   constructor(private http: HttpClient) {}
 
