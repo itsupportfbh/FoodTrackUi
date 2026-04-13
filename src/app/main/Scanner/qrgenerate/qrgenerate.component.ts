@@ -552,8 +552,11 @@ onRequestChange(): void {
       return throwError(() => new Error('Invalid QR quantity'));
     }
 
-    const fromDate = this.toIsoDate(formValue.qrValidFrom);
-    const tillDate = this.toIsoDate(formValue.qrValidTill);
+    // const fromDate = this.toIsoDate(formValue.qrValidFrom);
+    // const tillDate = this.toIsoDate(formValue.qrValidTill);
+
+        const fromDate =formValue.qrValidFrom;
+    const tillDate = formValue.qrValidTill;
 
     if (!fromDate || !tillDate) {
       Swal.fire('Warning', 'QR valid dates are invalid', 'warning');
@@ -587,7 +590,7 @@ onRequestChange(): void {
         updatedBy: String(updatedBy)
       })
     );
-
+debugger;
     const model: SaveQrCodeRequestModel = {
       id: Number(formValue.id || 0),
       companyId: Number(formValue.companyId || 0),
