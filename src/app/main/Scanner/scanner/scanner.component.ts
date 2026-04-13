@@ -104,10 +104,10 @@ export class ScannerComponent implements OnInit, OnDestroy {
 
     this.isHandlingResult = true;
     this.scannedText = decodedText;
-    this.scanStatus = 'success';
-    this.statusMessage = 'QR scanned successfully';
+   // this.scanStatus = 'success';
+  //  this.statusMessage = 'QR scanned successfully';
 
-    console.log('Scanned QR:', decodedText);
+   // console.log('Scanned QR:', decodedText);
 
     try {
 

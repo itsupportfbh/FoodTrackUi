@@ -7,7 +7,6 @@
 
       <div class="card-body qr-card-body">
         <div class="qr-form-panel" [class.qr-processing]="isProcessing">
-          <!-- Loader Overlay -->
           <div class="qr-loader-overlay" *ngIf="isProcessing">
             <div class="bank-loader">
               <span></span>
@@ -16,22 +15,21 @@
             </div>
           </div>
 
-          <!-- Form -->
           <fieldset class="qr-form-fieldset" [disabled]="isProcessing">
             <div class="row qr-form-row">
               <div class="col-lg-4 col-md-6 col-12">
-                <label class="qr-label">Request No</label>
-                <select
-                  class="form-control qr-input"
-                  name="requestId"
-                  [(ngModel)]="qrRequest.requestId"
-                  (change)="onRequestChange()"
-                >
-                  <option [ngValue]="null" disabled selected>Select Request</option>
-                  <option *ngFor="let item of requestList" [ngValue]="item.requestId">
-                    {{ item.displayText || (item.requestNo + ' - ' + item.companyName) }}
-                  </option>
-                </select>
+                <label class="qr-label">Request / Pending Segment</label>
+              <select
+  class="form-control qr-input"
+  name="requestSelection"
+  [(ngModel)]="selectedRequestItem"
+  (ngModelChange)="onRequestChange()"
+>
+  <option [ngValue]="null">Select Request</option>
+  <option *ngFor="let item of requestList" [ngValue]="item">
+    {{ item.displayText }}
+  </option>
+</select>
               </div>
 
               <div class="col-lg-4 col-md-6 col-12">
@@ -47,7 +45,7 @@
               </div>
 
               <div class="col-lg-4 col-md-6 col-12">
-                <label class="qr-label">No of QR Codes</label>
+                <label class="qr-label">Pending QR Qty</label>
                 <input
                   type="number"
                   name="noofQR"
@@ -81,6 +79,16 @@
                   readonly
                 >
               </div>
+
+              <div class="col-lg-4 col-md-6 col-12">
+                <label class="qr-label">Source Type</label>
+                <input
+                  type="text"
+                  class="form-control qr-input"
+                  [ngModel]="selectedRequestItem?.sourceType || ''"
+                  readonly
+                >
+              </div>
             </div>
 
             <div class="qr-btn-group">
@@ -88,7 +96,7 @@
                 type="button"
                 class="btn btn-primary qr-action-btn"
                 (click)="generateQrCodes()"
-                [disabled]="isProcessing"
+                [disabled]="isProcessing || !selectedRequestItem"
               >
                 <span *ngIf="!isProcessing">
                   <i data-feather="cpu" class="mr-50"></i>
