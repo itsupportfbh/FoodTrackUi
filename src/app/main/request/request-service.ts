@@ -34,4 +34,14 @@ export class RequestService {
    getOrderDate(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/GetOrderDays`);
   }
+  checkOverlap(companyId: number, fromDate: string, toDate: string, id: number = 0) {
+  return this.http.get<any>(`${environment.apiUrl}/request/check-overlap`, {
+    params: {
+      companyId,
+      fromDate,
+      toDate,
+      id
+    }
+  });
+}
 }

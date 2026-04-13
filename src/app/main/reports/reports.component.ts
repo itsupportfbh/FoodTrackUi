@@ -128,7 +128,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
       this.cuisineObj = this.cuisines[0];
       this.locationObj = this.locations[0];
 
-      this.loadReport();
+      this.loadReport(false);
     },
     error: (err) => {
       console.error(err);
@@ -137,7 +137,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
   });
 }
 
- loadReport(): void {
+ loadReport(showNoDataMessage: boolean = true): void {
   const payload = {
     userId: this.userId,
     companyId: this.companyObj?.id ? Number(this.companyObj.id) : null,
@@ -158,6 +158,17 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
       );
 
       this.buildSessionCuisineTotals();
+
+      if (showNoDataMessage && this.rows.length === 0) {
+        const fromText = this.formatDateOnly(this.filter.fromDate);
+        const toText = this.formatDateOnly(this.filter.toDate);
+
+        Swal.fire(
+          'Warning',
+          `No data available between ${fromText} and ${toText}.`,
+          'warning'
+        );
+      }
     },
     error: (err) => {
       console.error(err);
@@ -185,7 +196,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
       null;
   }
 
-  this.loadReport();
+  this.loadReport(false);
 }
 
   printReport(): void {
@@ -620,10 +631,21 @@ openEmailPopup(): void {
   }
 
   this.emailForm = {
-    toEmail: '',
-    subject: 'CSPL Food Track App Report By Dates',
-    body: 'Dear Sir/Madam,\n\nGreetings from CSPL.\n\nPlease find the attached Food Track App Report By Dates for your reference.\n\nRegards,\nCSPL Team'
-  };
+  toEmail: '',
+  subject: 'CSPL Food Track Report | Date-wise Summary',
+  body: [
+    'Dear Sir/Madam,',
+    '',
+    'Greetings from CSPL.',
+    '',
+    'Please find attached the Food Track date-wise report for your review.',
+    '',
+    'This report includes the requested data based on the selected filters and date range.',
+    '',
+    'Regards,',
+    'CSPL Team'
+  ].join('<br>')
+};
 
   this.showEmailPopup = true;
   setTimeout(() => feather.replace());
@@ -635,7 +657,7 @@ closeEmailPopup(): void {
 
 sendReportEmail(): void {
   if (!this.emailForm.toEmail || !this.isValidEmail(this.emailForm.toEmail)) {
-    Swal.fire('Validation', 'Please enter a valid email address', 'warning');
+    Swal.fire('Missing Information', 'Please enter a valid email address', 'warning');
     return;
   }
 
@@ -696,5 +718,16 @@ private getDateFileText(): string {
 
 private isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+openDatePicker(event: MouseEvent): void {
+  const input = event.target as HTMLInputElement;
+  if (!input) return;
+
+  input.focus();
+
+  const pickerInput = input as any;
+  if (pickerInput.showPicker) {
+    pickerInput.showPicker();
+  }
 }
 } 
