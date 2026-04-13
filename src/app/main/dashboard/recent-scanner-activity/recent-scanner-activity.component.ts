@@ -40,21 +40,21 @@ export class RecentScannerActivityComponent implements OnInit, AfterViewInit, On
     clearInterval(this.refreshInterval);
   }
 
- get leftScannerActivities(): ScannerActivity[] {
-  const mid = Math.ceil(this.scannerActivities.length / 2);
-  return this.scannerActivities.slice(0, mid);
-}
+  get leftScannerActivities(): ScannerActivity[] {
+    const mid = Math.ceil(this.scannerActivities.length / 2);
+    return this.scannerActivities.slice(0, mid);
+  }
 
-get rightScannerActivities(): ScannerActivity[] {
-  const mid = Math.ceil(this.scannerActivities.length / 2);
-  return this.scannerActivities.slice(mid);
-}
+  get rightScannerActivities(): ScannerActivity[] {
+    const mid = Math.ceil(this.scannerActivities.length / 2);
+    return this.scannerActivities.slice(mid);
+  }
 
   loadScannerActivities(): void {
     this.dashboardService.getDashboardData().subscribe({
       next: (res: any) => {
-        this.todayScans = res.todayScans || 0;
-        this.yesterdayScans = res.yesterdayScans || 0;
+        this.todayScans = Number(res.todayScans || 0);
+        this.yesterdayScans = Number(res.yesterdayScans || 0);
 
         if (this.yesterdayScans > 0) {
           this.scanChange = Math.round(
@@ -83,14 +83,13 @@ get rightScannerActivities(): ScannerActivity[] {
     });
   }
 
- formatTime(date: string): string {
-  if (!date) return '-';
+  formatTime(date: string): string {
+    if (!date) return '-';
 
-  return new Date(date).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
-}
-  
+    return new Date(date).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
 }

@@ -6,70 +6,46 @@
       </div>
       <div>
         <h3>Top Company Performance</h3>
-        <p>Top companies by total orders</p>
+        <p>Top companies by month ordered quantity</p>
       </div>
     </div>
   </div>
 
   <div class="company-split-grid">
+    <div class="company-column">
+      <div class="company-card" *ngFor="let item of leftCompanies" [ngClass]="item.cardClass">
+        <div class="company-card-top">
+          <div class="company-left">
+            <div class="company-avatar" [ngClass]="item.avatarClass">
+              {{ getInitials(item.name) }}
+            </div>
 
-  <!-- LEFT SIDE -->
-  <div class="company-column">
-    <div class="company-card"
-         *ngFor="let item of leftCompanies"
-         [ngClass]="item.cardClass">
-
-      <div class="company-card-top">
-        <div class="company-left">
-          <div class="company-avatar" [ngClass]="item.avatarClass">
-            {{ getInitials(item.name) }}
-          </div>
-
-          <div class="company-text">
-            <h4>{{ item.name }}</h4>
-            <span>{{ item.orders }} Orders</span>
+            <div class="company-text">
+              <h4>{{ item.name }}</h4>
+              <span>{{ item.orders }} Ordered</span>
+              <small>{{ item.redeemed }} Redeemed • {{ item.pending }} Pending</small>
+            </div>
           </div>
         </div>
-
-      
       </div>
-
-      <!-- <div class="company-card-body">
-        <div class="orders-value">{{ item.orders }}</div>
-
-       
-      </div> -->
     </div>
-  </div>
 
-  <!-- RIGHT SIDE -->
-  <div class="company-column">
-    <div class="company-card"
-         *ngFor="let item of rightCompanies"
-         [ngClass]="item.cardClass">
+    <div class="company-column">
+      <div class="company-card" *ngFor="let item of rightCompanies" [ngClass]="item.cardClass">
+        <div class="company-card-top">
+          <div class="company-left">
+            <div class="company-avatar" [ngClass]="item.avatarClass">
+              {{ getInitials(item.name) }}
+            </div>
 
-      <div class="company-card-top">
-        <div class="company-left">
-          <div class="company-avatar" [ngClass]="item.avatarClass">
-            {{ getInitials(item.name) }}
-          </div>
-
-          <div class="company-text">
-            <h4>{{ item.name }}</h4>
-            <span>{{ item.orders }} Orders</span>
+            <div class="company-text">
+              <h4>{{ item.name }}</h4>
+              <span>{{ item.orders }} Ordered</span>
+              <small>{{ item.redeemed }} Redeemed • {{ item.pending }} Pending</small>
+            </div>
           </div>
         </div>
-
-       
       </div>
-
-      <!-- <div class="company-card-body">
-        <div class="orders-value">{{ item.orders }}</div>
-
-       
-      </div> -->
     </div>
   </div>
-
-</div>
 </div>

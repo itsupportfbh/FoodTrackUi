@@ -5,6 +5,8 @@ import { DashboardService } from '../dashboard-services/dashboard.service';
 interface TopCompanyItem {
   name: string;
   orders: number;
+  redeemed: number;
+  pending: number;
   share: number;
   cardClass: string;
   badgeClass: string;
@@ -18,7 +20,6 @@ interface TopCompanyItem {
   styleUrls: ['./top-companies.component.scss']
 })
 export class TopCompaniesComponent implements OnInit, AfterViewInit {
-
   topCompanies: TopCompanyItem[] = [];
 
   constructor(private dashboardService: DashboardService) {}
@@ -37,7 +38,7 @@ export class TopCompaniesComponent implements OnInit, AfterViewInit {
         const companies = res.totalcompanyWiseOrders || [];
 
         const totalOrders = companies.reduce(
-          (sum: number, item: any) => sum + (item.totalQty || 0),
+          (sum: number, item: any) => sum + Number(item.totalQty || 0),
           0
         );
 
@@ -69,14 +70,20 @@ export class TopCompaniesComponent implements OnInit, AfterViewInit {
         ];
 
         this.topCompanies = companies.map((item: any, index: number) => {
+          const orders = Number(item.totalQty || 0);
+          const redeemed = Number(item.redeemQty || 0);
+          const pending = Number(item.pendingQty || 0);
+
           const share = totalOrders > 0
-            ? Math.round((item.totalQty / totalOrders) * 100)
+            ? Math.round((orders / totalOrders) * 100)
             : 0;
 
           return {
             name: item.companyName,
-            orders: item.totalQty,
-            share: share,
+            orders,
+            redeemed,
+            pending,
+            share,
             cardClass: styles[index % styles.length].cardClass,
             badgeClass: styles[index % styles.length].badgeClass,
             progressClass: styles[index % styles.length].progressClass,
@@ -102,11 +109,12 @@ export class TopCompaniesComponent implements OnInit, AfterViewInit {
       .substring(0, 2)
       .toUpperCase();
   }
- get leftCompanies(): any[] {
-  return this.topCompanies.slice(0, Math.ceil(this.topCompanies.length / 2));
-}
 
-get rightCompanies(): any[] {
-  return this.topCompanies.slice(Math.ceil(this.topCompanies.length / 2));
-}
+  get leftCompanies(): TopCompanyItem[] {
+    return this.topCompanies.slice(0, Math.ceil(this.topCompanies.length / 2));
+  }
+
+  get rightCompanies(): TopCompanyItem[] {
+    return this.topCompanies.slice(Math.ceil(this.topCompanies.length / 2));
+  }
 }

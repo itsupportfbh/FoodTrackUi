@@ -2,19 +2,15 @@
   <div class="section-header">
     <div>
       <h3>Session Demand</h3>
-      <p>Today's quantity distribution by meal session</p>
+      <p>This month's quantity distribution by meal session</p>
     </div>
 
     <i data-feather="pie-chart" class="section-icon primary-text"></i>
   </div>
 
   <div class="donut-top-section">
-    <div
-      class="donut-wrapper"
-      (mouseleave)="hideTooltip()"
-    >
+    <div class="donut-wrapper" (mouseleave)="hideTooltip()">
       <svg class="donut-svg" viewBox="0 0 220 220">
-        <!-- Base ring -->
         <circle
           cx="110"
           cy="110"
@@ -24,7 +20,6 @@
           stroke-width="28"
         ></circle>
 
-        <!-- Dynamic slices -->
         <circle
           *ngFor="let item of sessionDemand"
           class="donut-slice"
@@ -44,7 +39,7 @@
 
       <div class="donut-center">
         <strong>{{ getSessionTotalOrders() }}</strong>
-        <span>Total Quantity</span>
+        <span>Month Quantity</span>
       </div>
 
       <div
@@ -74,9 +69,7 @@
           </div>
         </div>
 
-        <div class="legend-right">
-          {{ item.value }}%
-        </div>
+        <div class="legend-right">{{ item.value }}%</div>
       </div>
     </div>
 
@@ -93,9 +86,7 @@
           </div>
         </div>
 
-        <div class="legend-right">
-          {{ item.value }}%
-        </div>
+        <div class="legend-right">{{ item.value }}%</div>
       </div>
     </div>
   </div>
