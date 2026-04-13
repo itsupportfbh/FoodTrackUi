@@ -282,15 +282,14 @@ openOverride(row: any): void {
             <div class="override-field-card">
               <label for="overrideToDate" class="override-label">To Date</label>
               <div class="override-input-wrap">
-                <input
-                  id="overrideToDate"
-                  type="date"
-                  class="override-input"
-                  value="${initialToDate || ''}"
-                  min="${finalMinFromDate || ''}"
-                  max="${requestTo || ''}"
-                  readonly
-                />
+               <input
+                id="overrideToDate"
+                type="date"
+                class="override-input"
+                value="${initialToDate || ''}"
+                min="${finalMinFromDate || ''}"
+                max="${requestTo || ''}"
+              />
               </div>
               <div class="override-helper">
                 To date is auto-set to month end or request end date
