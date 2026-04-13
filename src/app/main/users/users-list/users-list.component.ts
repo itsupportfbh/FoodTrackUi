@@ -96,7 +96,7 @@ export class UsersListComponent implements OnInit {
             companyName: item.companyName || '-',
             roleName: item.roleName || '-',
             roleId: item.roleId || 0,
-            status: item.isActive ? 'active' : 'inactive',
+            status: item.isActive ? 'Active' : 'Inactive',
             isActive: item.isActive === true,
             avatar: '',
             createdBy: item.createdBy,
