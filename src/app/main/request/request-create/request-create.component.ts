@@ -35,6 +35,8 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   };
 
   sessionGroups: any[] = [];
+  isDateOverlap = false;
+  dateOverlapMessage = '';
 
   constructor(
     private requestService: RequestService,
@@ -263,12 +265,12 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
   saveRequest(): void {
     if (!this.model.companyId || !this.model.fromDate || !this.model.toDate) {
-      Swal.fire('Validation', 'Please fill header details', 'warning');
+      Swal.fire('Missing Information', 'Please fill header details', 'warning');
       return;
     }
 
     if (this.model.fromDate > this.model.toDate) {
-      Swal.fire('Validation', 'From Date should not be greater than To Date', 'warning');
+      Swal.fire('Missing Information', 'From Date should not be greater than To Date', 'warning');
       return;
     }
 
@@ -277,7 +279,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
     if (this.hasDuplicateLocations()) {
       Swal.fire(
-        'Validation',
+        'Missing Information',
         'Same cuisine cannot have duplicate locations in the same session',
         'warning'
       );
@@ -301,7 +303,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       }, []);
 
     if (!validLines.length) {
-      Swal.fire('Validation', 'Please select location and qty for at least one row', 'warning');
+      Swal.fire('Missing Information', 'Please select location and qty for at least one row', 'warning');
       return;
     }
 
@@ -315,6 +317,14 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       UserId: this.userId,
       Lines: validLines
     };
+    if (this.isDateOverlap) {
+      Swal.fire(
+        'Warning',
+        'Order already exists for the selected date range.',
+        'warning'
+      );
+      return;
+    }
 
     this.requestService.saveRequest(payload).subscribe({
       next: (res: any) => {
@@ -427,4 +437,36 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
     return `${year}-${month}-${day}`;
   }
+  checkDateOverlap(): void {
+  this.isDateOverlap = false;
+  this.dateOverlapMessage = '';
+
+  if (!this.model.companyId || !this.model.fromDate || !this.model.toDate) {
+    return;
+  }
+
+  this.requestService.checkOverlap(
+    this.model.companyId,
+    this.model.fromDate,
+    this.model.toDate,
+    this.model.id || 0
+  ).subscribe({
+    next: (res: any) => {
+      this.isDateOverlap = res?.isOverlap || false;
+
+      if (this.isDateOverlap) {
+        this.dateOverlapMessage =
+          'Order already exists for the selected date range.';
+        Swal.fire(
+          'Warning',
+          this.dateOverlapMessage,
+          'warning'
+        );
+      }
+    },
+    error: (err:any) => {
+      console.error(err);
+    }
+  });
+}
 }

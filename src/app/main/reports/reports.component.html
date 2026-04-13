@@ -42,6 +42,7 @@
               class="form-control form-control-sm report-input"
               [(ngModel)]="filter.fromDate"
               name="fromDate"
+             (click)="openDatePicker($event)"
             />
           </div>
 
@@ -52,6 +53,7 @@
               class="form-control form-control-sm report-input"
               [(ngModel)]="filter.toDate"
               name="toDate"
+                (click)="openDatePicker($event)"
             />
           </div>
 
@@ -105,7 +107,7 @@
         </div>
 
         <div class="action-row compact-action-row">
-        <button type="button" class="btn btn-primary action-btn" (click)="loadReport()">
+        <button type="button" class="btn btn-primary action-btn" (click)="loadReport(true)">
           <i data-feather="search" class="mr-50"></i>
           View Report
         </button>

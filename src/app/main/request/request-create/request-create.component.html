@@ -33,7 +33,7 @@
             [(ngModel)]="model.fromDate"
             name="fromDate"
             [min]="minDate"
-            (change)="onFromDateChange()"
+            (change)="onFromDateChange(); checkDateOverlap()"
           />
            <small class="text-muted">
   Minimum {{ orderDays }} days advance required
@@ -49,6 +49,7 @@
             name="toDate"
             [min]="model.fromDate || minDate"
             [max]="toDateMax"
+            (change)="checkDateOverlap()"
           />
         </div>
 
@@ -157,6 +158,9 @@
                       </tr>
                     </ng-container>
                   </ng-container>
+                  <small class="text-muted">
+                    Note : You can select the same cuisine for multiple locations using Add button
+                  </small>
 
                   <tr *ngIf="!group.lines || group.lines.length === 0">
                     <td colspan="3" class="text-center text-muted py-2">No cuisines available</td>
