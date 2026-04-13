@@ -10,7 +10,8 @@ export class RequestService {
   private baseUrl = `${environment.apiUrl}/Request`;
 
   constructor(private http: HttpClient) {}
-
+  private siteUrl = `${environment.apiUrl}/SiteSettings`;
+ 
   getPageMasters(userId: number, companyId?: number): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/GetPageMasters?userId=${userId}`);
   }
@@ -30,6 +31,12 @@ export class RequestService {
   deleteRequest(id: number, userId: number): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/DeleteRequest/${id}?userId=${userId}`);
   }
+
+
+  
+getLatestSiteSetting(): Observable<any> {
+  return this.http.get<any>(`${this.siteUrl}/GetLatestSiteSetting`);
+}
 
    getOrderDate(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/GetOrderDays`);

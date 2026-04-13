@@ -35,8 +35,9 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
       this.userId = Number(currentUser.id || 0);
       this.companyId = Number(currentUser.companyId || 0);
       this.roleId = Number(currentUser.roleId || currentUser.RoleId || 0);
+     
     }
-
+ this.loadSiteSettings();
     const role = (localStorage.getItem('role') || '').toLowerCase();
     this.isAdmin = role.includes('admin');
 
@@ -168,6 +169,46 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
   get pagedRows(): any[] {
     return this.filteredRows.slice(0, this.selectedOption);
   }
+
+isAtLeastOrderDaysBefore(fromDate: Date): boolean {
+  const selected = new Date(
+    fromDate.getFullYear(),
+    fromDate.getMonth(),
+    fromDate.getDate()
+  );
+
+  const today = new Date();
+  const todayOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+
+  const minAllowed = new Date(
+    todayOnly.getFullYear(),
+    todayOnly.getMonth(),
+    todayOnly.getDate() + this.orderDays
+  );
+
+  return selected.getTime() >= minAllowed.getTime();
+}
+
+
+loadSiteSettings(): void {
+  this.requestService.getLatestSiteSetting().subscribe({
+    next: (res: any) => {
+      this.orderDays = Number(res?.data?.orderDays ?? 0);
+    },
+    error: (err) => {
+      console.error('Failed to load site settings', err);
+      this.orderDays = 0;
+    }
+  });
+}
+
+
+
+
 openOverride(row: any): void {
   const requestFrom = this.toInputDate(row.fromDate);
   const requestTo = this.toInputDate(row.toDate);
@@ -175,19 +216,35 @@ openOverride(row: any): void {
   const reqFromDate = this.parseDateOnly(row.fromDate);
   const reqToDate = this.parseDateOnly(row.toDate);
 
-  const minAllowedDateObj = new Date();
-  minAllowedDateObj.setHours(0, 0, 0, 0);
-  minAllowedDateObj.setDate(minAllowedDateObj.getDate() + 3);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const minAllowedDate = this.toInputDate(minAllowedDateObj);
+  const minAllowedDateObj = new Date(today);
+  minAllowedDateObj.setDate(minAllowedDateObj.getDate() + this.orderDays);
 
-  let finalMinFromDate = requestFrom;
-  if (reqFromDate) {
-    finalMinFromDate =
-      reqFromDate.getTime() > minAllowedDateObj.getTime()
-        ? this.toInputDate(reqFromDate)
-        : minAllowedDate;
+  const getMonthEnd = (date: Date): Date => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  };
+
+  const getFinalToDate = (fromDate: Date, requestToDate: Date | null): Date => {
+    const monthEnd = getMonthEnd(fromDate);
+
+    if (requestToDate && monthEnd.getTime() > requestToDate.getTime()) {
+      return requestToDate;
+    }
+
+    return monthEnd;
+  };
+
+  let finalMinFromDateObj = minAllowedDateObj;
+
+  if (reqFromDate && reqFromDate.getTime() > minAllowedDateObj.getTime()) {
+    finalMinFromDateObj = reqFromDate;
   }
+
+  const finalMinFromDate = this.toInputDate(finalMinFromDateObj);
+  const initialToDateObj = getFinalToDate(finalMinFromDateObj, reqToDate);
+  const initialToDate = this.toInputDate(initialToDateObj);
 
   Swal.fire({
     title: '',
@@ -218,7 +275,7 @@ openOverride(row: any): void {
                 />
               </div>
               <div class="override-helper">
-                Must be at least ${this.orderDays} days ahead and within request range
+                From date must be within request range and at least ${this.orderDays} days from today
               </div>
             </div>
 
@@ -229,13 +286,14 @@ openOverride(row: any): void {
                   id="overrideToDate"
                   type="date"
                   class="override-input"
-                  value="${finalMinFromDate || ''}"
+                  value="${initialToDate || ''}"
                   min="${finalMinFromDate || ''}"
                   max="${requestTo || ''}"
+                  readonly
                 />
               </div>
               <div class="override-helper">
-                To date cannot be earlier than from date
+                To date is auto-set to month end or request end date
               </div>
             </div>
           </div>
@@ -267,19 +325,21 @@ openOverride(row: any): void {
 
       if (fromInput && toInput) {
         fromInput.addEventListener('change', () => {
-          const selectedFrom = fromInput.value || finalMinFromDate;
-          toInput.min = selectedFrom;
+          const selectedFrom = this.parseDateOnly(fromInput.value);
 
-          if (toInput.value && toInput.value < selectedFrom) {
-            toInput.value = selectedFrom;
+          if (!selectedFrom) {
+            toInput.value = '';
+            return;
           }
+
+          const autoToDate = getFinalToDate(selectedFrom, reqToDate);
+          toInput.min = fromInput.value;
+          toInput.max = requestTo || '';
+          toInput.value = this.toInputDate(autoToDate);
         });
       }
-      
     },
-    
     preConfirm: () => {
-      debugger
       const fromDate = (document.getElementById('overrideFromDate') as HTMLInputElement)?.value;
       const toDate = (document.getElementById('overrideToDate') as HTMLInputElement)?.value;
 
@@ -308,27 +368,37 @@ openOverride(row: any): void {
         return false;
       }
 
-      if (!this.isAtLeastThreeDaysBefore(selFrom)) {
+      const minDate = new Date(today);
+      minDate.setDate(minDate.getDate() + this.orderDays);
+
+      if (selFrom.getTime() < minDate.getTime()) {
         Swal.showValidationMessage(
           `Override/edit must be done at least ${this.orderDays} days before the override from date`
         );
         return false;
       }
 
+      const expectedToDate = getFinalToDate(selFrom, reqTo);
+
+      if (selTo.getTime() !== expectedToDate.getTime()) {
+        Swal.showValidationMessage('To date must be the month end within request range');
+        return false;
+      }
+
       return { fromDate, toDate };
     }
   } as any).then((result: any) => {
-   if (result.isConfirmed && result.value) {
-  this.router.navigate(['/requestoverride/Request-override'], {
-    queryParams: {
-      requestHeaderId: row.id,
-      fromDate: result.value.fromDate,
-      toDate: result.value.toDate
+    if (result.isConfirmed && result.value) {
+      this.router.navigate(['/requestoverride/Request-override'], {
+        queryParams: {
+          requestHeaderId: row.id,
+          fromDate: result.value.fromDate,
+          toDate: result.value.toDate
+        }
+      });
     }
   });
 }
-      });
-    }
  
 
   openOverrideList(row: any): void {
