@@ -226,6 +226,11 @@ export class ChangePasswordComponent implements OnInit, AfterViewInit {
     this.calculateStrength();
   }
 
+
+  Cancel(){
+    this.router.navigate(['/dashboard'])
+  }
+
   goTologout(){
       this.router.navigate(['/pages/authentication/login-v2']);
   }

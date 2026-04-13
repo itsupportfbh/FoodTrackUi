@@ -98,7 +98,7 @@ export const menu: CoreMenu[] = [
     icon: 'bar-chart-2',
     url: 'catering/reports'
   },
-    {
+  {
     id: 'users',
     title: 'Users',
     translate: 'MENU.SAMPLE',
