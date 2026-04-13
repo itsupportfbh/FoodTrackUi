@@ -34,6 +34,8 @@ export class CompanySidebarComponent implements OnInit, OnChanges {
   @Output() saved = new EventEmitter<void>();
   @Output() closed = new EventEmitter<void>();
 
+  public companySuggestions: any[] = [];
+public filteredCompanySuggestions: any[] = [];
   @ViewChild('sessionTimingModal') sessionTimingModal!: TemplateRef<any>;
 
   public confirmPassword = '';
@@ -109,20 +111,40 @@ export class CompanySidebarComponent implements OnInit, OnChanges {
     }
   }
 
-  loadDropdowns(): void {
-    this.companyService.getLocation().subscribe(res => {
-      this.locationList = res?.data || [];
-    });
+loadDropdowns(): void {
+  this.companyService.getLocation().subscribe(res => {
+    this.locationList = res?.data || [];
+  });
 
-    this.companyService.getSession().subscribe(res => {
-      this.sessionList = res?.data || [];
-    });
+  this.companyService.getSession().subscribe(res => {
+    this.sessionList = res?.data || [];
+  });
 
-    this.companyService.getAllCuisine().subscribe((res: any) => {
-      this.cuisineList = res || [];
-    });
+  this.companyService.getAllCuisine().subscribe((res: any) => {
+    this.cuisineList = res || [];
+  });
+
+  this.companyService.getCompanies().subscribe((res: any) => {
+    this.companySuggestions = (res?.data || []).map((x: any) => ({
+      ...x,
+      companyName: x.companyName || x.name || ''
+    }));
+    this.filteredCompanySuggestions = [...this.companySuggestions];
+  });
+}
+
+onCompanyNameInput(): void {
+  const searchText = (this.model.companyName || '').trim().toLowerCase();
+
+  if (!searchText) {
+    this.filteredCompanySuggestions = [...this.companySuggestions];
+    return;
   }
 
+  this.filteredCompanySuggestions = this.companySuggestions.filter((x: any) =>
+    (x.companyName || '').toLowerCase().includes(searchText)
+  );
+}
   onSessionChange(): void {
     const selectedSessions = this.model.sessionIds || [];
     const existingTimings = this.model.sessionTimings || [];
