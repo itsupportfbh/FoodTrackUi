@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import * as feather from 'feather-icons';
-import { DashboardService } from '../dashboard-services/dashboard.service'; 
+import { DashboardService } from '../dashboard-services/dashboard.service';
 
 interface SummaryCard {
   title: string;
@@ -17,12 +17,10 @@ interface SummaryCard {
   styleUrls: ['./total-company-summary.component.scss']
 })
 export class TotalCompanySummaryComponent implements OnInit, AfterViewInit {
-
   summaryCards: SummaryCard[] = [];
-
   dashboardData: any;
 
-  constructor(private dashboardService: DashboardService) { }
+  constructor(private dashboardService: DashboardService) {}
 
   ngOnInit(): void {
     this.loadDashboardSummary();
@@ -47,28 +45,34 @@ export class TotalCompanySummaryComponent implements OnInit, AfterViewInit {
             progress: 62
           },
           {
-            title: 'Total Orders',
-            value: (res.totalOrders ?? 0).toString(),
-            sub: `${res.totalOrdersBySession?.length ?? 0} sessions`,
+            title: 'Today Ordered',
+            value: (res.todayOrderedQty ?? 0).toString(),
+            sub: `${res.todayRedeemedQty ?? 0} redeemed • ${res.todayPendingQty ?? 0} pending`,
             icon: 'shopping-bag',
             theme: 'info',
             progress: 84
+          },
+          {
+            title: 'This Month Ordered',
+            value: (res.monthOrderedQty ?? 0).toString(),
+            sub: `${res.monthRedeemedQty ?? 0} redeemed • ${res.monthPendingQty ?? 0} pending`,
+            icon: 'bar-chart-2',
+            theme: 'pink',
+            progress: 76
           },
           {
             title: 'QR Generated',
             value: (res.totalQRCodes ?? 0).toString(),
             sub: `${res.totallatestUsedQRs?.length ?? 0} latest used`,
             icon: 'grid',
-            theme: 'pink',
-            progress: 76
+            theme: 'success',
+            progress: 71
           }
         ];
 
-        setTimeout(() => {
-          feather.replace();
-        }, 0);
+        setTimeout(() => feather.replace(), 0);
       },
-      error: (err) => {
+      error: err => {
         console.error('Dashboard summary load error:', err);
 
         this.summaryCards = [
@@ -81,20 +85,28 @@ export class TotalCompanySummaryComponent implements OnInit, AfterViewInit {
             progress: 62
           },
           {
-            title: 'Total Orders',
+            title: 'Today Ordered',
             value: '0',
-            sub: '0 sessions',
+            sub: '0 redeemed • 0 pending',
             icon: 'shopping-bag',
             theme: 'info',
             progress: 84
+          },
+          {
+            title: 'This Month Ordered',
+            value: '0',
+            sub: '0 redeemed • 0 pending',
+            icon: 'bar-chart-2',
+            theme: 'pink',
+            progress: 76
           },
           {
             title: 'QR Generated',
             value: '0',
             sub: '0 latest used',
             icon: 'grid',
-            theme: 'pink',
-            progress: 76
+            theme: 'success',
+            progress: 71
           }
         ];
       }

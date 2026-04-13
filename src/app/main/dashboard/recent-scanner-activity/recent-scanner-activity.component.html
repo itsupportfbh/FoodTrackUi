@@ -24,10 +24,7 @@
             <span>Yesterday</span>
           </div>
 
-          <div
-            class="scan-change"
-            [ngClass]="scanChange >= 0 ? 'up' : 'down'"
-          >
+          <div class="scan-change" [ngClass]="scanChange >= 0 ? 'up' : 'down'">
             <i [attr.data-feather]="scanChange >= 0 ? 'trending-up' : 'trending-down'"></i>
             <span>{{ scanChange >= 0 ? '+' : '' }}{{ scanChange }}%</span>
           </div>

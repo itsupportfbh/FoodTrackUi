@@ -15,6 +15,14 @@ interface DashboardSummaryResponse {
   totalCompanies: number;
   totalOrders: number;
   totalQRCodes: number;
+  todayScans: number;
+  yesterdayScans: number;
+  todayOrderedQty: number;
+  todayRedeemedQty: number;
+  todayPendingQty: number;
+  monthOrderedQty: number;
+  monthRedeemedQty: number;
+  monthPendingQty: number;
   totalOrdersBySession: {
     sessionName: string;
     totalQty: number;
@@ -23,6 +31,8 @@ interface DashboardSummaryResponse {
     companyId: number;
     companyName: string;
     totalQty: number;
+    redeemQty: number;
+    pendingQty: number;
   }[];
   totallatestUsedQRs: any[];
 }
@@ -81,7 +91,7 @@ export class SessionDemandComponent implements OnInit, AfterViewInit {
     this.dashboardService.getDashboardData().subscribe({
       next: (res: DashboardSummaryResponse) => {
         const sessions = res.totalOrdersBySession || [];
-        const totalQty = sessions.reduce((sum, item) => sum + item.totalQty, 0);
+        const totalQty = sessions.reduce((sum, item) => sum + (item.totalQty || 0), 0);
 
         let cumulativePercentage = 0;
 
@@ -92,7 +102,7 @@ export class SessionDemandComponent implements OnInit, AfterViewInit {
 
           const mappedItem: SessionDemandItem = {
             label: item.sessionName,
-            count: item.totalQty,
+            count: Number(item.totalQty || 0),
             value: +percentage.toFixed(1),
             color: this.sessionColors[index % this.sessionColors.length],
             strokeDasharray: `${dashLength} ${gapLength}`,
@@ -103,11 +113,9 @@ export class SessionDemandComponent implements OnInit, AfterViewInit {
           return mappedItem;
         });
 
-        setTimeout(() => {
-          feather.replace();
-        }, 0);
+        setTimeout(() => feather.replace(), 0);
       },
-      error: (err) => {
+      error: err => {
         console.error('Session demand load error:', err);
         this.sessionDemand = [];
       }
@@ -122,10 +130,7 @@ export class SessionDemandComponent implements OnInit, AfterViewInit {
   }
 
   moveTooltip(event: MouseEvent): void {
-    if (!this.tooltipVisible) {
-      return;
-    }
-
+    if (!this.tooltipVisible) return;
     this.tooltipX = event.offsetX + 14;
     this.tooltipY = event.offsetY - 10;
   }
