@@ -42,7 +42,7 @@ export const menu: CoreMenu[] = [
       },
       {
         id: 'site_settings',
-        title: 'Site Settings',
+        title: 'Configuration',
         translate: 'MENU.SAMPLE',
         type: 'item',
         icon: 'tool',

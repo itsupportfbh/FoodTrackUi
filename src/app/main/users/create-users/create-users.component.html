@@ -27,29 +27,36 @@
           </div>
 
           <ng-container *ngIf="!isLoadingUser">
-            <div class="form-group" *ngIf="isSuperAdmin">
-              <label class="form-label" for="companyId">Company</label>
-              <select
-                id="companyId"
-                class="form-control"
-                name="companyId"
-                [(ngModel)]="selectedCompanyId"
-                #FCompanyRef="ngModel"
-                [class.is-invalid]="newUserForm.submitted && FCompanyRef.invalid"
-                required
-              >
-                <option [ngValue]="null">Select Company</option>
-                <option *ngFor="let company of companyList" [ngValue]="company.id">
-                  {{ company.companyName || company.name }}
-                </option>
-              </select>
+           <div class="form-group" *ngIf="isSuperAdmin">
+  <label class="form-label" for="companyId">Company</label>
 
-              <span *ngIf="newUserForm.submitted && FCompanyRef.invalid" class="invalid-form">
-                <small class="form-text text-danger" *ngIf="FCompanyRef.errors?.required">
-                  Company is required!
-                </small>
-              </span>
-            </div>
+  <ng-select
+    id="companyId"
+    [items]="companyList"
+    bindLabel="companyName"
+    bindValue="id"
+    [searchable]="true"
+    [clearable]="true"
+    [closeOnSelect]="true"
+    [virtualScroll]="true"
+    placeholder="Search Company"
+    name="companyId"
+    [(ngModel)]="selectedCompanyId"
+    #FCompanyRef="ngModel"
+    [class.is-invalid]="newUserForm.submitted && FCompanyRef.invalid"
+    required
+  >
+    <ng-template ng-option-tmp let-item="item">
+      {{ item.companyName || item.name }}
+    </ng-template>
+  </ng-select>
+
+  <span *ngIf="newUserForm.submitted && FCompanyRef.invalid" class="invalid-form">
+    <small class="form-text text-danger" *ngIf="FCompanyRef.errors?.required">
+      Company is required!
+    </small>
+  </span>
+</div>
 
             <div class="form-group" *ngIf="!isSuperAdmin">
               <label class="form-label" for="companyName">Company</label>
@@ -109,7 +116,7 @@
               </span>
             </div>
 
-            <div class="form-group">
+            <div  *ngIf="!isEdit" class="form-group">
               <label class="form-label" for="basic-icon-default-password">
                 Password 
               </label>
@@ -137,7 +144,7 @@
               </span>
             </div>
 
-            <div class="form-group">
+            <div   *ngIf="!isEdit" class="form-group">
               <label class="form-label" for="basic-icon-default-confirm-password">Confirm Password</label>
               <input
                 type="password"

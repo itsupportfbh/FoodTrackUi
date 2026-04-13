@@ -48,7 +48,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
   public isSubmitting: boolean = false;
   public isEditMode: boolean = false;
   public isLoadingUser: boolean = false;
-
+public isEdit: Boolean = false;
   public companyList: Array<any> = [];
 
   constructor(
@@ -66,8 +66,10 @@ export class CreateUsersComponent implements OnInit, OnChanges {
 ngOnChanges(changes: SimpleChanges): void {
   if (changes['editUserId']) {
     if (this.editUserId && this.editUserId > 0) {
+       this.isEdit = true
       this.loadUserById(this.editUserId);
     } else {
+       this.isEdit = false
       this.prepareCreateDefaults();
     }
   }
@@ -108,17 +110,20 @@ ngOnChanges(changes: SimpleChanges): void {
     this.isSuperAdmin = this.loginRoleId === 1;
   }
 
-  loadCompanyList(): void {
-    this._companyService.getCompanies().subscribe({
-      next: (res: any) => {
-        this.companyList = res?.data || [];
-        this.syncCompanyName();
-      },
-      error: () => {
-        this.companyList = [];
-      }
-    });
-  }
+loadCompanyList(): void {
+  this._companyService.getCompanies().subscribe({
+    next: (res: any) => {
+      this.companyList = (res?.data || []).map((x: any) => ({
+        ...x,
+        companyName: x.companyName || x.name || ''
+      }));
+      this.syncCompanyName();
+    },
+    error: () => {
+      this.companyList = [];
+    }
+  });
+}
 
 prepareCreateDefaults(): void {
   this.isEditMode = false;
@@ -242,7 +247,7 @@ getFinalCompanyId(): number | null {
     if (!form.valid) {
       Swal.fire({
         icon: 'warning',
-        title: 'Validation',
+        title: 'Missing Fields',
         text: 'Please fill all required fields'
       });
       return;
@@ -251,7 +256,7 @@ getFinalCompanyId(): number | null {
     if (this.passwordMismatch) {
       Swal.fire({
         icon: 'warning',
-        title: 'Validation',
+        title: 'Missing FieldsC',
         text: 'Password and Confirm Password must match'
       });
       return;
@@ -262,7 +267,7 @@ getFinalCompanyId(): number | null {
     if (!finalCompanyId || finalCompanyId <= 0) {
       Swal.fire({
         icon: 'warning',
-        title: 'Validation',
+        title: 'Missing Fields',
         text: 'Company is required'
       });
       return;
@@ -271,7 +276,7 @@ getFinalCompanyId(): number | null {
     if (!this.isEditMode && !this.password) {
       Swal.fire({
         icon: 'warning',
-        title: 'Validation',
+        title: 'Missing Fields',
         text: 'Password is required'
       });
       return;

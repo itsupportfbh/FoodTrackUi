@@ -5,6 +5,7 @@ import { CateringService } from '../services/catering.service';
 import { CoreSidebarService } from '@core/components/core-sidebar/core-sidebar.service';
 import * as feather from 'feather-icons';
 import Swal from 'sweetalert2';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-company-master',
@@ -16,7 +17,11 @@ export class CompanyMasterComponent implements OnInit {
   public ColumnMode = ColumnMode;
   public rows: any[] = [];
   public tempRows: any[] = [];
-  public selectedOption = 10;
+
+  public selectedOption: number | 'all' = 10;
+  public pageLimit = 10;
+  public showPagination = true;
+
   public searchValue = '';
 
   public filterCompanyName = '';
@@ -58,79 +63,98 @@ export class CompanyMasterComponent implements OnInit {
     this.loadCompanies();
   }
 
-loadCompanies(): void {
-  this.companyService.getCompanies().subscribe({
-    next: (res: any) => {
-      const data = Array.isArray(res) ? res : (res?.data || []);
+  loadCompanies(): void {
+    this.companyService.getCompanies().subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res) ? res : (res?.data || []);
 
-      this.rows = [...data];
-      this.tempRows = [...data];
+        this.rows = [...data];
+        this.tempRows = [...data];
+        this.updatePaging();
 
-      setTimeout(() => {
-        feather.replace();
-      }, 0);
-    },
-    error: (err) => {
-      console.error('Load companies error:', err);
-      this.rows = [];
-      this.tempRows = [];
+        setTimeout(() => {
+          feather.replace();
+        }, 0);
+      },
+      error: (err) => {
+        console.error('Load companies error:', err);
+        this.rows = [];
+        this.tempRows = [];
+        this.updatePaging();
 
+        Swal.fire({
+          icon: 'error',
+          title: 'Load Failed',
+          text: err?.error?.message || 'Unable to load company list',
+          customClass: {
+            confirmButton: 'btn btn-primary'
+          },
+          buttonsStyling: false
+        });
+      }
+    });
+  }
+
+  onPageSizeChange(): void {
+    this.updatePaging();
+  }
+
+  private updatePaging(): void {
+    if (this.selectedOption === 'all') {
+      this.pageLimit = this.rows.length > 0 ? this.rows.length : 1;
+      this.showPagination = false;
+    } else {
+      this.pageLimit = Number(this.selectedOption) || 10;
+      this.showPagination = true;
+    }
+  }
+
+  exportToExcel(): void {
+    const exportRows = (this.rows || []).map((item: any, index: number) => ({
+      'S.No': index + 1,
+      'Company Code': item.companyCode || '',
+      'Company Name': item.companyName || '',
+      'Contact Person': item.contactPerson || '',
+      'Email': item.email || '',
+      'Contact No': item.contactNo || '',
+      'Address Line 1': item.addressLine1 || '',
+      'Address Line 2': item.addressLine2 || '',
+      'City': item.city || '',
+      'State': item.stateName || '',
+      'Postal Code': item.postalCode || '',
+      'Status': item.isActive ? 'Active' : 'Inactive'
+    }));
+
+    if (!exportRows.length) {
       Swal.fire({
-        icon: 'error',
-        title: 'Load Failed',
-        text: err?.error?.message || 'Unable to load company list',
+        icon: 'info',
+        title: 'No Data',
+        text: 'There are no records to export',
         customClass: {
           confirmButton: 'btn btn-primary'
         },
         buttonsStyling: false
       });
+      return;
     }
-  });
-}
 
-  deleteCompany(row: any): void {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: `Do you want to delete ${row.companyName || 'this company'}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it',
-      cancelButtonText: 'Cancel',
-      customClass: {
-        confirmButton: 'btn btn-danger',
-        cancelButton: 'btn btn-outline-secondary ml-1'
-      },
-      buttonsStyling: false
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.companyService.deleteCompany(row.id).subscribe({
-          next: () => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Deleted',
-              text: 'Company deleted successfully',
-              customClass: {
-                confirmButton: 'btn btn-primary'
-              },
-              buttonsStyling: false
-            });
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportRows);
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
 
-            this.loadCompanies();
-          },
-          error: (err) => {
-            Swal.fire({
-              icon: 'error',
-              title: 'Delete failed',
-              text: err?.error?.message || 'Something went wrong',
-              customClass: {
-                confirmButton: 'btn btn-primary'
-              },
-              buttonsStyling: false
-            });
-          }
-        });
-      }
-    });
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Company List');
+
+    const fileName = `Company_List_${this.formatDateForFileName(new Date())}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  }
+
+  private formatDateForFileName(date: Date): string {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const hh = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+
+    return `${yyyy}${mm}${dd}_${hh}${min}`;
   }
 
   openCompanySidebar(): void {
@@ -148,15 +172,13 @@ loadCompanies(): void {
     this.resetForm();
   }
 
-onCompanySaved(): void {
-  debugger
-  this.closeCompanySidebar();
+  onCompanySaved(): void {
+    this.closeCompanySidebar();
 
-  setTimeout(() => {
-    this.loadCompanies();
-  }, 200);
-}
-
+    setTimeout(() => {
+      this.loadCompanies();
+    }, 200);
+  }
 
   onCompanySidebarClosed(): void {
     this.sidebarService.getSidebarRegistry('new-company-sidebar')?.close();
@@ -183,10 +205,8 @@ onCompanySaved(): void {
           postalCode: data.postalCode || '',
           isActive: data.isActive ?? true,
           userId: 1,
-
           username: data.username || '',
           userContactNo: data.userContactNo || '',
-
           locationIds: data.locationIds || [],
           sessionIds: data.sessionIds || (data.sessionTimings || []).map((x: any) => x.sessionId),
           sessionTimings: data.sessionTimings || [],
@@ -235,29 +255,65 @@ onCompanySaved(): void {
   }
 
   toggleCompanyStatus(row: any): void {
-    const payload = {
-      id: row.id,
-      companyCode: row.companyCode,
-      companyName: row.companyName,
-      contactPerson: row.contactPerson,
-      contactNo: row.contactNo,
-      email: row.email,
-      addressLine1: row.addressLine1,
-      addressLine2: row.addressLine2,
-      city: row.city,
-      stateName: row.stateName,
-      postalCode: row.postalCode,
-      isActive: !row.isActive,
-      userId: 1,
-      password: null
-    };
+    const nextStatus = !row.isActive;
 
-    this.companyService.saveCompany(payload).subscribe({
-      next: () => {
-        this.loadCompanies();
+    Swal.fire({
+      title: nextStatus ? 'Activate Company?' : 'Deactivate Company?',
+      text: `Do you want to mark ${row.companyName || 'this company'} as ${nextStatus ? 'Active' : 'Inactive'}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: nextStatus ? 'Yes, Activate' : 'Yes, Deactivate',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        confirmButton: nextStatus ? 'btn btn-success' : 'btn btn-warning',
+        cancelButton: 'btn btn-outline-secondary ml-1'
       },
-      error: err => {
-        alert(err?.error?.message || 'Status update failed');
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const payload = {
+          id: row.id,
+          companyCode: row.companyCode,
+          companyName: row.companyName,
+          contactPerson: row.contactPerson,
+          contactNo: row.contactNo,
+          email: row.email,
+          addressLine1: row.addressLine1,
+          addressLine2: row.addressLine2,
+          city: row.city,
+          stateName: row.stateName,
+          postalCode: row.postalCode,
+          isActive: nextStatus,
+          userId: 1,
+          password: null
+        };
+
+        this.companyService.saveCompany(payload).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: `Company marked as ${nextStatus ? 'Active' : 'Inactive'} successfully`,
+              customClass: {
+                confirmButton: 'btn btn-primary'
+              },
+              buttonsStyling: false
+            });
+
+            this.loadCompanies();
+          },
+          error: err => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Update Failed',
+              text: err?.error?.message || 'Status update failed',
+              customClass: {
+                confirmButton: 'btn btn-primary'
+              },
+              buttonsStyling: false
+            });
+          }
+        });
       }
     });
   }
@@ -271,10 +327,12 @@ onCompanySaved(): void {
         (d.companyName || '').toLowerCase().includes(val) ||
         (d.contactPerson || '').toLowerCase().includes(val) ||
         (d.email || '').toLowerCase().includes(val) ||
+        (d.contactNo || '').toLowerCase().includes(val) ||
         !val
     );
 
     this.rows = temp;
+    this.updatePaging();
   }
 
   applyFilter(): void {
@@ -297,6 +355,7 @@ onCompanySaved(): void {
     }
 
     this.rows = data;
+    this.updatePaging();
   }
 
   getInitials(name: string): string {

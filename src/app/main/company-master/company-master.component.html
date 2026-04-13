@@ -3,73 +3,40 @@
     <div class="content-wrapper container-xxl p-0">
       <div class="content-body">
         <section class="users-list-wrapper">
-          <!-- <div class="card">
-            <h5 class="card-header">Company Search Filter</h5>
-            <div class="card-body">
-              <div class="row">
-                <div class="col-12 col-md-4">
-                  <input
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="filterCompanyName"
-                    name="filterCompanyName"
-                    placeholder="Search Company Name"
-                    (keyup)="applyFilter()"
-                  />
-                </div>
-
-                <div class="col-12 col-md-4">
-                  <input
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="filterEmail"
-                    name="filterEmail"
-                    placeholder="Search Email"
-                    (keyup)="applyFilter()"
-                  />
-                </div>
-
-                <div class="col-12 col-md-4">
-                  <ng-select
-                    [items]="statusOptions"
-                    [(ngModel)]="selectedStatus"
-                    name="selectedStatus"
-                    bindLabel="name"
-                    bindValue="value"
-                    placeholder="Select Status"
-                    (change)="applyFilter()"
-                  >
-                  </ng-select>
-                </div>
-              </div>
-            </div>
-          </div> -->
-
           <div class="card">
-             <h4
+            <h4
               class="card-text"
-              style="margin-left:0.85rem;margin-top:0.75rem;font-size:1.25rem;font-weight:600;color:#6F3C2F;">
-              Company List
+              style="margin-left:0.85rem;margin-top:0.75rem;font-size:1.25rem;font-weight:600;color:#6F3C2F;"
+            >
+              Companies
             </h4>
+
             <div class="row">
-              <div class="col-md-6 col-12">
+              <div class="col-md-4 col-12">
                 <div class="d-flex justify-content-between align-items-center m-1">
                   <label class="d-flex align-items-center">
                     Show
-                    <select class="form-control mx-25" [(ngModel)]="selectedOption" name="selectedOption">
-                      <option [value]="10">10</option>
-                      <option [value]="25">25</option>
-                      <option [value]="50">50</option>
-                      <option [value]="100">100</option>
+                    <select
+                      class="form-control mx-25"
+                      [(ngModel)]="selectedOption"
+                      name="selectedOption"
+                      (change)="onPageSizeChange()"
+                    >
+                     <option [ngValue]="'all'">All</option>
+                      <option [ngValue]="10">10</option>
+                      <option [ngValue]="25">25</option>
+                      <option [ngValue]="50">50</option>
+                      <option [ngValue]="100">100</option>
+
                     </select>
                     entries
                   </label>
                 </div>
               </div>
 
-              <div class="col-md-6 col-12 d-flex justify-content-start justify-content-md-end">
-                <div class="d-flex align-items-center justify-content-end pr-1 pb-1 pb-md-0">
-                  <label class="d-flex align-items-center ml-1 ml-md-0">
+              <div class="col-md-8 col-12 d-flex justify-content-start justify-content-md-end">
+                <div class="d-flex align-items-center justify-content-end pr-1 pb-1 pb-md-0 flex-wrap">
+                  <label class="d-flex align-items-center ml-1 ml-md-0 mb-0">
                     Search:
                     <input
                       [(ngModel)]="searchValue"
@@ -80,9 +47,23 @@
                     />
                   </label>
 
-                  <button class="btn btn-primary ml-1" rippleEffect (click)="openCompanySidebar()">
+                  <button
+                    type="button"
+                    class="btn btn-outline-success ml-1"
+                    rippleEffect
+                    (click)="exportToExcel()"
+                  >
+                    <i data-feather="download" class="d-sm-none d-inline-block mr-0 mr-sm-1"></i>
+                    <span class="d-none d-sm-inline-block">Export Excel</span>
+                  </button>
+
+                  <button
+                    class="btn btn-primary ml-1"
+                    rippleEffect
+                    (click)="openCompanySidebar()"
+                  >
                     <i data-feather="plus" class="d-sm-none d-inline-block mr-0 mr-sm-1"></i>
-                    <span class="d-none d-sm-inline-block">Add New Company</span>
+                    <span class="d-none d-sm-inline-block">Add Company</span>
                   </button>
                 </div>
               </div>
@@ -92,92 +73,95 @@
               [rows]="rows"
               [rowHeight]="50"
               class="bootstrap core-bootstrap"
-              [limit]="selectedOption"
+              [limit]="pageLimit"
               [columnMode]="ColumnMode.force"
               [headerHeight]="50"
-              [footerHeight]="50"
-              [scrollbarH]="true"
+              [footerHeight]="showPagination ? 50 : 0"
+              [scrollbarH]="false"
+              [externalPaging]="false"
             >
-            <ngx-datatable-column name="Company Name" prop="companyName" [width]="220">
-  <ng-template let-row="row" ngx-datatable-cell-template>
-    <div class="d-flex align-items-center company-cell-wrap">
-      <div
-        class="avatar mr-1 ml-0"
-        [ngClass]="{
-          'bg-light-success': row.isActive,
-          'bg-light-secondary': !row.isActive
-        }"
-      >
-        <div class="avatar-content">{{ getInitials(row.companyName) }}</div>
-      </div>
+              <ngx-datatable-column name="Company Name" prop="companyName" [width]="220">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  <div class="d-flex align-items-center company-cell-wrap">
+                    <div
+                      class="avatar mr-1 ml-0"
+                      [ngClass]="{
+                        'bg-light-success': row.isActive,
+                        'bg-light-secondary': !row.isActive
+                      }"
+                    >
+                      <div class="avatar-content">{{ getInitials(row.companyName) }}</div>
+                    </div>
 
-      <div class="cell-line-height company-text-wrap">
-        <span
-          class="font-weight-bold d-block company-name-text"
-          [ngbTooltip]="row.companyName && row.companyName.length > 18 ? companyTooltip : null"
-          container="body"
-          placement="top"
-          tooltipClass="modern-grid-tooltip"
-        >
-          {{ row.companyName?.length > 18 ? (row.companyName | slice:0:18) + '...' : row.companyName }}
-        </span>
+                    <div class="cell-line-height company-text-wrap">
+                      <span
+                        class="font-weight-bold d-block company-name-text"
+                        [ngbTooltip]="row.companyName && row.companyName.length > 18 ? companyTooltip : null"
+                        container="body"
+                        placement="top"
+                        tooltipClass="modern-grid-tooltip"
+                      >
+                        {{ row.companyName?.length > 18 ? (row.companyName | slice:0:18) + '...' : row.companyName }}
+                      </span>
 
-        <ng-template #companyTooltip>
-          <div class="tooltip-card">
-            <div class="tooltip-title">Company Name</div>
-            <div class="tooltip-value">{{ row.companyName }}</div>
-          </div>
-        </ng-template>
+                      <ng-template #companyTooltip>
+                        <div class="tooltip-card">
+                          <div class="tooltip-title">Company Name</div>
+                          <div class="tooltip-value">{{ row.companyName }}</div>
+                        </div>
+                      </ng-template>
 
-        <span class="text-muted font-small-2">{{ row.companyCode }}</span>
-      </div>
-    </div>
-  </ng-template>
-</ngx-datatable-column>
+                      <span class="text-muted font-small-2">{{ row.companyCode }}</span>
+                    </div>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
 
-           <ngx-datatable-column name="Name" prop="contactPerson" [width]="160">
-  <ng-template ngx-datatable-cell-template let-value="value">
-    <span
-      class="contact-person-text"
-      [ngbTooltip]="value && value.length > 15 ? contactTooltip : null"
-      container="body"
-      placement="top"
-      tooltipClass="modern-grid-tooltip"
-    >
-      {{ value?.length > 15 ? (value | slice:0:15) + '...' : value }}
-    </span>
+              <ngx-datatable-column name="Name" prop="contactPerson" [width]="160">
+                <ng-template ngx-datatable-cell-template let-value="value">
+                  <span
+                    class="contact-person-text"
+                    [ngbTooltip]="value && value.length > 15 ? contactTooltip : null"
+                    container="body"
+                    placement="top"
+                    tooltipClass="modern-grid-tooltip"
+                  >
+                    {{ value?.length > 15 ? (value | slice:0:15) + '...' : value }}
+                  </span>
 
-    <ng-template #contactTooltip>
-      <div class="tooltip-card">
-        <div class="tooltip-title">Name</div>
-        <div class="tooltip-value">{{ value }}</div>
-      </div>
-    </ng-template>
-  </ng-template>
-</ngx-datatable-column>
-             
-             <ngx-datatable-column name="Email" prop="email" [width]="220">
-  <ng-template ngx-datatable-cell-template let-value="value">
-    <span
-      class="email-text"
-      [ngbTooltip]="value && value.length > 20 ? emailTooltip : null"
-      container="body"
-      placement="top"
-      tooltipClass="modern-grid-tooltip"
-    >
-      {{ value?.length > 20 ? (value | slice:0:20) + '...' : value }}
-    </span>
+                  <ng-template #contactTooltip>
+                    <div class="tooltip-card">
+                      <div class="tooltip-title">Name</div>
+                      <div class="tooltip-value">{{ value }}</div>
+                    </div>
+                  </ng-template>
+                </ng-template>
+              </ngx-datatable-column>
 
-    <ng-template #emailTooltip>
-      <div class="tooltip-card">
-        <div class="tooltip-title">Email</div>
-        <div class="tooltip-value">{{ value }}</div>
-      </div>
-    </ng-template>
-  </ng-template>
-</ngx-datatable-column>
- <ngx-datatable-column name="Contact No" prop="contactNo" [width]="140"></ngx-datatable-column>
-              <ngx-datatable-column name="Status" [width]="90">
+              <ngx-datatable-column name="Email" prop="email" [width]="220">
+                <ng-template ngx-datatable-cell-template let-value="value">
+                  <span
+                    class="email-text"
+                    [ngbTooltip]="value && value.length > 20 ? emailTooltip : null"
+                    container="body"
+                    placement="top"
+                    tooltipClass="modern-grid-tooltip"
+                  >
+                    {{ value?.length > 20 ? (value | slice:0:20) + '...' : value }}
+                  </span>
+
+                  <ng-template #emailTooltip>
+                    <div class="tooltip-card">
+                      <div class="tooltip-title">Email</div>
+                      <div class="tooltip-value">{{ value }}</div>
+                    </div>
+                  </ng-template>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Contact No" prop="contactNo" [width]="140"></ngx-datatable-column>
+
+              <ngx-datatable-column name="Status" [width]="100">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   <div
                     class="badge badge-pill"
@@ -190,29 +174,34 @@
                   </div>
                 </ng-template>
               </ngx-datatable-column>
-<ngx-datatable-column name="Actions" [width]="110" [sortable]="false">
-  <ng-template ngx-datatable-cell-template let-row="row">
-    <div class="d-flex align-items-center justify-content-center">
-    <button
-  type="button"
-  class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center action-icon-btn"
-  (click)="editCompany(row)"
-  title="Edit"
->
-  <i class="fas fa-pen action-icon"></i>
-</button>
 
-    <button
+              <ngx-datatable-column name="Actions" [width]="170" [sortable]="false">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  <div class="d-flex align-items-center justify-content-center">
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center action-icon-btn"
+                      (click)="editCompany(row)"
+                      title="Edit"
+                    >
+                      <i class="fas fa-pen action-icon"></i>
+                    </button>
+
+                  <button
   type="button"
-  class="btn btn-outline-danger p-0 d-flex align-items-center justify-content-center ml-1 action-icon-btn"
-  (click)="deleteCompany(row)"
-  title="Delete"
+  class="btn p-0 d-flex align-items-center justify-content-center ml-1 action-icon-btn"
+  [ngClass]="row.isActive ? 'btn-outline-success' : 'btn-outline-danger'"
+  (click)="toggleCompanyStatus(row)"
+  [title]="row.isActive ? 'Set Inactive' : 'Set Active'"
 >
-  <i class="fas fa-trash-alt action-icon"></i>
+  <i
+    class="action-icon"
+    [ngClass]="row.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"
+  ></i>
 </button>
-    </div>
-  </ng-template>
-</ngx-datatable-column>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
             </ngx-datatable>
           </div>
         </section>
@@ -223,17 +212,16 @@
   <div class="company-page-overlay" *ngIf="showSidebar" (click)="closeCompanySidebar()"></div>
 
   <core-sidebar
-  *ngIf="showSidebar"
-  class="modal modal-slide-in sidebar-todo-modal"
-  name="new-company-sidebar"
-  overlayClass="company-sidebar-overlay"
->
-  <app-company-sidebar
-    [showSidebar]="showSidebar"
-    [editData]="model"
-    (saved)="onCompanySaved()"
-    (closed)="onCompanySidebarClosed()"
-  ></app-company-sidebar>
-</core-sidebar>
- 
+    *ngIf="showSidebar"
+    class="modal modal-slide-in sidebar-todo-modal"
+    name="new-company-sidebar"
+    overlayClass="company-sidebar-overlay"
+  >
+    <app-company-sidebar
+      [showSidebar]="showSidebar"
+      [editData]="model"
+      (saved)="onCompanySaved()"
+      (closed)="onCompanySidebarClosed()"
+    ></app-company-sidebar>
+  </core-sidebar>
 </div>
