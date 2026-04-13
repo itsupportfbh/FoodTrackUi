@@ -379,10 +379,10 @@ openOverride(row: any): void {
 
       const expectedToDate = getFinalToDate(selFrom, reqTo);
 
-      if (selTo.getTime() !== expectedToDate.getTime()) {
-        Swal.showValidationMessage('To date must be the month end within request range');
-        return false;
-      }
+      // if (selTo.getTime() !== expectedToDate.getTime()) {
+      //   Swal.showValidationMessage('To date must be the month end within request range');
+      //   return false;
+      // }
 
       return { fromDate, toDate };
     }
