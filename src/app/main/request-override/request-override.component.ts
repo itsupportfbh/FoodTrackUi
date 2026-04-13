@@ -14,7 +14,7 @@ interface RequestOverrideLine {
   cuisineId: number;
   locationId: number;
   baseQty: number;
-  overrideQty: number;
+  overrideQty: number | null;
   isCancelled: boolean;
   sessionName?: string;
   cuisineName?: string;
@@ -77,9 +77,9 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
     private service: RequestOverrideService,
     private toastr: ToastrService,
     private companyService: CateringService
-  ) {}
+  ) { }
 
-ngOnInit(): void {
+  ngOnInit(): void {
     const currentUserRaw = localStorage.getItem('currentUser');
     if (currentUserRaw) {
       const currentUser = JSON.parse(currentUserRaw);
@@ -148,7 +148,7 @@ ngOnInit(): void {
     });
   }
 
-   loadScreen(): void {
+  loadScreen(): void {
     this.service.getScreen(this.requestHeaderId, this.fromDate, this.toDate).subscribe({
       next: (res: any) => {
         this.loading = false;
@@ -181,23 +181,25 @@ ngOnInit(): void {
           }
         }
 
-  const incomingLines: RequestOverrideLine[] = Array.isArray(this.model.lines) ? this.model.lines : [];
+        const incomingLines: RequestOverrideLine[] = Array.isArray(this.model.lines) ? this.model.lines : [];
 
-this.model.lines = incomingLines.map((line: RequestOverrideLine) => {
-  const baseQty = Number(line.baseQty || 0);
+        this.model.lines = incomingLines.map((line: RequestOverrideLine) => {
+          const baseQty = Number(line.baseQty || 0);
 
-  return {
-    ...line,
-    sessionName: this.getSessionName(line.sessionId),
-    cuisineName: this.getCuisineName(line.cuisineId),
-    locationName: this.getLocationName(line.locationId),
-    isCancelled: !!line.isCancelled,
-    baseQty,
-    overrideQty: Number(line.overrideQty ?? 0)
-  };
-});
-console.log('API lines before map:', incomingLines);
-console.log('Mapped lines:', this.model.lines);
+          return {
+            ...line,
+            sessionName: this.getSessionName(line.sessionId),
+            cuisineName: this.getCuisineName(line.cuisineId),
+            locationName: this.getLocationName(line.locationId),
+            isCancelled: !!line.isCancelled,
+            baseQty,
+            overrideQty:
+              line.overrideQty === null || line.overrideQty === undefined
+                ? null
+                : Number(line.overrideQty)
+          };
+        });
+
 
         this.originalLines = JSON.parse(JSON.stringify(this.model.lines));
         this.buildSessionGroups();
@@ -275,20 +277,24 @@ console.log('Mapped lines:', this.model.lines);
     line.isCancelled = !!line.isCancelled;
 
     if (line.isCancelled) {
-      line.overrideQty = 0;
+      //line.overrideQty = 0;
     }
 
     this.onLineChange();
   }
 
-  onOverrideQtyChange(line: RequestOverrideLine): void {
-    line.overrideQty = Number(line.overrideQty || 0);
+  onOverrideQtyChange(line: RequestOverrideLine, value: any): void {
+    if (value === '' || value === null || value === undefined) {
+      line.overrideQty = null as any;   // or undefined
+    } else {
+      line.overrideQty = Number(value);
 
-    if (line.overrideQty < 0) {
-      line.overrideQty = 0;
+      if (line.overrideQty < 0) {
+        line.overrideQty = null as any; // or keep previous value
+      }
     }
 
-    if (line.isCancelled && line.overrideQty > 0) {
+    if (line.isCancelled && Number(line.overrideQty) > 0) {
       line.isCancelled = false;
     }
 
@@ -322,21 +328,21 @@ console.log('Mapped lines:', this.model.lines);
 
   save(): void {
     if (this.saving) {
-    console.log('Blocked duplicate save click');
-    return;
-  }
+      console.log('Blocked duplicate save click');
+      return;
+    }
 
-  console.log('SAVE METHOD HIT', new Date().toISOString());
+    console.log('SAVE METHOD HIT', new Date().toISOString());
 
-  if (!this.canOverrideEdit(this.fromDate)) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Not Allowed',
-      text: 'Override/edit must be done at least 3 days before the override from date',
-      confirmButtonColor: '#7367f0'
-    });
-    return;
-  }
+    if (!this.canOverrideEdit(this.fromDate)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Not Allowed',
+        text: 'Override/edit must be done at least 3 days before the override from date',
+        confirmButtonColor: '#7367f0'
+      });
+      return;
+    }
     const changedLines = (this.model.lines || [])
       .filter((x: RequestOverrideLine) =>
         x.isCancelled === true || Number(x.overrideQty || 0) !== Number(x.baseQty || 0)
@@ -434,58 +440,58 @@ console.log('Mapped lines:', this.model.lines);
   ngAfterViewChecked(): void {
     feather.replace();
   }
-private canOverrideEdit(fromDateValue: any): boolean {
-  const fromDate = this.parseDateOnly(fromDateValue);
-  if (!fromDate) return false;
+  private canOverrideEdit(fromDateValue: any): boolean {
+    const fromDate = this.parseDateOnly(fromDateValue);
+    if (!fromDate) return false;
 
-  const now = new Date();
-  const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const now = new Date();
+    const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  const lastAllowedEditDate = new Date(fromDate);
-  lastAllowedEditDate.setDate(lastAllowedEditDate.getDate() - 3);
+    const lastAllowedEditDate = new Date(fromDate);
+    lastAllowedEditDate.setDate(lastAllowedEditDate.getDate() - 3);
 
-  return todayOnly.getTime() <= lastAllowedEditDate.getTime();
-}
-
-private parseDateOnly(value: any): Date | null {
-  if (!value) return null;
-
-  if (value instanceof Date) {
-    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+    return todayOnly.getTime() <= lastAllowedEditDate.getTime();
   }
 
-  if (typeof value !== 'string') return null;
+  private parseDateOnly(value: any): Date | null {
+    if (!value) return null;
 
-  const v = value.trim();
+    if (value instanceof Date) {
+      return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+    }
 
-  // ISO datetime: 2026-04-09T00:00:00
-  if (v.includes('T')) {
+    if (typeof value !== 'string') return null;
+
+    const v = value.trim();
+
+    // ISO datetime: 2026-04-09T00:00:00
+    if (v.includes('T')) {
+      const d = new Date(v);
+      if (isNaN(d.getTime())) return null;
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+
+    // yyyy-MM-dd
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+      const [year, month, day] = v.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    // dd-MM-yyyy
+    if (/^\d{2}-\d{2}-\d{4}$/.test(v)) {
+      const [day, month, year] = v.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    // dd/MM/yyyy
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
+      const [day, month, year] = v.split('/').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
     const d = new Date(v);
     if (isNaN(d.getTime())) return null;
+
     return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   }
-
-  // yyyy-MM-dd
-  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-    const [year, month, day] = v.split('-').map(Number);
-    return new Date(year, month - 1, day);
-  }
-
-  // dd-MM-yyyy
-  if (/^\d{2}-\d{2}-\d{4}$/.test(v)) {
-    const [day, month, year] = v.split('-').map(Number);
-    return new Date(year, month - 1, day);
-  }
-
-  // dd/MM/yyyy
-  if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
-    const [day, month, year] = v.split('/').map(Number);
-    return new Date(year, month - 1, day);
-  }
-
-  const d = new Date(v);
-  if (isNaN(d.getTime())) return null;
-
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-}
 }
