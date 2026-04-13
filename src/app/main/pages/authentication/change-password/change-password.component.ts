@@ -234,4 +234,4 @@ export class ChangePasswordComponent implements OnInit, AfterViewInit {
   goTologout(){
       this.router.navigate(['/pages/authentication/login-v2']);
   }
-}
+} 
