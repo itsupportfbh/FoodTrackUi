@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import * as XLSX from 'xlsx-js-style';
 import { saveAs } from 'file-saver';
+import Swal from 'sweetalert2';
 import { SessionService } from 'app/main/Master/session/session.service';
+import { CuisineService } from 'app/main/Master/cuisine/cuisine-service';
+import { MenuService } from '../menuService/menu.service';
 
 interface SessionItem {
   id: number;
@@ -10,9 +13,15 @@ interface SessionItem {
   end?: string;
 }
 
+interface CuisineItem {
+  id: number;
+  name: string;
+}
+
 interface MenuRow {
   date: string;
   sessionName: string;
+  cuisineName: string;
   setName: string;
   item1: string;
   item2: string;
@@ -27,14 +36,18 @@ interface MenuRow {
   styleUrls: ['./menu.component.scss']
 })
 export class MenuComponent implements OnInit {
-
   sessionList: SessionItem[] = [];
+  cuisineList: CuisineItem[] = [];
   rows: MenuRow[] = [];
-  uploadInfo = 'Loaded with sample preview data';
+  uploadInfo = 'No file uploaded';
 
   groupedMenu: any = {};
   sessionTabs: string[] = [];
+  activeSessionTab: string = '';
   isLoadingSessions = false;
+  isLoadingCuisines = false;
+  isSavingMenu = false;
+  isLoadingMenu = false;
 
   currentWeekKey: string = '';
   currentWeekSessions: any = {};
@@ -42,13 +55,33 @@ export class MenuComponent implements OnInit {
   selectedMonth: number = new Date().getMonth() + 1;
   selectedYear: number = new Date().getFullYear();
 
+  roleId: number = 0;
+
   constructor(
-    private sessionService: SessionService
-  ) { }
+    private sessionService: SessionService,
+    private cusineService: CuisineService,
+    private menuService: MenuService
+  ) {}
 
   ngOnInit(): void {
-    this.loadSampleData();
+    this.setRoleIdFromLocalStorage();
     this.getSessionList();
+    this.getCuisineList();
+    this.loadMenuFromDb();
+  }
+
+  get isAdminRole(): boolean {
+    return this.roleId === 1;
+  }
+
+  private setRoleIdFromLocalStorage(): void {
+    const roleValue =
+      localStorage.getItem('roleId') ||
+      localStorage.getItem('RoleId') ||
+      localStorage.getItem('roleID') ||
+      '0';
+
+    this.roleId = Number(roleValue) || 0;
   }
 
   getSessionList(): void {
@@ -67,94 +100,156 @@ export class MenuComponent implements OnInit {
           }))
           .filter((x: SessionItem) => !!x.name);
 
-        this.refreshPreview();
         this.isLoadingSessions = false;
       },
       error: (error: any) => {
         console.error('Error loading sessions:', error);
         this.isLoadingSessions = false;
-        this.refreshPreview();
       }
     });
   }
 
-  loadSampleData(): void {
-    this.rows = [
-      {
-        date: '2026-03-13',
-        sessionName: 'Breakfast',
-        setName: 'Set A',
-        item1: 'Biriyani',
-        item2: 'Raitha',
-        item3: '',
-        item4: '',
-        notes: ''
-      },
-      {
-        date: '2026-03-14',
-        sessionName: 'Breakfast',
-        setName: 'Set B',
-        item1: 'Mutton biriyani',
-        item2: 'Raitha',
-        item3: '',
-        item4: '',
-        notes: ''
-      },
-      {
-        date: '2026-03-15',
-        sessionName: 'Breakfast',
-        setName: 'Veg Set C',
-        item1: 'Veg Biriyani',
-        item2: 'Raitha',
-        item3: '',
-        item4: '',
-        notes: ''
-      },
-      {
-        date: '2026-03-16',
-        sessionName: 'Breakfast',
-        setName: 'Set A',
-        item1: 'Curd Rice',
-        item2: 'Pickle',
-        item3: '',
-        item4: '',
-        notes: ''
-      },
-      {
-        date: '2026-03-17',
-        sessionName: 'Breakfast',
-        setName: 'Set B',
-        item1: 'Meals',
-        item2: 'Pickle',
-        item3: '',
-        item4: '',
-        notes: ''
-      },
-      {
-        date: '2026-03-18',
-        sessionName: 'Breakfast',
-        setName: 'Veg Set C',
-        item1: 'Variety Rice',
-        item2: 'Pickle',
-        item3: '',
-        item4: '',
-        notes: ''
-      }
-    ];
+  getCuisineList(): void {
+    this.isLoadingCuisines = true;
 
-    this.refreshPreview();
+    this.cusineService.getAllCuisine().subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res) ? res : (res?.data || res?.result || []);
+
+        this.cuisineList = (data || [])
+          .map((item: any, index: number) => ({
+            id: item.id ?? item.Id ?? index + 1,
+            name:
+              item.name ??
+              item.cuisineName ??
+              item.CuisineName ??
+              item.cuisine ??
+              item.Cuisine ??
+              ''
+          }))
+          .filter((x: CuisineItem) => !!x.name);
+
+        this.isLoadingCuisines = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading cuisines:', error);
+        this.isLoadingCuisines = false;
+      }
+    });
+  }
+
+  loadMenuFromDb(): void {
+    this.isLoadingMenu = true;
+
+    this.menuService.getMenuByMonthYear(this.selectedMonth, this.selectedYear).subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res) ? res : (res?.data || res?.result || []);
+
+        this.rows = (data || []).map((row: any) => ({
+          date: this.normalizeDate(row.date || row.Date || ''),
+          sessionName: String(row.sessionName || row.SessionName || '').trim(),
+          cuisineName: String(row.cuisineName || row.CuisineName || '').trim(),
+          setName: String(row.setName || row.SetName || '').trim(),
+          item1: String(row.item1 || row.Item1 || '').trim(),
+          item2: String(row.item2 || row.Item2 || '').trim(),
+          item3: String(row.item3 || row.Item3 || '').trim(),
+          item4: String(row.item4 || row.Item4 || '').trim(),
+          notes: String(row.notes || row.Notes || '').trim()
+        }));
+
+        this.uploadInfo = this.rows.length
+          ? `${this.rows.length} menu rows loaded from database`
+          : 'No menu found for selected month';
+
+        this.refreshPreview();
+        this.isLoadingMenu = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading menu from DB:', error);
+        this.rows = [];
+        this.refreshPreview();
+        this.uploadInfo = 'Failed to load menu from database';
+        this.isLoadingMenu = false;
+      }
+    });
+  }
+
+  onMonthYearChange(): void {
+    this.loadMenuFromDb();
   }
 
   refreshPreview(): void {
     const normalizedRows = (this.rows || [])
       .map(row => ({
         ...row,
-        date: this.normalizeDate(row.date)
+        date: this.normalizeDate(row.date),
+        cuisineName: (row.cuisineName || '').trim(),
+        sessionName: (row.sessionName || '').trim()
       }))
       .filter(row => !!row.date);
 
     this.currentWeekKey = this.getUploadedWeekRangeLabel(normalizedRows);
     this.currentWeekSessions = this.groupRowsBySessionFixedWeek(normalizedRows);
+    this.buildSessionTabs();
+    this.setDefaultActiveTab();
+  }
+
+  buildSessionTabs(): void {
+    this.sessionTabs = Object.keys(this.currentWeekSessions || {}).filter(Boolean);
+  }
+
+  setDefaultActiveTab(): void {
+    if (!this.sessionTabs.length) {
+      this.activeSessionTab = '';
+      return;
+    }
+
+    if (this.activeSessionTab && this.sessionTabs.includes(this.activeSessionTab)) {
+      return;
+    }
+
+    this.activeSessionTab = this.sessionTabs[0];
+  }
+
+  setActiveSessionTab(sessionName: string): void {
+    this.activeSessionTab = sessionName;
+  }
+
+  getActiveSessionDates(): string[] {
+    if (!this.activeSessionTab || !this.currentWeekSessions?.[this.activeSessionTab]) {
+      return [];
+    }
+
+    return this.getSortedDates(this.currentWeekSessions[this.activeSessionTab]);
+  }
+
+  getActiveSessionCuisineNames(): string[] {
+    if (!this.activeSessionTab || !this.currentWeekSessions?.[this.activeSessionTab]) {
+      return [];
+    }
+
+    return this.getAllCuisineNames(this.currentWeekSessions[this.activeSessionTab]);
+  }
+
+  getActiveSessionSetNamesByCuisine(cuisineName: string): string[] {
+    if (!this.activeSessionTab || !this.currentWeekSessions?.[this.activeSessionTab]) {
+      return [];
+    }
+
+    return this.getAllSetNamesByCuisine(this.currentWeekSessions[this.activeSessionTab], cuisineName);
+  }
+
+  getActiveSessionMenu(date: string, cuisineName: string, setName: string): MenuRow | null {
+    if (!this.activeSessionTab || !this.currentWeekSessions?.[this.activeSessionTab]) {
+      return null;
+    }
+
+    return this.getMenuByCuisineSetAndDate(
+      this.currentWeekSessions[this.activeSessionTab],
+      date,
+      cuisineName,
+      setName
+    );
   }
 
   getUploadedWeekRangeLabel(rows: MenuRow[]): string {
@@ -209,7 +304,6 @@ export class MenuComponent implements OnInit {
 
     sessionNames.forEach(sessionName => {
       grouped[sessionName] = {};
-
       fixedWeekDates.forEach(date => {
         grouped[sessionName][date] = [];
       });
@@ -234,23 +328,6 @@ export class MenuComponent implements OnInit {
     return grouped;
   }
 
-  buildSessionTabsFromRowsOnly(): void {
-    const namesFromRows = this.rows
-      .map(x => (x.sessionName || '').trim())
-      .filter(Boolean);
-
-    const namesFromSessionMaster = this.sessionList
-      .map(x => (x.name || '').trim())
-      .filter(Boolean);
-
-    const uniqueNames = Array.from(new Set([
-      ...namesFromRows,
-      ...namesFromSessionMaster
-    ]));
-
-    this.sessionTabs = ['All', ...uniqueNames];
-  }
-
   downloadTemplate(): void {
     const workbook = XLSX.utils.book_new();
 
@@ -261,26 +338,37 @@ export class MenuComponent implements OnInit {
           { id: 2, name: 'Lunch' }
         ];
 
+    const cuisines = this.cuisineList.length > 0
+      ? this.cuisineList
+      : [
+          { id: 1, name: 'Indian Food' },
+          { id: 2, name: 'Chinese Food' },
+          { id: 3, name: 'Punjabi Food' }
+        ];
+
     const totalDays = this.getDaysInMonth(this.selectedYear, this.selectedMonth);
 
     sessions.forEach((session, index) => {
       const aoaData: any[] = [
-        ['Date', 'SessionName', 'SetName', 'Item1', 'Item2', 'Item3', 'Item4', 'Notes']
+        ['Date', 'SessionName', 'CuisineName', 'SetName', 'Item1', 'Item2', 'Item3', 'Item4', 'Notes']
       ];
 
       for (let day = 1; day <= totalDays; day++) {
         const formattedDate = this.formatTemplateDate(day, this.selectedMonth, this.selectedYear);
 
-        aoaData.push([
-          formattedDate,
-          session.name,
-          '',
-          '',
-          '',
-          '',
-          '',
-          ''
-        ]);
+        cuisines.forEach(cuisine => {
+          aoaData.push([
+            formattedDate,
+            session.name,
+            cuisine.name,
+            '',
+            '',
+            '',
+            '',
+            '',
+            ''
+          ]);
+        });
       }
 
       const sheet = XLSX.utils.aoa_to_sheet(aoaData);
@@ -299,45 +387,6 @@ export class MenuComponent implements OnInit {
       .toLocaleString('en-US', { month: 'short' });
 
     this.saveExcelFile(excelBuffer, `menu_upload_template_${monthName}_${this.selectedYear}`);
-  }
-
-  downloadSampleExcel(): void {
-    const workbook = XLSX.utils.book_new();
-
-    const sessionNames = Array.from(
-      new Set(this.rows.map(x => x.sessionName).filter(Boolean))
-    );
-
-    sessionNames.forEach((sessionName, index) => {
-      const sessionRows = this.rows.filter(x => x.sessionName === sessionName);
-
-      const aoaData = [
-        ['Date', 'SessionName', 'SetName', 'Item1', 'Item2', 'Item3', 'Item4', 'Notes'],
-        ...sessionRows.map(x => [
-          this.convertIsoToTemplateDate(x.date),
-          x.sessionName,
-          x.setName,
-          x.item1,
-          x.item2,
-          x.item3,
-          x.item4,
-          x.notes
-        ])
-      ];
-
-      const sheet = XLSX.utils.aoa_to_sheet(aoaData);
-      this.applySheetStyles(sheet);
-
-      const safeSheetName = (sessionName || `Session${index + 1}`).substring(0, 31);
-      XLSX.utils.book_append_sheet(workbook, sheet, safeSheetName);
-    });
-
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array'
-    });
-
-    this.saveExcelFile(excelBuffer, 'sample_menu_data');
   }
 
   saveExcelFile(buffer: any, fileName: string): void {
@@ -373,6 +422,7 @@ export class MenuComponent implements OnInit {
           .map(row => ({
             date: this.normalizeDate(row.Date || row.date || ''),
             sessionName: String(row.SessionName || row.sessionName || sheetName || '').trim(),
+            cuisineName: String(row.CuisineName || row.cuisineName || row.Cuisine || row.cuisine || '').trim(),
             setName: String(row.SetName || row.setName || '').trim(),
             item1: String(row.Item1 || row.item1 || '').trim(),
             item2: String(row.Item2 || row.item2 || '').trim(),
@@ -380,18 +430,67 @@ export class MenuComponent implements OnInit {
             item4: String(row.Item4 || row.item4 || '').trim(),
             notes: String(row.Notes || row.notes || '').trim()
           }))
-          .filter(r => r.date && r.sessionName && r.setName);
+          .filter(r => r.date && r.sessionName && r.cuisineName && r.setName);
 
         allRows = [...allRows, ...normalized];
       });
 
+      if (!allRows.length) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No valid rows found',
+          text: 'Please upload a valid menu Excel file.'
+        });
+        return;
+      }
+
       this.rows = allRows;
-      this.uploadInfo = `${file.name} uploaded successfully • ${allRows.length} menu rows loaded`;
       this.refreshPreview();
+      this.saveMenuToBackend(file.name, allRows);
     };
 
     reader.readAsBinaryString(file);
     event.target.value = null;
+  }
+
+  saveMenuToBackend(fileName: string, allRows: MenuRow[]): void {
+    const createdBy = Number(localStorage.getItem('userId')) || 1;
+
+    const payload = {
+      menuMonth: this.selectedMonth,
+      menuYear: this.selectedYear,
+      createdBy: createdBy,
+      rows: allRows
+    };
+
+    this.isSavingMenu = true;
+    this.uploadInfo = 'Saving menu to database...';
+
+    this.menuService.saveMenu(payload).subscribe({
+      next: (res: any) => {
+        this.isSavingMenu = false;
+        this.uploadInfo = `${fileName} uploaded successfully • ${allRows.length} menu rows saved`;
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Menu uploaded successfully'
+        });
+
+        this.loadMenuFromDb();
+      },
+      error: (error: any) => {
+        console.error('Error saving menu:', error);
+        this.isSavingMenu = false;
+        this.uploadInfo = 'Menu upload failed';
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Upload Failed',
+          text: error?.error?.message || 'Failed to save menu data'
+        });
+      }
+    });
   }
 
   getDaysInMonth(year: number, month: number): number {
@@ -402,19 +501,6 @@ export class MenuComponent implements OnInit {
     const dd = String(day).padStart(2, '0');
     const mm = String(month).padStart(2, '0');
     return `${dd}/${mm}/${year}`;
-  }
-
-  convertIsoToTemplateDate(value: string): string {
-    const parsed = this.parseDate(value);
-    if (!this.isValidDate(parsed)) {
-      return '';
-    }
-
-    const dd = String(parsed.getDate()).padStart(2, '0');
-    const mm = String(parsed.getMonth() + 1).padStart(2, '0');
-    const yyyy = parsed.getFullYear();
-
-    return `${dd}/${mm}/${yyyy}`;
   }
 
   private normalizeDate(value: any): string {
@@ -478,7 +564,7 @@ export class MenuComponent implements OnInit {
   }
 
   private applySheetStyles(sheet: XLSX.WorkSheet): void {
-    const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1:H1');
+    const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1:I1');
 
     for (let r = range.s.r; r <= range.e.r; r++) {
       for (let c = range.s.c; c <= range.e.c; c++) {
@@ -497,6 +583,7 @@ export class MenuComponent implements OnInit {
     sheet['!cols'] = [
       { wch: 14 },
       { wch: 18 },
+      { wch: 20 },
       { wch: 16 },
       { wch: 24 },
       { wch: 24 },
@@ -509,58 +596,6 @@ export class MenuComponent implements OnInit {
     sheet['!rows'] = Array.from({ length: totalRows }, (_, i) => ({
       hpx: i === 0 ? 30 : 24
     }));
-  }
-
-  groupRows(rows: MenuRow[]): any {
-    const grouped: any = {};
-
-    rows.forEach(row => {
-      const parsedDate = this.parseDate(row.date);
-      if (!this.isValidDate(parsedDate)) {
-        return;
-      }
-
-      const normalizedDate = this.normalizeDate(row.date);
-      const weekLabel = this.getWeekLabel(normalizedDate);
-      const sessionName = row.sessionName || 'Unassigned';
-      const dayKey = normalizedDate;
-
-      if (!grouped[weekLabel]) {
-        grouped[weekLabel] = {};
-      }
-
-      if (!grouped[weekLabel][sessionName]) {
-        grouped[weekLabel][sessionName] = {};
-      }
-
-      if (!grouped[weekLabel][sessionName][dayKey]) {
-        grouped[weekLabel][sessionName][dayKey] = [];
-      }
-
-      grouped[weekLabel][sessionName][dayKey].push({
-        ...row,
-        date: normalizedDate
-      });
-    });
-
-    return grouped;
-  }
-
-  getWeekLabel(dateStr: string): string {
-    const date = this.parseDate(dateStr);
-    if (!this.isValidDate(date)) {
-      return '';
-    }
-
-    const start = new Date(date);
-    const day = start.getDay();
-    const diff = day === 0 ? -6 : 1 - day;
-    start.setDate(start.getDate() + diff);
-
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-
-    return `${this.formatDateShort(start)} - ${this.formatDateShort(end)}`;
   }
 
   formatDateShort(date: Date): string {
@@ -577,7 +612,7 @@ export class MenuComponent implements OnInit {
     }
 
     return date.toLocaleDateString('en-US', {
-      weekday: 'long'
+      weekday: 'short'
     });
   }
 
@@ -593,22 +628,32 @@ export class MenuComponent implements OnInit {
     });
   }
 
-  getObjectKeys(obj: any): string[] {
-    return obj ? Object.keys(obj) : [];
-  }
-
   getSortedDates(daysMap: any): string[] {
     return Object.keys(daysMap || {}).sort(
       (a, b) => this.parseDate(a).getTime() - this.parseDate(b).getTime()
     );
   }
 
-  getAllSetNames(daysMap: any): string[] {
+  getAllCuisineNames(daysMap: any): string[] {
+    const cuisineNames: string[] = [];
+
+    Object.keys(daysMap || {}).forEach(date => {
+      (daysMap[date] || []).forEach((item: MenuRow) => {
+        if (item.cuisineName && !cuisineNames.includes(item.cuisineName)) {
+          cuisineNames.push(item.cuisineName);
+        }
+      });
+    });
+
+    return cuisineNames;
+  }
+
+  getAllSetNamesByCuisine(daysMap: any, cuisineName: string): string[] {
     const setNames: string[] = [];
 
     Object.keys(daysMap || {}).forEach(date => {
       (daysMap[date] || []).forEach((item: MenuRow) => {
-        if (item.setName && !setNames.includes(item.setName)) {
+        if (item.cuisineName === cuisineName && item.setName && !setNames.includes(item.setName)) {
           setNames.push(item.setName);
         }
       });
@@ -617,61 +662,17 @@ export class MenuComponent implements OnInit {
     return setNames;
   }
 
-  getMenuBySetAndDate(daysMap: any, date: string, setName: string): MenuRow | null {
+  getMenuByCuisineSetAndDate(daysMap: any, date: string, cuisineName: string, setName: string): MenuRow | null {
     const rows: MenuRow[] = daysMap[date] || [];
-    return rows.find(x => x.setName === setName) || null;
-  }
-
-  findCurrentWeekKey(weekKeys: string[]): string {
-    if (!weekKeys || weekKeys.length === 0) {
-      return '';
-    }
-
-    const today = new Date();
-    const currentWeekLabel = this.getWeekLabelFromDate(today);
-
-    if (weekKeys.includes(currentWeekLabel)) {
-      return currentWeekLabel;
-    }
-
-    return weekKeys
-      .filter(Boolean)
-      .sort((a, b) => {
-        const aStart = this.getWeekStartDateFromLabel(a).getTime();
-        const bStart = this.getWeekStartDateFromLabel(b).getTime();
-        return bStart - aStart;
-      })[0] || '';
-  }
-
-  getWeekLabelFromDate(date: Date): string {
-    if (!this.isValidDate(date)) {
-      return '';
-    }
-
-    const start = new Date(date);
-    const day = start.getDay();
-    const diff = day === 0 ? -6 : 1 - day;
-    start.setDate(start.getDate() + diff);
-
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-
-    return `${this.formatDateShort(start)} - ${this.formatDateShort(end)}`;
-  }
-
-  getWeekStartDateFromLabel(label: string): Date {
-    const startPart = (label || '').split(' - ')[0]?.trim();
-    if (!startPart) {
-      return new Date(0);
-    }
-
-    const currentYear = new Date().getFullYear();
-    const parsed = new Date(`${startPart} ${currentYear}`);
-    return this.isValidDate(parsed) ? parsed : new Date(0);
+    return rows.find(x => x.cuisineName === cuisineName && x.setName === setName) || null;
   }
 
   getCurrentWeekSessionNames(): string[] {
     return Object.keys(this.currentWeekSessions || {});
+  }
+
+  trackByValue(index: number, value: string): string {
+    return value;
   }
 
   private parseDate(value: any): Date {
