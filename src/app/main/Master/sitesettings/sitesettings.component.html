@@ -22,82 +22,54 @@
 
       <div class="card-body">
         <form #siteForm="ngForm" (ngSubmit)="onSubmit(siteForm)">
-          <div style="display: none;" class="form-group">
-            <label for="breakfastCutOffTime">Breakfast Cut Off Time</label>
-            <input
-              type="text"
-              id="breakfastCutOffTime"
-              name="breakfastCutOffTime"
-              class="form-control"
-              [(ngModel)]="breakfastCutOffTime"
-              placeholder="Enter breakfast cut off time"
-              required
-            />
-          </div>
 
-          <div style="display: none;" class="form-group">
-            <label for="lunchCutOffTime">Lunch Cut Off Time</label>
-            <input
-              type="text"
-              id="lunchCutOffTime"
-              name="lunchCutOffTime"
-              class="form-control"
-              [(ngModel)]="lunchCutOffTime"
-              placeholder="Enter lunch cut off time"
-              required
-            />
-          </div>
+          <!-- Hidden fields -->
+          <input
+            type="hidden"
+            id="breakfastCutOffTime"
+            name="breakfastCutOffTime"
+            [(ngModel)]="breakfastCutOffTime"
+          />
 
-          <div style="display: none;" class="form-group">
-            <label for="lateLunchCutOffTime">Late Lunch Cut Off Time</label>
-            <input
-              type="text"
-              id="lateLunchCutOffTime"
-              name="lateLunchCutOffTime"
-              class="form-control"
-              [(ngModel)]="lateLunchCutOffTime"
-              placeholder="Enter late lunch cut off time"
-              required
-            />
-          </div>
+          <input
+            type="hidden"
+            id="lunchCutOffTime"
+            name="lunchCutOffTime"
+            [(ngModel)]="lunchCutOffTime"
+          />
 
-          <div style="display: none;" class="form-group">
-            <label for="dinnerCutOffTime">Dinner Cut Off Time</label>
-            <input
-              type="text"
-              id="dinnerCutOffTime"
-              name="dinnerCutOffTime"
-              class="form-control"
-              [(ngModel)]="dinnerCutOffTime"
-              placeholder="Enter dinner cut off time"
-              required
-            />
-          </div>
+          <input
+            type="hidden"
+            id="lateLunchCutOffTime"
+            name="lateLunchCutOffTime"
+            [(ngModel)]="lateLunchCutOffTime"
+          />
 
-          <div  style="display: none;" class="form-group">
-            <label for="lateDinnerCutOffTime">Late Dinner Cut Off Time</label>
-            <input
-              type="text"
-              id="lateDinnerCutOffTime"
-              name="lateDinnerCutOffTime"
-              class="form-control"
-              [(ngModel)]="lateDinnerCutOffTime"
-              placeholder="Enter late dinner cut off time"
-              required
-            />
-          </div>
+          <input
+            type="hidden"
+            id="dinnerCutOffTime"
+            name="dinnerCutOffTime"
+            [(ngModel)]="dinnerCutOffTime"
+          />
+
+          <input
+            type="hidden"
+            id="lateDinnerCutOffTime"
+            name="lateDinnerCutOffTime"
+            [(ngModel)]="lateDinnerCutOffTime"
+          />
 
           <div class="form-group">
-            <label for="orderDate">Order Start Date </label>
-            <small class="text-muted"> Minimum 3 days advance required</small>
+            <label for="orderDate">Order Start Date</label>
             <input
-              type="text"
+              type="number"
               id="orderDate"
               name="orderDate"
               class="form-control"
               [(ngModel)]="orderDate"
               placeholder="Enter order start date"
               required
+              min="1"
             />
           </div>
 
@@ -105,8 +77,8 @@
             <button
               type="submit"
               class="btn-submit"
-              [disabled]="!siteForm.form.valid"
-                          >
+              [disabled]="siteForm.invalid"
+            >
               <i data-feather="check-circle" style="width:14px; height:14px;"></i>
               Submit
             </button>
@@ -115,7 +87,6 @@
               type="button"
               class="btn-cancel"
               (click)="cancel()"
-              
             >
               <i data-feather="x-circle" style="width:14px; height:14px;"></i>
               Cancel
@@ -125,7 +96,7 @@
               type="button"
               class="btn-clear"
               (click)="clearFields()"
-              >
+            >
               <i data-feather="rotate-ccw" style="width:14px; height:14px;"></i>
               Clear
             </button>

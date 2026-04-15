@@ -184,41 +184,41 @@
     </button>
   </div>
 
-  <div class="modal-body">
-    <div *ngFor="let timing of model.sessionTimings; let i = index" class="mb-2 border rounded p-1">
-      <div class="row">
-        <div class="col-md-4">
-          <label class="form-label">Session</label>
-          <input
-            type="text"
-            class="form-control"
-            [value]="getSessionName(timing.sessionId)"
-            readonly
-          />
-        </div>
+ <div class="modal-body">
+  <div *ngFor="let timing of model.sessionTimings; let i = index" class="mb-2 border rounded p-1">
+    <div class="row">
+      <div class="col-md-4">
+        <label class="form-label">Session</label>
+        <input
+          type="text"
+          class="form-control"
+          [value]="getSessionName(timing.sessionId)"
+          readonly
+        />
+      </div>
 
-        <div class="col-md-4">
-          <label class="form-label">From Time</label>
-          <input
-            type="time"
-            class="form-control"
-            [(ngModel)]="timing.fromTime"
-            [ngModelOptions]="{ standalone: true }"
-          />
-        </div>
+      <div class="col-md-4">
+        <label class="form-label">From Time</label>
+        <input
+          type="time"
+          class="form-control"
+          [(ngModel)]="timing.fromTime"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </div>
 
-        <div class="col-md-4">
-          <label class="form-label">To Time</label>
-          <input
-            type="time"
-            class="form-control"
-            [(ngModel)]="timing.toTime"
-            [ngModelOptions]="{ standalone: true }"
-          />
-        </div>
+      <div class="col-md-4">
+        <label class="form-label">To Time</label>
+        <input
+          type="time"
+          class="form-control"
+          [(ngModel)]="timing.toTime"
+          [ngModelOptions]="{ standalone: true }"
+        />
       </div>
     </div>
   </div>
+</div>
 
   <div class="modal-footer">
     <button type="button" class="btn btn-outline-secondary" (click)="closeSessionTimingModal()">

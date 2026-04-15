@@ -52,7 +52,7 @@
           [columnMode]="ColumnMode.force"
           [headerHeight]="50"
           [footerHeight]="50"
-          [scrollbarH]="true"
+          [scrollbarH]="false"
         >
           <ngx-datatable-column
             [width]="50"
@@ -87,8 +87,8 @@
             </ng-template>
           </ngx-datatable-column>
 
-          <ngx-datatable-column name="LINE COUNT" prop="lineCount" [width]="120"></ngx-datatable-column>
-          <ngx-datatable-column name="TOTAL OVERRIDE QTY" prop="totalOverrideQty" [width]="160"></ngx-datatable-column>
+          <!-- <ngx-datatable-column name="LINE COUNT" prop="lineCount" [width]="120"></ngx-datatable-column> -->
+          <ngx-datatable-column name="OVERRIDE QTY" prop="totalOverrideQty" [width]="150"></ngx-datatable-column>
 
           <ngx-datatable-column name="CREATED DATE" prop="createdDate" [width]="180">
             <ng-template let-row="row" ngx-datatable-cell-template>
