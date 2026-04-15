@@ -105,5 +105,13 @@ export const menu: CoreMenu[] = [
     type: 'item',
     icon: 'user-plus',
     url: 'users/users-list'
+  },
+    {
+    id: 'menu',
+    title: 'Menu',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'user-plus',
+    url: 'menu/menu'
   }
 ];

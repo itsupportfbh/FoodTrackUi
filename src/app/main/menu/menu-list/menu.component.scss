@@ -1,0 +1,389 @@
+.menu-page {
+  padding: 20px;
+  background: linear-gradient(180deg, #f6f4f2 0%, #f2f5f8 100%);
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.menu-container {
+  max-width: 1380px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-box {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: 0 10px 30px rgba(40, 28, 20, 0.08);
+  border: 1px solid #eee5de;
+}
+
+.top-card,
+.preview-card,
+.excel-card {
+  overflow: hidden;
+}
+
+.section-header h2,
+.top-header h2,
+.preview-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #6f3f2f;
+}
+
+.top-header p,
+.preview-subtitle {
+  margin: 6px 0 0;
+  color: #7f7f7f;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.header-left {
+  flex: 1 1 420px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: 0.2s ease;
+  min-height: 40px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #8b4b33 0%, #a65e2e 100%);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(139, 75, 51, 0.18);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: #fff;
+  border: 1px solid #d9cbc2;
+  color: #6a5548;
+}
+
+.btn-outline:hover {
+  background: #faf6f3;
+}
+
+.upload-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.summary-card {
+  background: linear-gradient(180deg, #fffdfa 0%, #f8f4f0 100%);
+  border: 1px solid #eadfd7;
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+
+.summary-label {
+  color: #8b8078;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.summary-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #3c312a;
+}
+
+.summary-status {
+  font-size: 13px;
+  font-weight: 600;
+  color: #188754;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.session-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.tab-btn {
+  border: 1px solid transparent;
+  background: #f1ece7;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #6d6259;
+  font-size: 12px;
+  transition: 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: #ebe3dc;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #8b4b33 0%, #9f5a3a 100%);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(139, 75, 51, 0.2);
+}
+
+.empty-box {
+  text-align: center;
+  padding: 40px 20px;
+  border: 1px dashed #d9cdc5;
+  border-radius: 16px;
+  color: #777;
+  background: #fcfaf8;
+}
+
+.week-preview {
+  border: 1px solid #eaded6;
+  border-radius: 22px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  background: #fffdfb;
+}
+
+.week-title {
+  background: linear-gradient(135deg, #cf9160 0%, #d79b69 100%);
+  color: #16110e;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 18px 16px;
+}
+
+.session-preview-block {
+  border-top: 1px solid #efe6df;
+}
+
+.session-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fbf7f4;
+  padding: 14px 18px;
+}
+
+.session-badge {
+  background: linear-gradient(135deg, #8b4b33 0%, #9f5a3a 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.session-preview-text {
+  color: #7d7975;
+  font-size: 13px;
+}
+
+.table-wrapper.no-scroll-table {
+  overflow-x: hidden;
+}
+
+.menu-table,
+.format-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.menu-table th,
+.menu-table td,
+.format-table th,
+.format-table td {
+  border: 1px solid #b6a99f;
+  padding: 10px 8px;
+  text-align: center;
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.menu-table th {
+  background: #d8c7b8;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5e5c77;
+}
+
+.set-column {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
+.set-name-cell {
+  background: #d8c7b8;
+  font-size: 12px;
+  font-weight: 700;
+  width: 120px;
+  color: #5e5c77;
+  white-space: normal;
+}
+
+.date-text {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.day-name {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #544f4a;
+}
+
+.menu-items {
+  line-height: 1.55;
+  font-size: 11px;
+  color: #2f2f2f;
+}
+
+.menu-items div {
+  margin-bottom: 3px;
+}
+
+.notes {
+  margin-top: 6px;
+  font-size: 10px;
+  color: #777;
+  font-style: italic;
+}
+
+.no-menu {
+  color: #bbb;
+  font-size: 11px;
+}
+
+.excel-format-box {
+  overflow-x: auto;
+}
+
+.format-table th {
+  background: #f1ece7;
+  font-weight: 700;
+  font-size: 12px;
+  color: #5f554d;
+}
+
+.format-table td {
+  font-size: 11px;
+}
+
+@media (max-width: 992px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .top-header,
+  .preview-header {
+    flex-direction: column;
+  }
+
+  .session-tabs {
+    justify-content: flex-start;
+  }
+
+  .week-title {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .menu-page {
+    padding: 12px;
+  }
+
+  .card-box {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .section-header h2,
+  .top-header h2,
+  .preview-header h2 {
+    font-size: 20px;
+  }
+
+  .action-buttons {
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .session-preview-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .menu-table th,
+  .menu-table td {
+    padding: 8px 6px;
+  }
+
+  .set-column,
+  .set-name-cell {
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+  }
+
+  .menu-items {
+    font-size: 10px;
+  }
+
+  .day-name,
+  .date-text {
+    font-size: 10px;
+  }
+}

@@ -52,4 +52,8 @@ export class UsersService {
       `${this.apiUrl}/DeleteUserMaster?id=${id}&updatedBy=${updatedBy}`
     );
   }
+
+   getRoles(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/GetRoles`);
+  }
 }

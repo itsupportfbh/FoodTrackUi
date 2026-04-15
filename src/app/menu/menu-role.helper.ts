@@ -11,7 +11,8 @@ export class MenuRoleHelper {
           'CompanyMaster',
           'qrgenerateList',
           'Reports',
-          'users'
+          'users',
+          'menu'
         ]);
 
       case 2:
@@ -20,7 +21,8 @@ export class MenuRoleHelper {
           'Request',
           'Order',
           'Reports',
-          'users'
+          'users',
+          'menu'
 
         ]);
 

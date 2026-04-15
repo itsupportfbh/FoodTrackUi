@@ -20,8 +20,6 @@ import { CateringService } from 'app/main/services/catering.service';
 })
 export class CreateUsersComponent implements OnInit, OnChanges {
   @Output() userSaved: EventEmitter<void> = new EventEmitter<void>();
-
-  // edit ku id mattum varum
   @Input() editUserId: number | null = null;
 
   public id: number | null = null;
@@ -39,7 +37,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
   public loginCompanyName: string = '';
 
   // form values
-  public roleId: number = 0;
+  public roleId: number | null = null;
   public companyId: number | null = null;
   public selectedCompanyId: number | null = null;
   public companyName: string = '';
@@ -48,8 +46,11 @@ export class CreateUsersComponent implements OnInit, OnChanges {
   public isSubmitting: boolean = false;
   public isEditMode: boolean = false;
   public isLoadingUser: boolean = false;
-public isEdit: Boolean = false;
+  public isEdit: boolean = false;
+
   public companyList: Array<any> = [];
+  public roleList: Array<any> = [];
+  public allRoleList: Array<any> = [];
 
   constructor(
     private _coreSidebarService: CoreSidebarService,
@@ -59,21 +60,22 @@ public isEdit: Boolean = false;
 
   ngOnInit(): void {
     this.loadLoginContext();
-    this.loadCompanyList();
     this.prepareCreateDefaults();
+    this.loadCompanyList();
+    this.loadRoles();
   }
 
-ngOnChanges(changes: SimpleChanges): void {
-  if (changes['editUserId']) {
-    if (this.editUserId && this.editUserId > 0) {
-       this.isEdit = true
-      this.loadUserById(this.editUserId);
-    } else {
-       this.isEdit = false
-      this.prepareCreateDefaults();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['editUserId']) {
+      if (this.editUserId && this.editUserId > 0) {
+        this.isEdit = true;
+        this.loadUserById(this.editUserId);
+      } else {
+        this.isEdit = false;
+        this.prepareCreateDefaults();
+      }
     }
   }
-}
 
   get passwordMismatch(): boolean {
     if (this.isEditMode && !this.password && !this.confirmPassword) {
@@ -110,46 +112,113 @@ ngOnChanges(changes: SimpleChanges): void {
     this.isSuperAdmin = this.loginRoleId === 1;
   }
 
-loadCompanyList(): void {
-  this._companyService.getCompanies().subscribe({
-    next: (res: any) => {
-      this.companyList = (res?.data || []).map((x: any) => ({
-        ...x,
-        companyName: x.companyName || x.name || ''
-      }));
-      this.syncCompanyName();
-    },
-    error: () => {
-      this.companyList = [];
-    }
-  });
-}
+  loadCompanyList(): void {
+    // IMPORTANT:
+    // admin ku kooda company list load aaganum
+    // appo than companyId vachi companyName bind panna mudiyum
+    this._companyService.getCompanies().subscribe({
+      next: (res: any) => {
+        this.companyList = (res?.data || []).map((x: any) => ({
+          ...x,
+          companyName: x.companyName || x.name || ''
+        }));
 
-prepareCreateDefaults(): void {
-  this.isEditMode = false;
-  this.id = null;
-  this.username = '';
-  this.email = '';
-  this.password = '';
-  this.confirmPassword = '';
-  this.isActive = true;
-  this.isDelete = false;
-
-  this.roleId = this.loginRoleId > 0 ? this.loginRoleId : 2;
-
-  if (this.isSuperAdmin) {
-    this.companyId = null;
-    this.selectedCompanyId = null;
-    this.companyName = '';
-  } else {
-    this.companyId = this.loginCompanyId;
-    this.selectedCompanyId = this.loginCompanyId;
-    this.companyName = this.loginCompanyName || '';
+        this.syncCompanyName();
+      },
+      error: () => {
+        this.companyList = [];
+      }
+    });
   }
 
-  // important
-  this.syncCompanyName();
-}
+  loadRoles(): void {
+    // Admin ku role field kaata vendam, internally role = 4
+    if (!this.isSuperAdmin) {
+      this.roleId = 4;
+      this.roleList = [{ id: 4, roleName: 'User' }];
+      return;
+    }
+
+    if (!this._usersService.getRoles) {
+      this.setRoleListFallback();
+      return;
+    }
+
+    this._usersService.getRoles().subscribe({
+      next: (res: any) => {
+        const rawRoles = res?.data || [];
+
+        this.allRoleList = rawRoles.map((x: any) => ({
+          id: Number(x.id || x.roleId),
+          roleName: x.roleName || x.name || x.role || ''
+        }));
+
+        if (!this.allRoleList.length) {
+          this.setRoleListFallback();
+          return;
+        }
+
+        this.filterRolesForLoggedInUser();
+      },
+      error: () => {
+        this.setRoleListFallback();
+      }
+    });
+  }
+
+  setRoleListFallback(): void {
+    this.allRoleList = [
+      { id: 1, roleName: 'SuperAdmin' },
+      { id: 2, roleName: 'Admin' },
+      { id: 3, roleName: 'Scanner' },
+      { id: 4, roleName: 'User' }
+    ];
+
+    this.filterRolesForLoggedInUser();
+  }
+
+  filterRolesForLoggedInUser(): void {
+    if (this.isSuperAdmin) {
+      this.roleList = this.allRoleList.filter((x: any) =>
+        [1, 2, 3, 4].includes(Number(x.id))
+      );
+
+      if (!this.isEditMode) {
+        this.roleId = null;
+      }
+      return;
+    }
+
+    this.roleList = [{ id: 4, roleName: 'User' }];
+    this.roleId = 4;
+  }
+
+  prepareCreateDefaults(): void {
+    this.isEditMode = false;
+    this.id = null;
+    this.username = '';
+    this.email = '';
+    this.password = '';
+    this.confirmPassword = '';
+    this.isActive = true;
+    this.isDelete = false;
+
+    if (this.isSuperAdmin) {
+      this.roleId = null;
+      this.companyId = null;
+      this.selectedCompanyId = null;
+      this.companyName = '';
+    } else {
+      // Admin create -> role fixed = 4
+      this.roleId = 4;
+      this.companyId = this.loginCompanyId;
+      this.selectedCompanyId = this.loginCompanyId;
+      this.companyName = this.loginCompanyName || '';
+      this.roleList = [{ id: 4, roleName: 'User' }];
+    }
+
+    this.syncCompanyName();
+  }
 
   loadUserById(id: number): void {
     this.isLoadingUser = true;
@@ -177,11 +246,20 @@ prepareCreateDefaults(): void {
         this.confirmPassword = '';
         this.isActive = user.isActive === true;
 
-        // IMPORTANT: actual user data from API
-        this.roleId = user.roleId || 2;
-        this.companyId = user.companyId || null;
-        this.selectedCompanyId = user.companyId || null;
-        this.companyName = user.companyName || '';
+        if (this.isSuperAdmin) {
+          this.roleId = user.roleId || null;
+          this.companyId = user.companyId || null;
+          this.selectedCompanyId = user.companyId || null;
+          this.companyName = user.companyName || '';
+          this.filterRolesForLoggedInUser();
+        } else {
+          // Admin edit -> company localstorage / companylist la irunthu
+          this.roleId = 4;
+          this.companyId = this.loginCompanyId || user.companyId || null;
+          this.selectedCompanyId = this.loginCompanyId || user.companyId || null;
+          this.companyName = this.loginCompanyName || user.companyName || '';
+          this.roleList = [{ id: 4, roleName: 'User' }];
+        }
 
         this.syncCompanyName();
       },
@@ -196,37 +274,42 @@ prepareCreateDefaults(): void {
     });
   }
 
-syncCompanyName(): void {
-  const finalCompanyId = this.getFinalCompanyId();
+  syncCompanyName(): void {
+    const finalCompanyId = this.getFinalCompanyId();
 
-  if (!finalCompanyId) {
-    this.companyName = '';
-    return;
+    if (!finalCompanyId) {
+      this.companyName = '';
+      return;
+    }
+
+    // Admin ku first priority localstorage companyName
+    if (!this.isSuperAdmin && this.loginCompanyName) {
+      this.companyName = this.loginCompanyName;
+      this.companyId = this.loginCompanyId;
+      this.selectedCompanyId = this.loginCompanyId;
+      return;
+    }
+
+    if (!this.companyList?.length) {
+      return;
+    }
+
+    const matchedCompany = this.companyList.find(
+      (x: any) => Number(x.id) === Number(finalCompanyId)
+    );
+
+    if (matchedCompany) {
+      this.companyName =
+        matchedCompany.companyName ||
+        matchedCompany.name ||
+        '';
+
+      if (!this.isSuperAdmin) {
+        this.companyId = Number(matchedCompany.id);
+        this.selectedCompanyId = Number(matchedCompany.id);
+      }
+    }
   }
-
-  // RoleId = 2னா company reset ஆகக்கூடாது
-  if (this.roleId === 2 && this.loginCompanyName) {
-    this.companyName = this.loginCompanyName;
-    this.companyId = this.loginCompanyId;
-    this.selectedCompanyId = this.loginCompanyId;
-    return;
-  }
-
-  if (!this.companyList?.length) {
-    return;
-  }
-
-  const matchedCompany = this.companyList.find(
-    (x: any) => Number(x.id) === Number(finalCompanyId)
-  );
-
-  if (matchedCompany) {
-    this.companyName =
-      matchedCompany.companyName ||
-      matchedCompany.name ||
-      '';
-  }
-}
 
   toggleSidebar(name: string): void {
     const sidebar = this._coreSidebarService.getSidebarRegistry(name);
@@ -235,13 +318,23 @@ syncCompanyName(): void {
     }
   }
 
-getFinalCompanyId(): number | null {
-  if (this.roleId === 2) {
-    return this.companyId || this.loginCompanyId;
+  getFinalCompanyId(): number | null {
+    if (!this.isSuperAdmin) {
+      return this.companyId || this.loginCompanyId;
+    }
+
+    return this.selectedCompanyId;
   }
 
-  return this.isSuperAdmin ? this.selectedCompanyId : this.companyId;
-}
+  onCompanyChange(): void {
+    this.syncCompanyName();
+  }
+
+  onRoleChange(): void {
+    if (!this.isSuperAdmin) {
+      this.roleId = 4;
+    }
+  }
 
   submit(form: any): void {
     if (!form.valid) {
@@ -256,7 +349,7 @@ getFinalCompanyId(): number | null {
     if (this.passwordMismatch) {
       Swal.fire({
         icon: 'warning',
-        title: 'Missing FieldsC',
+        title: 'Missing Fields',
         text: 'Password and Confirm Password must match'
       });
       return;
@@ -282,15 +375,26 @@ getFinalCompanyId(): number | null {
       return;
     }
 
+    const finalRoleId = this.isSuperAdmin ? this.roleId : 4;
+
+    if (!finalRoleId || finalRoleId <= 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Missing Fields',
+        text: 'Role is required'
+      });
+      return;
+    }
+
     const payload: UserMasterPayload = {
       id: this.id || undefined,
       companyId: finalCompanyId,
-      roleId: this.roleId, // fetched user role / create role
+      roleId: finalRoleId,
       username: this.username ? this.username.trim() : '',
       email: this.email ? this.email.trim() : '',
       password: this.password ? this.password.trim() : '',
       isActive: this.isActive,
-      isDelete:this.isDelete,
+      isDelete: this.isDelete,
       createdBy: this.loginUserId || 1,
       updatedBy: this.loginUserId || 1
     };
@@ -336,14 +440,14 @@ getFinalCompanyId(): number | null {
   }
 
   resetFormState(form?: any): void {
-  if (form) {
-    form.resetForm();
+    if (form) {
+      form.resetForm();
+    }
+
+    this.prepareCreateDefaults();
   }
 
-  this.prepareCreateDefaults();
-}
-onCancel(form: any): void {
-  //this.resetFormState(form);
-  this.toggleSidebar('new-user-sidebar');
-}
+  onCancel(form: any): void {
+    this.toggleSidebar('new-user-sidebar');
+  }
 }

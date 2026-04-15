@@ -1,0 +1,194 @@
+<div class="menu-page">
+  <div class="menu-container">
+
+    <div class="card-box top-card">
+      <div class="top-header">
+        <div class="header-left">
+          <h2>Monthly Menu Upload & Preview</h2>
+          <p>Download template, fill the Excel, upload it, and preview the selected 7-day menu session-wise.</p>
+        </div>
+
+        <div class="action-buttons">
+          <div class="month-year-group">
+            <div class="month-year-item">
+              <label for="selectedMonth">Month</label>
+              <select id="selectedMonth" [(ngModel)]="selectedMonth" class="form-control">
+                <option [ngValue]="1">January</option>
+                <option [ngValue]="2">February</option>
+                <option [ngValue]="3">March</option>
+                <option [ngValue]="4">April</option>
+                <option [ngValue]="5">May</option>
+                <option [ngValue]="6">June</option>
+                <option [ngValue]="7">July</option>
+                <option [ngValue]="8">August</option>
+                <option [ngValue]="9">September</option>
+                <option [ngValue]="10">October</option>
+                <option [ngValue]="11">November</option>
+                <option [ngValue]="12">December</option>
+              </select>
+            </div>
+
+            <div class="month-year-item">
+              <label for="selectedYear">Year</label>
+              <input
+                id="selectedYear"
+                type="number"
+                class="form-control"
+                [(ngModel)]="selectedYear"
+                min="2024"
+                max="2100"
+              />
+            </div>
+          </div>
+
+          <button class="btn btn-primary" (click)="downloadTemplate()">Download Template</button>
+          <button class="btn btn-outline" (click)="downloadSampleExcel()">Sample Excel</button>
+
+          <label class="btn btn-outline upload-btn">
+            Upload Excel
+            <input type="file" accept=".xlsx,.xls,.csv" (change)="onFileChange($event)" hidden />
+          </label>
+        </div>
+      </div>
+
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="summary-label">Excel Sessions</div>
+          <div class="summary-value">{{ getCurrentWeekSessionNames().length }}</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-label">Uploaded Rows</div>
+          <div class="summary-value">{{ rows.length }}</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-label">Upload Status</div>
+          <div class="summary-status">{{ uploadInfo }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-box preview-card">
+      <div class="preview-header single-header">
+        <div>
+          <h2>Current Week Menu Preview</h2>
+          <p class="preview-subtitle">
+            One box for each session. Missing days will still appear with empty cells.
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="!currentWeekKey || getCurrentWeekSessionNames().length === 0" class="empty-box">
+        No current week menu available.
+      </div>
+
+      <ng-container *ngIf="currentWeekKey && getCurrentWeekSessionNames().length > 0">
+        <div class="week-preview" *ngFor="let sessionName of getCurrentWeekSessionNames()">
+          <div class="week-title">
+            Opening Bento Meals Preview • {{ currentWeekKey }}
+          </div>
+
+          <div class="session-preview-block">
+            <div class="session-preview-header">
+              <div class="session-badge">{{ sessionName }}</div>
+              <div class="session-preview-text">Session wise full menu preview</div>
+            </div>
+
+            <div class="table-wrapper no-scroll-table">
+              <table class="menu-table">
+                <thead>
+                  <tr>
+                    <th class="set-column">Set</th>
+                    <th *ngFor="let date of getSortedDates(currentWeekSessions[sessionName])">
+                      <div class="date-text">{{ formatCellDate(date) }}</div>
+                      <div class="day-name">{{ getDayName(date) }}</div>
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let setName of getAllSetNames(currentWeekSessions[sessionName])">
+                    <td class="set-name-cell">{{ setName }}</td>
+
+                    <td *ngFor="let date of getSortedDates(currentWeekSessions[sessionName])">
+                      <ng-container *ngIf="getMenuBySetAndDate(currentWeekSessions[sessionName], date, setName) as menu; else noMenu">
+                        <div class="menu-items">
+                          <div *ngIf="menu.item1">{{ menu.item1 }}</div>
+                          <div *ngIf="menu.item2">{{ menu.item2 }}</div>
+                          <div *ngIf="menu.item3">{{ menu.item3 }}</div>
+                          <div *ngIf="menu.item4">{{ menu.item4 }}</div>
+                          <div class="notes" *ngIf="menu.notes">{{ menu.notes }}</div>
+                        </div>
+                      </ng-container>
+
+                      <ng-template #noMenu>
+                        <div class="no-menu">No menu</div>
+                      </ng-template>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="card-box excel-card">
+      <div class="section-header">
+        <h2>Excel Format Expected</h2>
+      </div>
+
+      <div class="excel-format-box">
+        <table class="format-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>SessionName</th>
+              <th>SetName</th>
+              <th>Item1</th>
+              <th>Item2</th>
+              <th>Item3</th>
+              <th>Item4</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>01/04/2026</td>
+              <td>Breakfast</td>
+              <td>Set A</td>
+              <td>Idli</td>
+              <td>Sambar</td>
+              <td>Chutney</td>
+              <td>Tea</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>01/04/2026</td>
+              <td>Breakfast</td>
+              <td>Set B</td>
+              <td>Pongal</td>
+              <td>Chutney</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>01/04/2026</td>
+              <td>Breakfast</td>
+              <td>Veg Set C</td>
+              <td>Upma</td>
+              <td>Chutney</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

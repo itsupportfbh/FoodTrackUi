@@ -27,37 +27,41 @@
           </div>
 
           <ng-container *ngIf="!isLoadingUser">
-           <div class="form-group" *ngIf="isSuperAdmin">
-  <label class="form-label" for="companyId">Company</label>
 
-  <ng-select
-    id="companyId"
-    [items]="companyList"
-    bindLabel="companyName"
-    bindValue="id"
-    [searchable]="true"
-    [clearable]="true"
-    [closeOnSelect]="true"
-    [virtualScroll]="true"
-    placeholder="Search Company"
-    name="companyId"
-    [(ngModel)]="selectedCompanyId"
-    #FCompanyRef="ngModel"
-    [class.is-invalid]="newUserForm.submitted && FCompanyRef.invalid"
-    required
-  >
-    <ng-template ng-option-tmp let-item="item">
-      {{ item.companyName || item.name }}
-    </ng-template>
-  </ng-select>
+            <!-- Super Admin company dropdown -->
+            <div class="form-group" *ngIf="isSuperAdmin">
+              <label class="form-label" for="companyId">Company</label>
 
-  <span *ngIf="newUserForm.submitted && FCompanyRef.invalid" class="invalid-form">
-    <small class="form-text text-danger" *ngIf="FCompanyRef.errors?.required">
-      Company is required!
-    </small>
-  </span>
-</div>
+              <ng-select
+                id="companyId"
+                [items]="companyList"
+                bindLabel="companyName"
+                bindValue="id"
+                [searchable]="true"
+                [clearable]="true"
+                [closeOnSelect]="true"
+                [virtualScroll]="true"
+                placeholder="Search Company"
+                name="companyId"
+                [(ngModel)]="selectedCompanyId"
+                #FCompanyRef="ngModel"
+                [class.is-invalid]="newUserForm.submitted && FCompanyRef.invalid"
+                required
+                (change)="onCompanyChange()"
+              >
+                <ng-template ng-option-tmp let-item="item">
+                  {{ item.companyName || item.name }}
+                </ng-template>
+              </ng-select>
 
+              <span *ngIf="newUserForm.submitted && FCompanyRef.invalid" class="invalid-form">
+                <small class="form-text text-danger" *ngIf="FCompanyRef.errors?.required">
+                  Company is required!
+                </small>
+              </span>
+            </div>
+
+            <!-- Admin / non super admin company readonly -->
             <div class="form-group" *ngIf="!isSuperAdmin">
               <label class="form-label" for="companyName">Company</label>
               <textarea
@@ -70,6 +74,7 @@
               ></textarea>
             </div>
 
+            <!-- Username -->
             <div class="form-group">
               <label class="form-label" for="basic-icon-default-uname">Username</label>
               <input
@@ -91,6 +96,7 @@
               </span>
             </div>
 
+            <!-- Email -->
             <div class="form-group">
               <label class="form-label" for="basic-icon-default-email">Email</label>
               <input
@@ -116,10 +122,42 @@
               </span>
             </div>
 
-            <div  *ngIf="!isEdit" class="form-group">
-              <label class="form-label" for="basic-icon-default-password">
-                Password 
-              </label>
+            <!-- Role : only for SuperAdmin -->
+            <div class="form-group" *ngIf="isSuperAdmin">
+              <label class="form-label" for="roleId">Role</label>
+
+              <ng-select
+                id="roleId"
+                [items]="roleList"
+                bindLabel="roleName"
+                bindValue="id"
+                [searchable]="true"
+                [clearable]="false"
+                [closeOnSelect]="true"
+                placeholder="Select Role"
+                name="roleId"
+                [(ngModel)]="roleId"
+                #FRoleRef="ngModel"
+                [disabled]="isEditMode && !isSuperAdmin"
+                [class.is-invalid]="newUserForm.submitted && FRoleRef.invalid"
+                required
+                (change)="onRoleChange()"
+              >
+                <ng-template ng-option-tmp let-item="item">
+                  {{ item.roleName }}
+                </ng-template>
+              </ng-select>
+
+              <span *ngIf="newUserForm.submitted && FRoleRef.invalid" class="invalid-form">
+                <small class="form-text text-danger" *ngIf="FRoleRef.errors?.required">
+                  Role is required!
+                </small>
+              </span>
+            </div>
+
+            <!-- Password -->
+            <div *ngIf="!isEditMode" class="form-group">
+              <label class="form-label" for="basic-icon-default-password">Password</label>
               <input
                 type="password"
                 id="basic-icon-default-password"
@@ -129,7 +167,6 @@
                 [(ngModel)]="password"
                 #FPasswordRef="ngModel"
                 [required]="!isEditMode"
-                 [disabled]="isEditMode"
                 [class.is-invalid]="newUserForm.submitted && FPasswordRef.invalid"
                 minlength="6"
               />
@@ -144,7 +181,8 @@
               </span>
             </div>
 
-            <div   *ngIf="!isEdit" class="form-group">
+            <!-- Confirm Password -->
+            <div *ngIf="!isEditMode" class="form-group">
               <label class="form-label" for="basic-icon-default-confirm-password">Confirm Password</label>
               <input
                 type="password"
@@ -154,7 +192,6 @@
                 name="confirmPassword"
                 [(ngModel)]="confirmPassword"
                 #FConfirmPasswordRef="ngModel"
-                 [disabled]="isEditMode"
                 [required]="!isEditMode && !!password"
                 [class.is-invalid]="newUserForm.submitted && (FConfirmPasswordRef.invalid || passwordMismatch)"
               />
@@ -172,6 +209,7 @@
               </span>
             </div>
 
+            <!-- Is Active -->
             <div class="form-group mb-2">
               <label class="form-label d-block">Is Active</label>
               <div class="custom-control custom-switch custom-switch-primary">
@@ -188,6 +226,7 @@
               </div>
             </div>
 
+            <!-- Buttons -->
             <button
               type="submit"
               class="btn btn-primary mr-1"
