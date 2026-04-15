@@ -1,5 +1,4 @@
 .report-page {
- // padding: 1.25rem;
   background: #f8f8fc;
   min-height: 100%;
 }
@@ -14,15 +13,14 @@
 
 .report-card-header {
   padding: 1.15rem 1.4rem;
- // border-bottom: 1px solid #ebe9f1;
   background: #fff;
 }
 
 .card-title {
   margin: 0;
-  color: #6F3C2F;
+  color: #6f3c2f;
   font-weight: 700;
-  font-size: 1.20rem;
+  font-size: 1.2rem;
   line-height: 1.1;
 }
 
@@ -101,72 +99,6 @@
   height: 16px;
 }
 
-.food-total-wrap {
-  margin-bottom: 1.3rem;
-  border: 1px solid #ebe9f1;
-  border-radius: 1rem;
-  padding: 1rem 1.1rem 1.1rem;
-  background: #fff;
-}
-
-.section-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.95rem;
-  flex-wrap: wrap;
-}
-
-.section-title-row h5 {
-  color: #5e5873;
-  font-weight: 600;
-  font-size: 1.05rem;
-}
-
-.total-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
-  background: rgba(115, 103, 240, 0.12);
-  color: #7367f0;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-
-.food-total-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.food-total-card {
-  border: 1px solid #ebe9f1;
-  border-radius: 0.85rem;
-  padding: 1rem;
-  background: linear-gradient(180deg, #ffffff 0%, #f9f9ff 100%);
-  text-align: center;
-}
-
-.food-total-name {
-  color: #6e6b7b;
-  font-size: 0.92rem;
-  font-weight: 600;
-  margin-bottom: 0.45rem;
-  min-height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.food-total-value {
-  color: #7367f0;
-  font-size: 1.45rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
 .report-table-wrap {
   border: 1px solid #ebe9f1;
   border-radius: 1rem;
@@ -213,38 +145,136 @@
   font-weight: 600 !important;
 }
 
-/* exact same approach as request create */
+/* ng-select common */
 ::ng-deep .report-card .ng-select {
   width: 100%;
   font-size: 0.9rem;
 }
 
 ::ng-deep .report-card .ng-select .ng-select-container {
-  min-height: 40px !important;
-  height: 40px !important;
+  min-height: 48px !important;
   border: 1px solid #d8d6de !important;
   border-radius: 0.6rem !important;
   background: #fff !important;
   box-shadow: none !important;
+}
+
+/* single select */
+::ng-deep .report-card .ng-select:not(.ng-select-multiple) .ng-select-container {
+  height: 48px !important;
   align-items: center !important;
 }
 
-::ng-deep .report-card .ng-select .ng-select-container .ng-value-container {
+::ng-deep .report-card .ng-select:not(.ng-select-multiple) .ng-select-container .ng-value-container {
+  height: 48px !important;
   padding: 0 0.85rem !important;
   display: flex !important;
   align-items: center !important;
 }
 
+/* multi select */
+::ng-deep .report-card .ng-select.ng-select-multiple .ng-select-container {
+  min-height: 48px !important;
+  height: auto !important;
+  padding: 6px 34px 6px 10px !important;
+  align-items: flex-start !important;
+}
+
+::ng-deep .report-card .ng-select.ng-select-multiple .ng-select-container .ng-value-container {
+  display: block !important;
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+/* hide default chips */
+::ng-deep .report-card .ng-select.ng-select-multiple .ng-value {
+  display: none !important;
+}
+
+/* custom class based hide */
+::ng-deep .report-card .ng-select.ng-select-multiple.has-selection .ng-input {
+  display: none !important;
+}
+
+::ng-deep .report-card .ng-select.ng-select-multiple.has-selection .ng-placeholder {
+  display: none !important;
+}
+
+/* show input when empty */
+::ng-deep .report-card .ng-select.ng-select-multiple:not(.has-selection) .ng-input {
+  position: static !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+::ng-deep .report-card .ng-select.ng-select-multiple:not(.has-selection) .ng-input > input {
+  width: 100% !important;
+  height: 30px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+
+/* custom selected chips */
+.multi-chip-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+
+.multi-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  background: #8b4f39;
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.multi-chip-text {
+  white-space: nowrap;
+}
+
+.multi-chip-remove {
+  margin-left: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.95;
+}
+
+.multi-chip-remove:hover {
+  opacity: 1;
+}
+
+/* clear and arrow */
+::ng-deep .report-card .ng-select .ng-clear-wrapper,
+::ng-deep .report-card .ng-select .ng-arrow-wrapper {
+  align-self: center !important;
+}
+
+/* placeholder */
 ::ng-deep .report-card .ng-select .ng-placeholder {
   color: #9a97ab !important;
 }
 
+/* focus / opened */
 ::ng-deep .report-card .ng-select.ng-select-focused .ng-select-container,
 ::ng-deep .report-card .ng-select.ng-select-opened .ng-select-container {
-  border-color: #6F3C2F !important;
+  border-color: #6f3c2f !important;
   box-shadow: 0 0 0 0.2rem rgba(115, 103, 240, 0.15) !important;
 }
 
+/* dropdown panel */
 ::ng-deep .ng-dropdown-panel {
   z-index: 9999 !important;
   border: 1px solid #d8d6de !important;
@@ -261,56 +291,36 @@
 
 ::ng-deep .ng-dropdown-panel .ng-option.ng-option-marked {
   background: #f8f7ff !important;
-  color: #6F3C2F !important;
+  color: #6f3c2f !important;
 }
 
 ::ng-deep .ng-dropdown-panel .ng-option.ng-option-selected {
   background: #f1efff !important;
-  color: #6F3C2F !important;
+  color: #6f3c2f !important;
   font-weight: 600;
 }
 
-@media (max-width: 1199.98px) {
-  .filter-grid,
-  .food-total-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 767.98px) {
-  .report-page {
-    padding: 1rem;
-  }
-
-  .card-title {
-    font-size: 1.35rem;
-  }
-
-  .filter-panel {
-    padding: 1rem;
-  }
-
-  .filter-grid,
-  .food-total-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .action-row {
-    justify-content: stretch;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .action-btn {
-    width: 100%;
-  }
-}
 .session-cuisine-wrap {
   margin-bottom: 1.3rem;
   border: 1px solid #ebe9f1;
   border-radius: 1rem;
   padding: 1rem 1.1rem 1.1rem;
   background: #fff;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.95rem;
+  flex-wrap: wrap;
+}
+
+.section-title-row h5 {
+  color: #5e5873;
+  font-weight: 600;
+  font-size: 1.05rem;
 }
 
 .session-cuisine-grid {
@@ -345,7 +355,7 @@
 .session-total {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #6F3C2F;
+  color: #6f3c2f;
   background: rgba(115, 103, 240, 0.12);
   padding: 0.3rem 0.7rem;
   border-radius: 999px;
@@ -374,22 +384,11 @@
 }
 
 .cuisine-value {
-  color: #6F3C2F;
+  color: #6f3c2f;
   font-size: 1rem;
   font-weight: 700;
 }
 
-@media (max-width: 1199.98px) {
-  .session-cuisine-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 767.98px) {
-  .session-cuisine-grid {
-    grid-template-columns: 1fr;
-  }
-}
 .report-textarea {
   border-radius: 0.6rem;
   font-size: 0.9rem;
@@ -458,37 +457,6 @@
   cursor: pointer;
 }
 
-.compact-mode .filter-panel {
-  padding: 0.85rem;
-}
-
-.compact-mode .report-card-header {
-  padding: 0.9rem 1.1rem;
-}
-
-.compact-mode .card-title {
-  font-size: 1rem;
-}
-
-.compact-mode .action-btn {
-  min-width: 130px;
-  height: 38px;
-  border-radius: 0.65rem;
-}
-
-.compact-mode .report-table thead th,
-.compact-mode .report-table tbody td {
-  padding: 0.7rem 0.8rem;
-  font-size: 0.84rem;
-}
-
-.compact-mode .session-cuisine-card {
-  padding: 0.8rem;
-}
-
-.compact-mode .session-cuisine-item {
-  padding: 0.55rem 0.7rem;
-}
 .compact-action-row {
   gap: 0.55rem;
   margin-top: 1rem;
@@ -518,6 +486,14 @@
 }
 
 @media (max-width: 1199.98px) {
+  .filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .session-cuisine-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .compact-action-row {
     justify-content: flex-start;
   }
@@ -525,4 +501,48 @@
   .compact-action-row .action-btn {
     min-width: 105px;
   }
+}
+
+@media (max-width: 767.98px) {
+  .report-page {
+    padding: 1rem;
+  }
+
+  .card-title {
+    font-size: 1.35rem;
+  }
+
+  .filter-panel {
+    padding: 1rem;
+  }
+
+  .filter-grid,
+  .session-cuisine-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-row {
+    justify-content: stretch;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-btn {
+    width: 100%;
+  }
+}
+.multi-chip-remove {
+  margin-left: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.95;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 14px;
+}
+
+.multi-chip-remove:hover {
+  opacity: 1;
 }
