@@ -125,21 +125,21 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
       }
     });
   }
-removeSelectedItem(
-  listName: 'companyObjs' | 'sessionObjs' | 'cuisineObjs' | 'locationObjs',
-  item: any,
-  event: MouseEvent
-): void {
-  event.preventDefault();
-  event.stopPropagation();
+  removeSelectedItem(
+    listName: 'companyObjs' | 'sessionObjs' | 'cuisineObjs' | 'locationObjs',
+    item: any,
+    event: MouseEvent
+  ): void {
+    event.preventDefault();
+    event.stopPropagation();
 
-  const currentList = this[listName] as any[];
-  if (!Array.isArray(currentList)) return;
+    const currentList = this[listName] as any[];
+    if (!Array.isArray(currentList)) return;
 
-  this[listName] = currentList.filter(
-    (x: any) => Number(x?.id) !== Number(item?.id)
-  ) as never[];
-}
+    this[listName] = currentList.filter(
+      (x: any) => Number(x?.id) !== Number(item?.id)
+    ) as never[];
+  }
 
   private getSelectedIds(list: any[]): number[] | null {
     if (!list || list.length === 0) return null;
