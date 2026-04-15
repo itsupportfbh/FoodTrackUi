@@ -92,6 +92,7 @@
           bindValue="id"
           [multiple]="true"
           [closeOnSelect]="false"
+          [hideSelected]="true"
           name="locationIds"
           [(ngModel)]="model.locationIds">
         </ng-select>
@@ -105,6 +106,7 @@
           bindValue="id"
           [multiple]="true"
           [closeOnSelect]="false"
+          [hideSelected]="true"
           name="sessionIds"
           [(ngModel)]="model.sessionIds"
           (ngModelChange)="onSessionChange()">
@@ -142,6 +144,7 @@
           bindValue="id"
           [multiple]="true"
           [closeOnSelect]="false"
+          [hideSelected]="true"
           name="cuisineIds"
           [(ngModel)]="model.cuisineIds">
         </ng-select>

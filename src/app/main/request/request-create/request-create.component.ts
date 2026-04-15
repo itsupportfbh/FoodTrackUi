@@ -18,10 +18,17 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   minDate = '';
   toDateMax = '';
   orderDays = 3;
+
   companies: any[] = [];
   sessions: any[] = [];
   cuisines: any[] = [];
   locations: any[] = [];
+
+  breakfastCutOffTime = '';
+  lunchCutOffTime = '';
+  lateLunchCutOffTime = '';
+  dinnerCutOffTime = '';
+  lateDinnerCutOffTime = '';
 
   model: any = {
     id: 0,
@@ -79,8 +86,14 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
         this.cuisines = data.cuisines || [];
         this.locations = data.locations || [];
 
-        this.orderDays = data.orderDays || 3;
+        this.orderDays = Number(data.orderDays || 0);
         this.minDate = this.getDateAfterDays(this.orderDays);
+
+        this.breakfastCutOffTime = data.breakfastCutOffTime || data.BreakfastCutOffTime || '';
+        this.lunchCutOffTime = data.lunchCutOffTime || data.LunchCutOffTime || '';
+        this.lateLunchCutOffTime = data.lateLunchCutOffTime || data.LateLunchCutOffTime || '';
+        this.dinnerCutOffTime = data.dinnerCutOffTime || data.DinnerCutOffTime || '';
+        this.lateDinnerCutOffTime = data.lateDinnerCutOffTime || data.LateDinnerCutOffTime || '';
 
         if (!this.isEditMode && this.companies.length > 0) {
           this.model.companyId = Number(this.companies[0].id || 0);
@@ -263,7 +276,151 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     );
   }
 
+  private getSessionCutOffTime(sessionId: number, sessionName?: string): string {
+    const id = Number(sessionId || 0);
+    const name = (sessionName || '').toLowerCase().trim();
+
+    // First try by session name
+    if (name === 'breakfast') {
+      return this.breakfastCutOffTime;
+    }
+
+    if (name === 'lunch') {
+      return this.lunchCutOffTime;
+    }
+
+    if (name === 'late lunch' || name === 'latelunch') {
+      return this.lateLunchCutOffTime;
+    }
+
+    if (name === 'dinner') {
+      return this.dinnerCutOffTime;
+    }
+
+    if (name === 'late dinner' || name === 'latedinner') {
+      return this.lateDinnerCutOffTime;
+    }
+
+    // Fallback by session id
+    // Change these ids if your master table uses different ids
+    if (id === 1) {
+      return this.lunchCutOffTime;
+    }
+
+    if (id === 2) {
+      return this.breakfastCutOffTime;
+    }
+
+    if (id === 3) {
+      return this.lateLunchCutOffTime;
+    }
+
+    if (id === 4) {
+      return this.dinnerCutOffTime;
+    }
+
+    if (id === 5) {
+      return this.lateDinnerCutOffTime;
+    }
+
+    return '';
+  }
+
+  private getTodayDateString(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private parseTimeToMinutes(timeValue: string): number | null {
+    if (!timeValue) {
+      return null;
+    }
+
+    const value = String(timeValue).trim().toUpperCase();
+
+    // 24-hour format: 20:00 or 08:30
+    const format24 = value.match(/^(\d{1,2}):(\d{2})$/);
+    if (format24) {
+      const hour = Number(format24[1]);
+      const minute = Number(format24[2]);
+
+      if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+        return hour * 60 + minute;
+      }
+
+      return null;
+    }
+
+    // 12-hour format: 08:00 PM
+    const format12 = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/);
+    if (format12) {
+      let hour = Number(format12[1]);
+      const minute = Number(format12[2]);
+      const meridian = format12[3];
+
+      if (minute < 0 || minute > 59 || hour < 1 || hour > 12) {
+        return null;
+      }
+
+      if (meridian === 'PM' && hour < 12) {
+        hour += 12;
+      }
+
+      if (meridian === 'AM' && hour === 12) {
+        hour = 0;
+      }
+
+      return hour * 60 + minute;
+    }
+
+    return null;
+  }
+
+  isSessionCutOffCrossed(sessionId: number, sessionName?: string): boolean {
+    debugger
+    if (!this.model?.fromDate) {
+      return false;
+    }
+
+    const todayStr = this.getTodayDateString();
+
+    // இன்று date-க்கு மட்டும் cutoff check
+    if (this.model.fromDate !== todayStr) {
+      return false;
+    }
+
+    const cutOff = this.getSessionCutOffTime(sessionId, sessionName);
+    if (!cutOff) {
+      return false;
+    }
+
+    const cutOffMinutes = this.parseTimeToMinutes(cutOff);
+    if (cutOffMinutes === null) {
+      return false;
+    }
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    return currentMinutes > cutOffMinutes;
+  }
+
+  getSessionCutOffMessage(sessionId: number, sessionName?: string): string {
+    const cutOff = this.getSessionCutOffTime(sessionId, sessionName);
+    const label = sessionName || `Session ${sessionId}`;
+
+    if (!cutOff) {
+      return `${label} cut off time crossed`;
+    }
+
+    return `${label} cut off time crossed (${cutOff})`;
+  }
+
   saveRequest(): void {
+    debugger
     if (!this.model.companyId || !this.model.fromDate || !this.model.toDate) {
       Swal.fire('Missing Information', 'Please fill header details', 'warning');
       return;
@@ -281,6 +438,27 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       Swal.fire(
         'Missing Information',
         'Same cuisine cannot have duplicate locations in the same session',
+        'warning'
+      );
+      return;
+    }
+
+    const blockedSessions: string[] = [];
+
+    for (const group of this.sessionGroups) {
+      const hasQty = (group.lines || []).some((line: any) =>
+        (line.details || []).some((d: any) => Number(d.locationId) > 0 && Number(d.qty) > 0)
+      );
+
+      if (hasQty && this.isSessionCutOffCrossed(group.sessionId, group.sessionName)) {
+        blockedSessions.push(group.sessionName || `Session ${group.sessionId}`);
+      }
+    }
+
+    if (blockedSessions.length > 0) {
+      Swal.fire(
+        'Warning',
+        `${blockedSessions.join(', ')} cut off time crossed. You cannot place order for these sessions.`,
         'warning'
       );
       return;
@@ -317,6 +495,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       UserId: this.userId,
       Lines: validLines
     };
+
     if (this.isDateOverlap) {
       Swal.fire(
         'Warning',
@@ -437,36 +616,32 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
     return `${year}-${month}-${day}`;
   }
+
   checkDateOverlap(): void {
-  this.isDateOverlap = false;
-  this.dateOverlapMessage = '';
+    this.isDateOverlap = false;
+    this.dateOverlapMessage = '';
 
-  if (!this.model.companyId || !this.model.fromDate || !this.model.toDate) {
-    return;
-  }
-
-  this.requestService.checkOverlap(
-    this.model.companyId,
-    this.model.fromDate,
-    this.model.toDate,
-    this.model.id || 0
-  ).subscribe({
-    next: (res: any) => {
-      this.isDateOverlap = res?.isOverlap || false;
-
-      if (this.isDateOverlap) {
-        this.dateOverlapMessage =
-          'Order already exists for the selected date range.';
-        Swal.fire(
-          'Warning',
-          this.dateOverlapMessage,
-          'warning'
-        );
-      }
-    },
-    error: (err:any) => {
-      console.error(err);
+    if (!this.model.companyId || !this.model.fromDate || !this.model.toDate) {
+      return;
     }
-  });
-}
+
+    this.requestService.checkOverlap(
+      this.model.companyId,
+      this.model.fromDate,
+      this.model.toDate,
+      this.model.id || 0
+    ).subscribe({
+      next: (res: any) => {
+        this.isDateOverlap = res?.isOverlap || false;
+
+        if (this.isDateOverlap) {
+          this.dateOverlapMessage = 'Order already exists for the selected date range.';
+          Swal.fire('Warning', this.dateOverlapMessage, 'warning');
+        }
+      },
+      error: (err: any) => {
+        console.error(err);
+      }
+    });
+  }
 }

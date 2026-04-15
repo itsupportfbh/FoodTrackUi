@@ -19,7 +19,7 @@ export class SitesettingsComponent implements OnInit, AfterViewInit {
   lateLunchCutOffTime = '';
   dinnerCutOffTime = '';
   lateDinnerCutOffTime = '';
-  orderDate = 0;
+  orderDate: number = 0;
 
   selectedSiteSetting: any = null;
   userId: string | null = null;
@@ -78,8 +78,8 @@ export class SitesettingsComponent implements OnInit, AfterViewInit {
     this.lateDinnerCutOffTime =
       data?.lateDinnerCutOffTime ?? data?.LateDinnerCutOffTime ?? '';
 
-      this.orderDate =
-      data?.orderDays ?? data?.orderDays ?? 0;
+    this.orderDate =
+      data?.orderDays ?? data?.OrderDays ?? 0;
   }
 
   private resetFormValues(): void {
@@ -121,12 +121,13 @@ export class SitesettingsComponent implements OnInit, AfterViewInit {
 
     const payload = {
       id: this.selectedSiteSetting?.id ?? this.selectedSiteSetting?.Id ?? 0,
-      breakfastCutOffTime: this.breakfastCutOffTime || '',
-      lunchCutOffTime: this.lunchCutOffTime || '',
-      lateLunchCutOffTime: this.lateLunchCutOffTime || '',
-      dinnerCutOffTime: this.dinnerCutOffTime || '',
-      lateDinnerCutOffTime: this.lateDinnerCutOffTime || '',
-      orderDays: this.orderDate || 0,
+      breakfastCutOffTime: this.breakfastCutOffTime,
+      lunchCutOffTime: this.lunchCutOffTime,
+      lateLunchCutOffTime: this.lateLunchCutOffTime,
+      dinnerCutOffTime: this.dinnerCutOffTime,
+      lateDinnerCutOffTime: this.lateDinnerCutOffTime,
+      orderDays: Number(this.orderDate) || 0,
+      cronEmail: this.selectedSiteSetting?.cronEmail ?? this.selectedSiteSetting?.CronEmail ?? null,
       isActive: true,
       createdDate:
         this.selectedSiteSetting?.createdDate ??
@@ -148,6 +149,7 @@ export class SitesettingsComponent implements OnInit, AfterViewInit {
           ...this.selectedSiteSetting,
           ...data
         };
+
         this.isEditMode = true;
         this.patchForm(data);
 

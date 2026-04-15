@@ -35,9 +35,9 @@
             [min]="minDate"
             (change)="onFromDateChange(); checkDateOverlap()"
           />
-           <small class="text-muted">
-  Minimum {{ orderDays }} days advance required
-</small>
+          <small class="text-muted">
+            Minimum {{ orderDays }} days advance required
+          </small>
         </div>
 
         <div class="form-group">
@@ -83,6 +83,12 @@
           </button>
 
           <div class="accordion-body" *ngIf="group.isOpen">
+            <div class="mb-1" *ngIf="isSessionCutOffCrossed(group.sessionId, group.sessionName)">
+              <small class="text-danger">
+                {{ getSessionCutOffMessage(group.sessionId, group.sessionName) }}
+              </small>
+            </div>
+
             <div class="table-responsive create-table-wrap">
               <table class="table create-line-table mb-0">
                 <thead>
@@ -112,6 +118,7 @@
                               type="button"
                               class="btn btn-sm btn-outline-primary add-location-btn"
                               (click)="addLocationRow(line)"
+                              [disabled]="isSessionCutOffCrossed(group.sessionName)"
                             >
                               + Add
                             </button>
@@ -129,7 +136,8 @@
                             [clearable]="true"
                             [searchable]="true"
                             appendTo="body"
-                            [placeholder]="detail.locationObj ? '' : 'Select Location'">
+                            [placeholder]="detail.locationObj ? '' : 'Select Location'"
+                            [disabled]="isSessionCutOffCrossed(group.sessionName)">
                           </ng-select>
                         </td>
 
@@ -143,6 +151,7 @@
                               [name]="'qty_' + gi + '_' + li + '_' + di"
                               (input)="onLineChange()"
                               placeholder="Enter qty"
+                              [disabled]="isSessionCutOffCrossed(group.sessionName)"
                             />
 
                             <button
@@ -150,6 +159,7 @@
                               type="button"
                               class="btn btn-sm btn-outline-danger remove-location-btn"
                               (click)="removeLocationRow(line, di)"
+                              [disabled]="isSessionCutOffCrossed(group.sessionName)"
                             >
                               <i data-feather="trash-2"></i>
                             </button>
@@ -158,9 +168,14 @@
                       </tr>
                     </ng-container>
                   </ng-container>
-                  <small class="text-muted">
-                    Note : You can select the same cuisine for multiple locations using Add button
-                  </small>
+
+                  <tr>
+                    <td colspan="3">
+                      <small class="text-muted">
+                        Note : You can select the same cuisine for multiple locations using Add button
+                      </small>
+                    </td>
+                  </tr>
 
                   <tr *ngIf="!group.lines || group.lines.length === 0">
                     <td colspan="3" class="text-center text-muted py-2">No cuisines available</td>
