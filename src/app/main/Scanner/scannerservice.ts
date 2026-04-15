@@ -67,5 +67,15 @@ downloadQrZip(qrCodeRequestId: number): Observable<Blob> {
     debugger;
     return this.http.get<any>(`${this.apiUrl}/ValidateScan?UniqueCode=${UniqueCode}`);
   }
-  
+  submitQrApproval(payload: any): Observable<any> {
+  return this.http.post(`${this.apiUrl}/submit-qr-approval`, payload);
+}
+
+approveQrRequest(id: number, approvedBy: number): Observable<any> {
+  return this.http.post(`${this.apiUrl}/approve-qr-request/${id}`, approvedBy);
+}
+
+rejectQrRequest(id: number, payload: any): Observable<any> {
+  return this.http.post(`${this.apiUrl}/reject-qr-request/${id}`, payload);
+}
 }

@@ -113,19 +113,24 @@ export class ListQRComponent implements OnInit, AfterViewInit, AfterViewChecked 
 
         const data = Array.isArray(res) ? res : (res?.data || []);
 
-        this.rows = data.map((item: any) => ({
-          id: item.id,
-          companyId: item.companyId,
-          companyName: item.companyName,
-          companyEmail: item.companyEmail,
-          requestId: item.requestId,
-          requestNo: item.requestNo,
-          noofQR: item.noofQR,
-          qrValidFrom: item.qrValidFrom,
-          qrValidTill: item.qrValidTill,
-          qrImageBase64: item.qrImageBase64 || null,
-          qrImages: Array.isArray(item.qrImages) ? item.qrImages : []
-        }));
+       this.rows = data.map((item: any) => ({
+  id: item.id,
+  companyId: item.companyId,
+  companyName: item.companyName,
+  companyEmail: item.companyEmail,
+  requestId: item.requestId,
+  requestNo: item.requestNo,
+  noofQR: item.noofQR,
+  qrValidFrom: item.qrValidFrom,
+  qrValidTill: item.qrValidTill,
+  approvalStatus: item.approvalStatus,
+  requestedBy: item.requestedBy,
+  requestedDate: item.requestedDate,
+  approvedBy: item.approvedBy,
+  approvedDate: item.approvedDate,
+  qrImageBase64: item.qrImageBase64 || null,
+  qrImages: Array.isArray(item.qrImages) ? item.qrImages : []
+}));
 
         this.filteredRows = [...this.rows];
         this.currentPage = 1;
@@ -144,7 +149,80 @@ export class ListQRComponent implements OnInit, AfterViewInit, AfterViewChecked 
       }
     });
   }
+approveQr(row: any): void {
+  Swal.fire({
+    title: 'Approve QR Request?',
+    text: `Approve QR for ${row.companyName}?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Approve',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (!result.isConfirmed) return;
 
+    Swal.fire({
+      title: 'Approving...',
+      text: 'Please wait while approving the QR request.',
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    } as any);
+
+    Swal.showLoading();
+
+    this.scannerService.approveQrRequest(row.id, this.userId).subscribe({
+      next: (res: any) => {
+        Swal.fire(
+          'Success',
+          res?.message || 'QR request approved successfully',
+          'success'
+        );
+        this.loadQrList();
+      },
+      error: (err: any) => {
+        Swal.fire(
+          'Error',
+          err?.error?.message || 'Failed to approve QR request',
+          'error'
+        );
+      }
+    });
+  });
+}
+
+rejectQr(row: any): void {
+  Swal.fire({
+    title: 'Reject QR Request',
+    text: 'Enter rejection reason',
+    input: 'text',
+    inputPlaceholder: 'Enter rejection reason',
+    inputValidator: (value: string) => {
+      if (!value || !value.trim()) {
+        return 'Reason is required';
+      }
+      return null;
+    },
+    showCancelButton: true,
+    confirmButtonText: 'Reject',
+    cancelButtonText: 'Cancel'
+  }).then((result: any) => {
+    if (!result.isConfirmed) return;
+
+    const payload = {
+      rejectedBy: this.userId,
+      reason: result.value?.trim()
+    };
+
+    this.scannerService.rejectQrRequest(row.id, payload).subscribe({
+      next: (res: any) => {
+        Swal.fire('Success', res?.message || 'QR request rejected successfully', 'success');
+        this.loadQrList();
+      },
+      error: (err: any) => {
+        Swal.fire('Error', err?.error?.message || 'Failed to reject QR request', 'error');
+      }
+    });
+  });
+}
   sendMail(row: any): void {
     console.log('MAIL ROW:', row);
 

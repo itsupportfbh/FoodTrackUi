@@ -92,19 +92,19 @@
             </div>
 
             <div class="qr-btn-group">
-              <button
-                type="button"
-                class="btn btn-primary qr-action-btn"
-                (click)="generateQrCodes()"
-                [disabled]="isProcessing || !selectedRequestItem"
-              >
-                <span *ngIf="!isProcessing">
-                  <i data-feather="cpu" class="mr-50"></i>
-                  <span>Generate QR</span>
-                </span>
+             <button
+  type="button"
+  class="btn btn-primary qr-action-btn"
+  (click)="submitForApproval()"
+  [disabled]="isProcessing || !selectedRequestItem"
+>
+  <span *ngIf="!isProcessing">
+    <i data-feather="send" class="mr-50"></i>
+    <span>Send for Approval</span>
+  </span>
 
-                <span *ngIf="isProcessing">Processing...</span>
-              </button>
+  <span *ngIf="isProcessing">Processing...</span>
+</button>
             </div>
           </fieldset>
         </div>

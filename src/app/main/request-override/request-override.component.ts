@@ -49,6 +49,13 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
   loading = false;
   saving = false;
 
+  breakfastCutOffTime = '';
+  lunchCutOffTime = '';
+  lateLunchCutOffTime = '';
+  dinnerCutOffTime = '';
+  lateDinnerCutOffTime = '';
+  orderDays = 0;
+
   model: any = {
     header: {
       requestHeaderId: 0,
@@ -77,7 +84,7 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
     private service: RequestOverrideService,
     private toastr: ToastrService,
     private companyService: CateringService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     const currentUserRaw = localStorage.getItem('currentUser');
@@ -110,21 +117,8 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
       return;
     }
 
-    if (!this.canOverrideEdit(this.fromDate)) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Not Allowed',
-        text: 'Override/edit must be done at least 3 days before the override from date',
-        confirmButtonColor: '#7367f0'
-      }).then(() => {
-        this.cancel();
-      });
-      return;
-    }
-
     this.loadInitialData();
   }
-
 
   loadInitialData(): void {
     this.loading = true;
@@ -132,12 +126,35 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
     forkJoin({
       locations: this.companyService.getLocation(),
       sessions: this.companyService.getSession(),
-      cuisines: this.companyService.getAllCuisine()
+      cuisines: this.companyService.getAllCuisine(),
+      pageMasters: this.companyService.getPageMasters(this.userId)
     }).subscribe({
       next: (res: any) => {
         this.locationOptions = this.mapLocationOptions(res.locations);
         this.sessionOptions = this.mapSessionOptions(res.sessions);
         this.cuisineOptions = this.mapCuisineOptions(res.cuisines);
+
+        const pageMasterData = res?.pageMasters?.data || res?.pageMasters || {};
+
+        this.orderDays = Number(pageMasterData.orderDays || pageMasterData.OrderDays || 0);
+        this.breakfastCutOffTime = pageMasterData.breakfastCutOffTime || pageMasterData.BreakfastCutOffTime || '';
+        this.lunchCutOffTime = pageMasterData.lunchCutOffTime || pageMasterData.LunchCutOffTime || '';
+        this.lateLunchCutOffTime = pageMasterData.lateLunchCutOffTime || pageMasterData.LateLunchCutOffTime || '';
+        this.dinnerCutOffTime = pageMasterData.dinnerCutOffTime || pageMasterData.DinnerCutOffTime || '';
+        this.lateDinnerCutOffTime = pageMasterData.lateDinnerCutOffTime || pageMasterData.LateDinnerCutOffTime || '';
+
+        if (!this.canOverrideEdit(this.fromDate)) {
+          this.loading = false;
+          Swal.fire({
+            icon: 'warning',
+            title: 'Not Allowed',
+            text: `Override/edit must be done at least ${this.orderDays} days before the override from date`,
+            confirmButtonColor: '#7367f0'
+          }).then(() => {
+            this.cancel();
+          });
+          return;
+        }
 
         this.loadScreen();
       },
@@ -199,7 +216,6 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
                 : Number(line.overrideQty)
           };
         });
-
 
         this.originalLines = JSON.parse(JSON.stringify(this.model.lines));
         this.buildSessionGroups();
@@ -275,22 +291,17 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
 
   onCancelledChange(line: RequestOverrideLine): void {
     line.isCancelled = !!line.isCancelled;
-
-    if (line.isCancelled) {
-      //line.overrideQty = 0;
-    }
-
     this.onLineChange();
   }
 
   onOverrideQtyChange(line: RequestOverrideLine, value: any): void {
     if (value === '' || value === null || value === undefined) {
-      line.overrideQty = null as any;   // or undefined
+      line.overrideQty = null as any;
     } else {
       line.overrideQty = Number(value);
 
       if (line.overrideQty < 0) {
-        line.overrideQty = null as any; // or keep previous value
+        line.overrideQty = null as any;
       }
     }
 
@@ -326,23 +337,160 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
     this.refreshFeather();
   }
 
-  save(): void {
-    if (this.saving) {
-      console.log('Blocked duplicate save click');
-      return;
+  private getSessionCutOffTime(sessionId: number, sessionName?: string): string {
+    const id = Number(sessionId || 0);
+    const name = (sessionName || '').toLowerCase().trim();
+
+    if (name === 'breakfast') {
+      return this.breakfastCutOffTime;
     }
 
-    console.log('SAVE METHOD HIT', new Date().toISOString());
+    if (name === 'lunch') {
+      return this.lunchCutOffTime;
+    }
+
+    if (name === 'late lunch' || name === 'latelunch') {
+      return this.lateLunchCutOffTime;
+    }
+
+    if (name === 'dinner') {
+      return this.dinnerCutOffTime;
+    }
+
+    if (name === 'late dinner' || name === 'latedinner') {
+      return this.lateDinnerCutOffTime;
+    }
+
+    if (id === 1) {
+      return this.lunchCutOffTime;
+    }
+
+    if (id === 2) {
+      return this.dinnerCutOffTime;
+    }
+
+    return '';
+  }
+
+  private parseTimeToMinutes(timeValue: string): number | null {
+    if (!timeValue) {
+      return null;
+    }
+
+    const value = String(timeValue).trim().toUpperCase();
+
+    const format24 = value.match(/^(\d{1,2}):(\d{2})$/);
+    if (format24) {
+      const hour = Number(format24[1]);
+      const minute = Number(format24[2]);
+
+      if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+        return hour * 60 + minute;
+      }
+
+      return null;
+    }
+
+    const format12 = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/);
+    if (format12) {
+      let hour = Number(format12[1]);
+      const minute = Number(format12[2]);
+      const meridian = format12[3];
+
+      if (minute < 0 || minute > 59 || hour < 1 || hour > 12) {
+        return null;
+      }
+
+      if (meridian === 'PM' && hour < 12) {
+        hour += 12;
+      }
+
+      if (meridian === 'AM' && hour === 12) {
+        hour = 0;
+      }
+
+      return hour * 60 + minute;
+    }
+
+    return null;
+  }
+
+  isSessionCutOffCrossed(sessionId: number, sessionName?: string): boolean {
+    const selectedDate = this.parseDateOnly(this.fromDate);
+    if (!selectedDate) {
+      return false;
+    }
+
+    const today = new Date();
+    const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    if (selectedDate.getTime() !== todayOnly.getTime()) {
+      return false;
+    }
+
+    const cutOff = this.getSessionCutOffTime(sessionId, sessionName);
+    if (!cutOff) {
+      return false;
+    }
+
+    const cutOffMinutes = this.parseTimeToMinutes(cutOff);
+    if (cutOffMinutes === null) {
+      return false;
+    }
+
+    const currentMinutes = today.getHours() * 60 + today.getMinutes();
+
+    return currentMinutes > cutOffMinutes;
+  }
+
+  getSessionCutOffMessage(sessionId: number, sessionName?: string): string {
+    const cutOff = this.getSessionCutOffTime(sessionId, sessionName);
+    const label = sessionName || `Session ${sessionId}`;
+
+    if (!cutOff) {
+      return `${label} cut off time crossed`;
+    }
+
+    return `${label} cut off time crossed (${cutOff})`;
+  }
+
+  save(): void {
+    if (this.saving) {
+      return;
+    }
 
     if (!this.canOverrideEdit(this.fromDate)) {
       Swal.fire({
         icon: 'warning',
         title: 'Not Allowed',
-        text: 'Override/edit must be done at least 3 days before the override from date',
+        text: `Override/edit must be done at least ${this.orderDays} days before the override from date`,
         confirmButtonColor: '#7367f0'
       });
       return;
     }
+
+    const blockedSessions: string[] = [];
+
+    for (const group of this.sessionGroups) {
+      const hasQtyChange = (group.lines || []).some((x: RequestOverrideLine) =>
+        x.isCancelled === true || Number(x.overrideQty || 0) !== Number(x.baseQty || 0)
+      );
+
+      if (hasQtyChange && this.isSessionCutOffCrossed(group.sessionId, group.sessionName)) {
+        blockedSessions.push(group.sessionName || `Session ${group.sessionId}`);
+      }
+    }
+
+    if (blockedSessions.length > 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Cut Off Time Crossed',
+        text: `${blockedSessions.join(', ')} cut off time crossed. Override not allowed for these sessions.`,
+        confirmButtonColor: '#7367f0'
+      });
+      return;
+    }
+
     const changedLines = (this.model.lines || [])
       .filter((x: RequestOverrideLine) =>
         x.isCancelled === true || Number(x.overrideQty || 0) !== Number(x.baseQty || 0)
@@ -440,6 +588,7 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
   ngAfterViewChecked(): void {
     feather.replace();
   }
+
   private canOverrideEdit(fromDateValue: any): boolean {
     const fromDate = this.parseDateOnly(fromDateValue);
     if (!fromDate) return false;
@@ -448,7 +597,7 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
     const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     const lastAllowedEditDate = new Date(fromDate);
-    lastAllowedEditDate.setDate(lastAllowedEditDate.getDate() - 3);
+    lastAllowedEditDate.setDate(lastAllowedEditDate.getDate() - this.orderDays);
 
     return todayOnly.getTime() <= lastAllowedEditDate.getTime();
   }
@@ -464,26 +613,22 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
 
     const v = value.trim();
 
-    // ISO datetime: 2026-04-09T00:00:00
     if (v.includes('T')) {
       const d = new Date(v);
       if (isNaN(d.getTime())) return null;
       return new Date(d.getFullYear(), d.getMonth(), d.getDate());
     }
 
-    // yyyy-MM-dd
     if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
       const [year, month, day] = v.split('-').map(Number);
       return new Date(year, month - 1, day);
     }
 
-    // dd-MM-yyyy
     if (/^\d{2}-\d{2}-\d{4}$/.test(v)) {
       const [day, month, year] = v.split('-').map(Number);
       return new Date(year, month - 1, day);
     }
 
-    // dd/MM/yyyy
     if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
       const [day, month, year] = v.split('/').map(Number);
       return new Date(year, month - 1, day);
