@@ -9,42 +9,41 @@
 
     <div class="card-body">
       <div class="filter-panel">
-        <div class="filter-grid">
 
-          <!-- Company -->
-        <!-- Company -->
-<div class="form-group" *ngIf="showCompanyDropdown">
-  <label>Company</label>
-  <ng-select
-    class="report-ng-select"
-    [ngClass]="{ 'has-selection': companyObjs?.length }"
-    [items]="companies"
-    bindLabel="name"
-    [(ngModel)]="companyObjs"
-    name="companyObjs"
-    [multiple]="true"
-    [closeOnSelect]="false"
-    [hideSelected]="true"
-    [clearable]="true"
-    [searchable]="true"
-    [searchWhileComposing]="true"
-    [clearSearchOnAdd]="true"
-    [clearOnBackspace]="true"
-    appendTo="body"
-    placeholder="All companies">
+        <!-- Row 1 -->
+        <div class="filter-grid filter-grid-top">
+          <div class="form-group" *ngIf="showCompanyDropdown">
+            <label>Company</label>
+            <ng-select
+              class="report-ng-select"
+              [ngClass]="{ 'has-selection': companyObjs?.length }"
+              [items]="companies"
+              bindLabel="name"
+              [(ngModel)]="companyObjs"
+              name="companyObjs"
+              [multiple]="true"
+              [closeOnSelect]="false"
+              [hideSelected]="true"
+              [clearable]="true"
+              [searchable]="true"
+              [searchWhileComposing]="true"
+              [clearSearchOnAdd]="true"
+              [clearOnBackspace]="true"
+              appendTo="body"
+              placeholder="All companies">
 
-    <ng-template ng-multi-label-tmp let-items="items">
-      <div class="multi-chip-wrap" *ngIf="items?.length">
-        <span class="multi-chip" *ngFor="let item of items">
-          <span class="multi-chip-text">{{ item?.name }}</span>
-          <span
-            class="multi-chip-remove"
-            (mousedown)="removeSelectedItem('companyObjs', item, $event)">×</span>
-        </span>
-      </div>
-    </ng-template>
-  </ng-select>
-</div>
+              <ng-template ng-multi-label-tmp let-items="items">
+                <div class="multi-chip-wrap" *ngIf="items?.length">
+                  <span class="multi-chip" *ngFor="let item of items">
+                    <span class="multi-chip-text">{{ item?.name }}</span>
+                    <span
+                      class="multi-chip-remove"
+                      (mousedown)="removeSelectedItem('companyObjs', item, $event)">×</span>
+                  </span>
+                </div>
+              </ng-template>
+            </ng-select>
+          </div>
 
           <div class="form-group" *ngIf="!showCompanyDropdown">
             <label>Company</label>
@@ -56,7 +55,6 @@
             />
           </div>
 
-          <!-- From Date -->
           <div class="form-group">
             <label>From Date</label>
             <input
@@ -68,7 +66,6 @@
             />
           </div>
 
-          <!-- To Date -->
           <div class="form-group">
             <label>To Date</label>
             <input
@@ -79,110 +76,108 @@
               (click)="openDatePicker($event)"
             />
           </div>
+        </div>
 
-        <!-- Session -->
-<div class="form-group">
-  <label>Session</label>
-  <ng-select
-    class="report-ng-select"
-    [ngClass]="{ 'has-selection': sessionObjs?.length }"
-    [items]="sessions"
-    bindLabel="name"
-    [(ngModel)]="sessionObjs"
-    name="sessionObjs"
-    [multiple]="true"
-    [closeOnSelect]="false"
-    [hideSelected]="true"
-    [clearable]="true"
-    [searchable]="true"
-    [searchWhileComposing]="true"
-    [clearSearchOnAdd]="true"
-    [clearOnBackspace]="true"
-    appendTo="body"
-    placeholder="All sessions">
+        <!-- Row 2 -->
+        <div class="filter-grid filter-grid-bottom">
+          <div class="form-group">
+            <label>Session</label>
+            <ng-select
+              class="report-ng-select"
+              [ngClass]="{ 'has-selection': sessionObjs?.length }"
+              [items]="sessions"
+              bindLabel="name"
+              [(ngModel)]="sessionObjs"
+              name="sessionObjs"
+              [multiple]="true"
+              [closeOnSelect]="false"
+              [hideSelected]="true"
+              [clearable]="true"
+              [searchable]="true"
+              [searchWhileComposing]="true"
+              [clearSearchOnAdd]="true"
+              [clearOnBackspace]="true"
+              appendTo="body"
+              placeholder="All sessions">
 
-    <ng-template ng-multi-label-tmp let-items="items">
-      <div class="multi-chip-wrap" *ngIf="items?.length">
-        <span class="multi-chip" *ngFor="let item of items">
-          <span class="multi-chip-text">{{ item?.name }}</span>
-          <span
-            class="multi-chip-remove"
-            (mousedown)="removeSelectedItem('sessionObjs', item, $event)">×</span>
-        </span>
-      </div>
-    </ng-template>
-  </ng-select>
-</div>
+              <ng-template ng-multi-label-tmp let-items="items">
+                <div class="multi-chip-wrap" *ngIf="items?.length">
+                  <span class="multi-chip" *ngFor="let item of items">
+                    <span class="multi-chip-text">{{ item?.name }}</span>
+                    <span
+                      class="multi-chip-remove"
+                      (mousedown)="removeSelectedItem('sessionObjs', item, $event)">×</span>
+                  </span>
+                </div>
+              </ng-template>
+            </ng-select>
+          </div>
 
-        <!-- Cuisine -->
-<div class="form-group">
-  <label>Cuisine</label>
-  <ng-select
-    class="report-ng-select"
-    [ngClass]="{ 'has-selection': cuisineObjs?.length }"
-    [items]="cuisines"
-    bindLabel="name"
-    [(ngModel)]="cuisineObjs"
-    name="cuisineObjs"
-    [multiple]="true"
-    [closeOnSelect]="false"
-    [hideSelected]="true"
-    [clearable]="true"
-    [searchable]="true"
-    [searchWhileComposing]="true"
-    [clearSearchOnAdd]="true"
-    [clearOnBackspace]="true"
-    appendTo="body"
-    placeholder="All cuisines">
+          <div class="form-group">
+            <label>Cuisine</label>
+            <ng-select
+              class="report-ng-select"
+              [ngClass]="{ 'has-selection': cuisineObjs?.length }"
+              [items]="cuisines"
+              bindLabel="name"
+              [(ngModel)]="cuisineObjs"
+              name="cuisineObjs"
+              [multiple]="true"
+              [closeOnSelect]="false"
+              [hideSelected]="true"
+              [clearable]="true"
+              [searchable]="true"
+              [searchWhileComposing]="true"
+              [clearSearchOnAdd]="true"
+              [clearOnBackspace]="true"
+              appendTo="body"
+              placeholder="All cuisines">
 
-    <ng-template ng-multi-label-tmp let-items="items">
-      <div class="multi-chip-wrap" *ngIf="items?.length">
-        <span class="multi-chip" *ngFor="let item of items">
-          <span class="multi-chip-text">{{ item?.name }}</span>
-          <span
-            class="multi-chip-remove"
-            (mousedown)="removeSelectedItem('cuisineObjs', item, $event)">×</span>
-        </span>
-      </div>
-    </ng-template>
-  </ng-select>
-</div>
-          <!-- Location -->
-<div class="form-group">
-  <label>Location</label>
-  <ng-select
-    class="report-ng-select"
-    [ngClass]="{ 'has-selection': locationObjs?.length }"
-    [items]="locations"
-    bindLabel="name"
-    [(ngModel)]="locationObjs"
-    name="locationObjs"
-    [multiple]="true"
-    [closeOnSelect]="false"
-    [hideSelected]="true"
-    [clearable]="true"
-    [searchable]="true"
-    [searchWhileComposing]="true"
-    [clearSearchOnAdd]="true"
-    [clearOnBackspace]="true"
-    appendTo="body"
-    placeholder="All locations">
+              <ng-template ng-multi-label-tmp let-items="items">
+                <div class="multi-chip-wrap" *ngIf="items?.length">
+                  <span class="multi-chip" *ngFor="let item of items">
+                    <span class="multi-chip-text">{{ item?.name }}</span>
+                    <span
+                      class="multi-chip-remove"
+                      (mousedown)="removeSelectedItem('cuisineObjs', item, $event)">×</span>
+                  </span>
+                </div>
+              </ng-template>
+            </ng-select>
+          </div>
 
-    <ng-template ng-multi-label-tmp let-items="items">
-      <div class="multi-chip-wrap" *ngIf="items?.length">
-        <span class="multi-chip" *ngFor="let item of items">
-          <span class="multi-chip-text">{{ item?.name }}</span>
-          <span
-            class="multi-chip-remove"
-            (mousedown)="removeSelectedItem('locationObjs', item, $event)">×</span>
-        </span>
-      </div>
-    </ng-template>
-  </ng-select>
-</div>
+          <div class="form-group">
+            <label>Location</label>
+            <ng-select
+              class="report-ng-select"
+              [ngClass]="{ 'has-selection': locationObjs?.length }"
+              [items]="locations"
+              bindLabel="name"
+              [(ngModel)]="locationObjs"
+              name="locationObjs"
+              [multiple]="true"
+              [closeOnSelect]="false"
+              [hideSelected]="true"
+              [clearable]="true"
+              [searchable]="true"
+              [searchWhileComposing]="true"
+              [clearSearchOnAdd]="true"
+              [clearOnBackspace]="true"
+              appendTo="body"
+              placeholder="All locations">
 
-          <div></div>
-          <div></div>
+              <ng-template ng-multi-label-tmp let-items="items">
+                <div class="multi-chip-wrap" *ngIf="items?.length">
+                  <span class="multi-chip" *ngFor="let item of items">
+                    <span class="multi-chip-text">{{ item?.name }}</span>
+                    <span
+                      class="multi-chip-remove"
+                      (mousedown)="removeSelectedItem('locationObjs', item, $event)">×</span>
+                  </span>
+                </div>
+              </ng-template>
+            </ng-select>
+          </div>
         </div>
 
         <div class="action-row compact-action-row">
@@ -225,27 +220,42 @@
         </div>
       </div>
 
-      <div class="session-cuisine-wrap" *ngIf="sessionCuisineTotals.length">
-        <div class="section-title-row">
-          <h5 class="mb-0">Session & Cuisine Totals</h5>
+   <div class="session-cuisine-wrap" *ngIf="sessionCuisineTotals.length">
+  <div class="section-title-row">
+    <div>
+      <h5 class="mb-0">Session & Cuisine Totals</h5>
+      <small class="section-subtext">Summary by session and cuisine</small>
+    </div>
+  </div>
+
+  <div class="session-cuisine-grid">
+    <div class="session-cuisine-card" *ngFor="let session of sessionCuisineTotals">
+      <div class="session-card-head">
+        <div class="session-head-left">
+          <div class="session-name">{{ session.sessionName }}</div>
+          <div class="session-caption">Total cuisines: {{ session.cuisines?.length || 0 }}</div>
         </div>
 
-        <div class="session-cuisine-grid">
-          <div class="session-cuisine-card" *ngFor="let session of sessionCuisineTotals">
-            <div class="session-card-head">
-              <div class="session-name">{{ session.sessionName }}</div>
-              <div class="session-total">Total: {{ session.totalQty }}</div>
-            </div>
+        <div class="session-total-badge">
+          {{ session.totalQty }}
+        </div>
+      </div>
 
-            <div class="session-cuisine-list">
-              <div class="session-cuisine-item" *ngFor="let item of session.cuisines">
-                <span class="cuisine-label">{{ item.cuisineName }}</span>
-                <span class="cuisine-value">{{ item.totalQty }}</span>
-              </div>
-            </div>
+      <div class="session-cuisine-list">
+        <div class="session-cuisine-item" *ngFor="let item of session.cuisines">
+          <div class="cuisine-left">
+            <span class="cuisine-dot"></span>
+            <span class="cuisine-label">{{ item.cuisineName }}</span>
+          </div>
+
+          <div class="cuisine-value-wrap">
+            <span class="cuisine-value">{{ item.totalQty }}</span>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
 
       <div class="table-responsive report-table-wrap">
         <table class="table report-table mb-0">
