@@ -54,6 +54,7 @@
             <th>QR VALID FROM</th>
             <th>QR VALID TILL</th>
             <th>NO OF QR</th>
+            <th>STATUS</th>
             <th class="text-center action-header">ACTION</th>
           </tr>
         </thead>
@@ -70,18 +71,55 @@
             <td>{{ displayDate(row.qrValidFrom) }}</td>
             <td>{{ displayDate(row.qrValidTill) }}</td>
             <td>{{ row.noofQR || 0 }}</td>
-            <td class="text-center action-cell">
-              <div class="action-btn-group">
-                <button
-                  type="button"
-                  class="btn action-icon-btn download-icon-btn"
-                  (click)="downloadFile(row)"
-                  title="Download"
-                >
-                  <i data-feather="download"></i>
-                </button>
-              </div>
-            </td>
+            <td>
+  <span
+    class="badge"
+    [ngClass]="{
+      'badge-warning': row.approvalStatus === 0,
+      'badge-success': row.approvalStatus === 1,
+      'badge-danger': row.approvalStatus === 2
+    }"
+  >
+    {{
+      row.approvalStatus === 0 ? 'Pending' :
+      row.approvalStatus === 1 ? 'Approved' :
+      row.approvalStatus === 2 ? 'Rejected' : '-'
+    }}
+  </span>
+</td>
+<td class="text-center action-cell">
+  <div class="action-btn-group">
+    <button
+      *ngIf="roleId === 1 && row.approvalStatus === 0"
+      type="button"
+      class="btn icon-action-btn approve-btn"
+      (click)="approveQr(row)"
+      title="Approve"
+    >
+      <i data-feather="check"></i>
+    </button>
+
+    <button
+      *ngIf="roleId === 1 && row.approvalStatus === 0"
+      type="button"
+      class="btn icon-action-btn reject-btn"
+      (click)="rejectQr(row)"
+      title="Reject"
+    >
+      <i data-feather="x"></i>
+    </button>
+
+    <button
+      *ngIf="row.approvalStatus === 1"
+      type="button"
+      class="btn icon-action-btn download-btn"
+      (click)="downloadFile(row)"
+      title="Download"
+    >
+      <i data-feather="download"></i>
+    </button>
+  </div>
+</td>
           </tr>
 
           <tr *ngIf="!loading && pagedRows.length === 0">

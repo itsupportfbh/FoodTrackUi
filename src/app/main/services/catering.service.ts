@@ -71,4 +71,7 @@ export class CateringService {
 getCompanyById(id: number) {
   return this.http.get<any>(`${environment.apiUrl}/Company/${id}`);
 }
+getPageMasters(userId: number) {
+  return this.http.get<any>(`${environment.apiUrl}/Request/GetPageMasters?userId=${userId}`);
+}
 }

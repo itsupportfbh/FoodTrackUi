@@ -184,3 +184,103 @@
     width: 100%;
   }
 }
+.action-cell {
+  vertical-align: middle;
+}
+
+.action-btn-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.icon-action-btn {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.icon-action-btn i,
+.icon-action-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+  stroke-width: 2.2 !important;
+}
+
+/* Approve */
+.approve-btn {
+  border: 1px solid #28c76f !important;
+  color: #28c76f !important;
+}
+
+.approve-btn i,
+.approve-btn svg {
+  color: #28c76f !important;
+  stroke: #28c76f !important;
+}
+
+.approve-btn:hover {
+  background: #28c76f !important;
+  color: #fff !important;
+}
+
+.approve-btn:hover i,
+.approve-btn:hover svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+/* Reject */
+.reject-btn {
+  border: 1px solid #ea5455 !important;
+  color: #ea5455 !important;
+}
+
+.reject-btn i,
+.reject-btn svg {
+  color: #ea5455 !important;
+  stroke: #ea5455 !important;
+}
+
+.reject-btn:hover {
+  background: #ea5455 !important;
+  color: #fff !important;
+}
+
+.reject-btn:hover i,
+.reject-btn:hover svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+/* Download */
+.download-btn {
+  border: 1px solid #7367f0 !important;
+  color: #7367f0 !important;
+}
+
+.download-btn i,
+.download-btn svg {
+  color: #7367f0 !important;
+  stroke: #7367f0 !important;
+}
+
+.download-btn:hover {
+  background: #7367f0 !important;
+  color: #fff !important;
+}
+
+.download-btn:hover i,
+.download-btn:hover svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}

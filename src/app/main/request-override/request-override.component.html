@@ -91,6 +91,11 @@
           </button>
 
           <div class="accordion-body" *ngIf="group.isOpen">
+              <div class="mb-1" *ngIf="isSessionCutOffCrossed(group.sessionId, group.sessionName)">
+              <small class="text-danger">
+                {{ getSessionCutOffMessage(group.sessionId, group.sessionName) }}
+              </small>
+            </div>
             <div class="create-table-wrap">
               <table class="table create-line-table">
                 <thead>
@@ -118,15 +123,15 @@
                     </td>
 
                     <td>
-  <input
-    type="number"
-    class="form-control qty-input"
-    [(ngModel)]="row.overrideQty"
-    [name]="'overrideQty_' + gi + '_' + li"
-    [disabled]="!!row.isCancelled"
-    (ngModelChange)="onOverrideQtyChange(row, $event)"
-    placeholder="0"
-  />
+<input
+  type="number"
+  class="form-control qty-input"
+  [(ngModel)]="row.overrideQty"
+  [name]="'overrideQty_' + gi + '_' + li"
+  [disabled]="!!row.isCancelled || isSessionCutOffCrossed(group.sessionId, group.sessionName)"
+  (ngModelChange)="onOverrideQtyChange(row, $event)"
+  placeholder="0"
+/>
 </td>
 
                     <!-- <td>
