@@ -7,6 +7,7 @@ import { CoreConfigService } from '@core/services/config.service';
 import Swal from 'sweetalert2';
 import { AuthenticationService } from 'app/auth/service';
 import { TabSessionService } from 'app/services/tab-session.service';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-auth-login-v2',
@@ -23,6 +24,7 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
   public error = '';
   public passwordTextType = false;
   public rememberMe = false;
+  private readonly loginUrl = `${environment.apiUrl}/Auth/Login`;
 
   private _unsubscribeAll: Subject<any>;
 
@@ -177,7 +179,6 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     // old auth data clear pannalam
     // but fresh login success aana பிறகு localStorage la manual-ah set pannuvom
     this._authenticationService.clearAuthData();
-
     this._authenticationService.login(email, password, this.rememberMe).subscribe({
       next: (response: any) => {
         this.loading = false;
@@ -205,18 +206,31 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
         } else {
           this.error = response?.message || 'Invalid email or password';
 
-          Swal.fire({
+             Swal.fire({
             icon: 'error',
             title: 'Login Failed',
             text: this.error
           });
+
+          // Swal.fire({
+          //   icon: 'error',
+          //   title: 'Login Failed',
+          //   text: `${this.error}\nURL: ${this.loginUrl}\nResponse: ${JSON.stringify(response)}`
+          // });
         }
       },
       error: (err: any) => {
         this.loading = false;
         this.error = err?.error?.message || 'Invalid email or password';
+        const responseBody = err?.error ? JSON.stringify(err.error) : 'No error body';
 
-        Swal.fire({
+        // Swal.fire({
+        //   icon: 'error',
+        //   title: 'Login Failed',
+        //   text: `${this.error}\nURL: ${this.loginUrl}\nResponse: ${responseBody}`
+        // });
+
+         Swal.fire({
           icon: 'error',
           title: 'Login Failed',
           text: this.error
