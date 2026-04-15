@@ -50,6 +50,12 @@ const appRoutes: Routes = [
     loadChildren: () =>
       import('./main/Scanner/scanner/scanner.module').then(m => m.ScannerModule)
   },
+    {
+    path: 'menu',
+    canActivate: [AuthGuard],
+    loadChildren: () =>
+      import('./main/menu/menu.module').then(m => m.MenuModule)
+  },
   {
     path: 'requestoverride',
     canActivate: [AuthGuard],
