@@ -4,38 +4,38 @@
 }
 
 .session-card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 0.95rem;
-  box-shadow: 0 4px 14px rgba(34, 41, 47, 0.06);
-  border: 1px solid #ebe9f1;
+  background: linear-gradient(180deg, #ffffff 0%, #fcf8f5 100%);
+  border-radius: 18px;
+  padding: 1rem;
+  box-shadow: 0 6px 18px rgba(123, 67, 47, 0.08);
+  border: 1px solid #eadfd7;
 }
 
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.95rem;
 
   h3 {
     margin: 0;
     font-size: 1rem;
     font-weight: 700;
-    color: #2c2c2c;
+    color: #4b2f23;
     line-height: 1.2;
   }
 
   p {
-    margin: 0.15rem 0 0;
+    margin: 0.18rem 0 0;
     font-size: 0.8rem;
-    color: #6e6b7b;
+    color: #8a6f62;
     line-height: 1.3;
   }
 
   .section-icon {
-    width: 16px;
-    height: 16px;
-    color: #7367f0;
+    width: 17px;
+    height: 17px;
+    color: #7b432f;
   }
 }
 
@@ -82,16 +82,16 @@
   pointer-events: none;
 
   strong {
-    font-size: 1.3rem;
+    font-size: 1.35rem;
     font-weight: 700;
-    color: #2c2c2c;
+    color: #4b2f23;
     line-height: 1;
   }
 
   span {
     margin-top: 0.2rem;
     font-size: 0.74rem;
-    color: #6e6b7b;
+    color: #8a6f62;
     font-weight: 500;
   }
 }
@@ -99,7 +99,7 @@
 .chart-tooltip {
   position: absolute;
   z-index: 20;
-  background: #2c2c2c;
+  background: #5f3526;
   color: #ffffff;
   padding: 8px 10px;
   border-radius: 8px;
@@ -107,7 +107,7 @@
   line-height: 1.4;
   white-space: nowrap;
   pointer-events: none;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 20px rgba(91, 53, 38, 0.22);
   transform: translate(-50%, -100%);
 }
 
@@ -119,22 +119,22 @@
 .bottom-info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  gap: 0.8rem;
   align-items: start;
 }
 
 .left-panel,
 .right-panel {
-  background: #f8f8fb;
-  border: 1px solid #ebe9f1;
-  border-radius: 12px;
-  padding: 0.75rem;
+  background: #fbf6f2;
+  border: 1px solid #eadfd7;
+  border-radius: 14px;
+  padding: 0.8rem;
 }
 
 .panel-title {
   font-size: 0.86rem;
   font-weight: 700;
-  color: #2c2c2c;
+  color: #4b2f23;
   margin-bottom: 0.65rem;
 }
 
@@ -142,8 +142,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #ebe9f1;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid #efe4dc;
 
   &:last-child {
     border-bottom: none;
@@ -172,13 +172,13 @@
 .legend-label {
   font-size: 0.84rem;
   font-weight: 600;
-  color: #2c2c2c;
+  color: #4b2f23;
   line-height: 1.2;
 }
 
 .legend-sub {
   font-size: 0.72rem;
-  color: #6e6b7b;
+  color: #8a6f62;
   margin-top: 0.05rem;
   line-height: 1.2;
 }
@@ -186,7 +186,7 @@
 .legend-right {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #7367f0;
+  color: #7b432f;
   margin-left: 0.5rem;
   white-space: nowrap;
 }
@@ -209,15 +209,7 @@
 
 @media (max-width: 576px) {
   .session-card {
-    padding: 0.8rem;
-  }
-
-  .section-header {
-    margin-bottom: 0.8rem;
-  }
-
-  .donut-top-section {
-    margin-bottom: 0.85rem;
+    padding: 0.85rem;
   }
 
   .donut-wrapper {
