@@ -40,6 +40,14 @@ export const menu: CoreMenu[] = [
         icon: 'coffee',
         url: 'master/cuisine'
       },
+   {
+  id: 'price',
+  title: 'Price',
+  translate: 'MENU.SAMPLE',
+  type: 'item',
+  icon: 'dollar-sign',
+  url: 'master/price'
+},
       {
         id: 'site_settings',
         title: 'Configuration',
