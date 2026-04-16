@@ -1,0 +1,100 @@
+<div class="price-master-page">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h4 class="mb-0">Price Master</h4>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="top-filter-row">
+        <div class="form-group">
+          <label class="form-label" for="companyId">Company</label>
+
+          <ng-select
+            id="companyId"
+            [items]="companyList"
+            bindLabel="companyName"
+            bindValue="id"
+            [searchable]="false"
+            [clearable]="true"
+            [closeOnSelect]="true"
+            [virtualScroll]="true"
+            placeholder="Select Company"
+            name="companyId"
+            [(ngModel)]="selectedCompanyId"
+            (ngModelChange)="onSelectionChange()"
+            appendTo="body">
+            <ng-template ng-option-tmp let-item="item">
+              {{ item.companyName || item.name }}
+            </ng-template>
+          </ng-select>
+        </div>
+
+        <div class="filter-col">
+          <label>Session</label>
+          <ng-select
+            [items]="sessionList"
+            bindLabel="sessionName"
+            bindValue="id"
+            [(ngModel)]="selectedSessionId"
+            (ngModelChange)="onSelectionChange()"
+            placeholder="Select Session"
+            [clearable]="true"
+            [searchable]="false"
+            appendTo="body">
+          </ng-select>
+        </div>
+      </div>
+
+      <div *ngIf="loading" class="loading-box">
+        Loading cuisines...
+      </div>
+
+      <div
+        *ngIf="!loading && selectedCompanyId && selectedSessionId && cuisineRates?.length > 0"
+        class="rate-grid"
+      >
+        <div class="rate-card" *ngFor="let row of cuisineRates">
+          <label>{{ row.cuisineName }}</label>
+
+          <input
+            type="number"
+            class="form-control mb-2"
+            [(ngModel)]="row.rate"
+            placeholder="Enter Rate"
+          />
+
+          <label class="small-label">Effective From</label>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="row.effectiveFrom"
+          />
+        </div>
+      </div>
+
+      <div
+        *ngIf="!loading && selectedCompanyId && selectedSessionId && (!cuisineRates || cuisineRates.length === 0)"
+        class="empty-box"
+      >
+        No cuisines found
+      </div>
+
+      <div class="action-row" *ngIf="!loading && cuisineRates?.length > 0">
+        <button type="button" class="btn btn-clear" (click)="clearRates()">
+          Clear
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-save"
+          [disabled]="saving"
+          (click)="saveAllRates()"
+        >
+          {{ saving ? 'Saving...' : 'Save All Rates' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

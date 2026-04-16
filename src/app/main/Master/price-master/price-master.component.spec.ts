@@ -1,0 +1,23 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { PriceMasterComponent } from './price-master.component';
+
+describe('PriceMasterComponent', () => {
+  let component: PriceMasterComponent;
+  let fixture: ComponentFixture<PriceMasterComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ PriceMasterComponent ]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(PriceMasterComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
