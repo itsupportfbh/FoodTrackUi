@@ -29,8 +29,10 @@ export class TotalCompanySummaryComponent implements OnChanges, AfterViewInit {
   }
 
   bindSummary(): void {
+    debugger
     const res = this.dashboardData || {};
-    const totalPrice = this.calculateTotalPrice(res);
+    // const totalPrice = this.calculateTotalPrice(res);
+    const totalPrice = Number(res.totalPrice ?? 0);
 
     this.summaryCards = [
       {
