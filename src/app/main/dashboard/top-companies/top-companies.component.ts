@@ -1,6 +1,5 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
 import * as feather from 'feather-icons';
-import { DashboardService } from '../dashboard-services/dashboard.service';
 
 interface TopCompanyItem {
   name: string;
@@ -19,95 +18,59 @@ interface TopCompanyItem {
   templateUrl: './top-companies.component.html',
   styleUrls: ['./top-companies.component.scss']
 })
-export class TopCompaniesComponent implements OnInit, AfterViewInit {
+export class TopCompaniesComponent implements OnChanges, AfterViewInit {
+  @Input() dashboardData: any;
   topCompanies: TopCompanyItem[] = [];
 
-  constructor(private dashboardService: DashboardService) {}
-
-  ngOnInit(): void {
-    this.loadTopCompanies();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['dashboardData']) {
+      this.bindCompanies();
+    }
   }
 
   ngAfterViewInit(): void {
     feather.replace();
   }
 
-  loadTopCompanies(): void {
-    this.dashboardService.getDashboardData().subscribe({
-      next: (res: any) => {
-        const companies = res.totalcompanyWiseOrders || [];
+  bindCompanies(): void {
+    const companies = this.dashboardData?.totalcompanyWiseOrders || [];
 
-        const totalOrders = companies.reduce(
-          (sum: number, item: any) => sum + Number(item.totalQty || 0),
-          0
-        );
+    const totalOrders = companies.reduce(
+      (sum: number, item: any) => sum + Number(item.totalQty || 0),
+      0
+    );
 
-        const styles = [
-          {
-            cardClass: 'card-green',
-            badgeClass: 'badge-green',
-            progressClass: 'progress-green',
-            avatarClass: 'avatar-green'
-          },
-          {
-            cardClass: 'card-purple',
-            badgeClass: 'badge-purple',
-            progressClass: 'progress-purple',
-            avatarClass: 'avatar-purple'
-          },
-          {
-            cardClass: 'card-blue',
-            badgeClass: 'badge-blue',
-            progressClass: 'progress-blue',
-            avatarClass: 'avatar-blue'
-          },
-          {
-            cardClass: 'card-orange',
-            badgeClass: 'badge-orange',
-            progressClass: 'progress-orange',
-            avatarClass: 'avatar-orange'
-          }
-        ];
+    const styles = [
+      { cardClass: 'card-green', badgeClass: 'badge-green', progressClass: 'progress-green', avatarClass: 'avatar-green' },
+      { cardClass: 'card-purple', badgeClass: 'badge-purple', progressClass: 'progress-purple', avatarClass: 'avatar-purple' },
+      { cardClass: 'card-blue', badgeClass: 'badge-blue', progressClass: 'progress-blue', avatarClass: 'avatar-blue' },
+      { cardClass: 'card-orange', badgeClass: 'badge-orange', progressClass: 'progress-orange', avatarClass: 'avatar-orange' }
+    ];
 
-        this.topCompanies = companies.map((item: any, index: number) => {
-          const orders = Number(item.totalQty || 0);
-          const redeemed = Number(item.redeemQty || 0);
-          const pending = Number(item.pendingQty || 0);
+    this.topCompanies = companies.map((item: any, index: number) => {
+      const orders = Number(item.totalQty || 0);
+      const redeemed = Number(item.redeemQty || 0);
+      const pending = Number(item.pendingQty || 0);
 
-          const share = totalOrders > 0
-            ? Math.round((orders / totalOrders) * 100)
-            : 0;
-
-          return {
-            name: item.companyName,
-            orders,
-            redeemed,
-            pending,
-            share,
-            cardClass: styles[index % styles.length].cardClass,
-            badgeClass: styles[index % styles.length].badgeClass,
-            progressClass: styles[index % styles.length].progressClass,
-            avatarClass: styles[index % styles.length].avatarClass
-          };
-        });
-
-        setTimeout(() => feather.replace(), 0);
-      },
-      error: err => {
-        console.error('Top companies load error:', err);
-        this.topCompanies = [];
-      }
+      return {
+        name: item.companyName,
+        orders,
+        redeemed,
+        pending,
+        share: totalOrders > 0 ? Math.round((orders / totalOrders) * 100) : 0,
+        cardClass: styles[index % styles.length].cardClass,
+        badgeClass: styles[index % styles.length].badgeClass,
+        progressClass: styles[index % styles.length].progressClass,
+        avatarClass: styles[index % styles.length].avatarClass
+      };
     });
+
+    setTimeout(() => feather.replace(), 0);
   }
 
   getInitials(name: string): string {
     if (!name) return '';
-    return name
-      .split(' ')
-      .map((word: string) => word.charAt(0))
-      .join('')
-      .substring(0, 2)
-      .toUpperCase();
+    return name.split(' ').map((word: string) => word.charAt(0)).join('').substring(0, 2).toUpperCase();
   }
 
   get leftCompanies(): TopCompanyItem[] {

@@ -32,6 +32,17 @@ export class MenuRoleHelper {
           'Scanner'
         ]);
 
+      case 4:
+        return this.filterMenus([
+         
+          'Request',
+          'Order',
+          'Reports',
+          'users',
+          'menu'
+
+        ]);
+
       default:
         return [];
     }

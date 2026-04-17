@@ -1,17 +1,87 @@
 <div class="dashboard-page">
-  <div class="dashboard-row">
-    <app-total-company-summary></app-total-company-summary>
+  <div class="dashboard-filter-card">
+    <div class="filter-grid">
+      <div class="filter-item">
+        <label>Company</label>
+        <ng-select
+          [items]="companyList"
+          bindLabel="companyName"
+          bindValue="id"
+          placeholder="All Companies"
+          [(ngModel)]="filters.companyIds"
+          [multiple]="true"
+          [closeOnSelect]="false"
+          [hideSelected]="true"
+          [searchable]="true"
+          [clearable]="true"
+          appendTo="body">
+        </ng-select>
+      </div>
+
+      <div class="filter-item">
+        <label>Session</label>
+        <ng-select
+          [items]="sessionList"
+          bindLabel="sessionName"
+          bindValue="id"
+          placeholder="All Sessions"
+          [(ngModel)]="filters.sessionIds"
+          [multiple]="true"
+          [closeOnSelect]="false"
+          [hideSelected]="true"
+          [searchable]="true"
+          [clearable]="true"
+          appendTo="body">
+        </ng-select>
+      </div>
+
+      <div class="filter-item">
+        <label>Location</label>
+        <ng-select
+          [items]="locationList"
+          bindLabel="locationName"
+          bindValue="id"
+          placeholder="All Locations"
+          [(ngModel)]="filters.locationIds"
+          [multiple]="true"
+          [closeOnSelect]="false"
+          [hideSelected]="true"
+          [searchable]="true"
+          [clearable]="true"
+          appendTo="body">
+        </ng-select>
+      </div>
+
+      <div class="filter-item">
+        <label>From Date</label>
+        <input type="date" class="form-control" [(ngModel)]="filters.fromDate" />
+      </div>
+
+      <div class="filter-item">
+        <label>To Date</label>
+        <input type="date" class="form-control" [(ngModel)]="filters.toDate" />
+      </div>
+
+      <div class="filter-actions">
+        <button type="button" class="btn btn-apply" (click)="applyFilters()">Apply</button>
+        <button type="button" class="btn btn-reset" (click)="resetFilters()">Reset</button>
+      </div>
+    </div>
   </div>
 
   <div class="dashboard-row">
-    <app-session-demand></app-session-demand>
+    <app-total-company-summary [dashboardData]="dashboardData"></app-total-company-summary>
   </div>
 
   <div class="dashboard-row">
-    <app-top-companies></app-top-companies>
+    <app-session-demand [dashboardData]="dashboardData"></app-session-demand>
   </div>
 
   <div class="dashboard-row">
-    <app-recent-scanner-activity></app-recent-scanner-activity>
+    <app-top-companies [dashboardData]="dashboardData"></app-top-companies>
+  </div>
+
+  <div class="dashboard-row">
+    <app-recent-scanner-activity [dashboardData]="dashboardData"></app-recent-scanner-activity>
   </div>
 </div>

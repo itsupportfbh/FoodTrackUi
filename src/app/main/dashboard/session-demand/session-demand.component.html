@@ -1,93 +1,163 @@
 <div class="session-card">
   <div class="section-header">
-    <div>
-      <h3>Session Demand</h3>
-      <p>This month's quantity distribution by meal session</p>
+    <div class="header-copy">
+      <span class="header-eyebrow">Monthly demand</span>
+      <div>
+        <h3>Session Demand</h3>
+        <p>This month's quantity distribution by meal session</p>
+      </div>
     </div>
 
-    <i data-feather="pie-chart" class="section-icon primary-text"></i>
-  </div>
-
-  <div class="donut-top-section">
-    <div class="donut-wrapper" (mouseleave)="hideTooltip()">
-      <svg class="donut-svg" viewBox="0 0 220 220">
-        <circle
-          cx="110"
-          cy="110"
-          r="70"
-          fill="none"
-          stroke="#ebe9f1"
-          stroke-width="28"
-        ></circle>
-
-        <circle
-          *ngFor="let item of sessionDemand"
-          class="donut-slice"
-          cx="110"
-          cy="110"
-          r="70"
-          fill="none"
-          [attr.stroke]="item.color"
-          stroke-width="28"
-          [attr.stroke-dasharray]="item.strokeDasharray"
-          [attr.stroke-dashoffset]="item.strokeDashoffset"
-          transform="rotate(-90 110 110)"
-          (mouseenter)="showTooltip(item, $event)"
-          (mousemove)="moveTooltip($event)"
-        ></circle>
-      </svg>
-
-      <div class="donut-center">
-        <strong>{{ getSessionTotalOrders() }}</strong>
-        <span>Month Quantity</span>
-      </div>
-
-      <div
-        class="chart-tooltip"
-        *ngIf="tooltipVisible && tooltipData"
-        [style.left.px]="tooltipX"
-        [style.top.px]="tooltipY"
-      >
-        <div class="tooltip-title">{{ tooltipData.label }}</div>
-        <div>{{ tooltipData.count }} Quantity</div>
-        <div>{{ tooltipData.value }}%</div>
-      </div>
+    <div class="header-badge">
+      <i data-feather="pie-chart" class="section-icon primary-text"></i>
+      <span>{{ sessionDemand.length }} sessions</span>
     </div>
   </div>
 
-  <div class="bottom-info-grid">
-    <div class="left-panel">
-      <div class="panel-title">Session Breakdown</div>
+  <div class="session-content" *ngIf="sessionDemand?.length; else emptyState">
+    <div class="chart-panel">
+      <div class="chart-panel-header">
+        <div>
+          <div class="panel-kicker">Demand map</div>
+          <div class="panel-title">Monthly quantity overview</div>
+        </div>
 
-      <div class="legend-item" *ngFor="let item of leftSessionDemand">
-        <div class="legend-left">
-          <span class="legend-dot" [style.background]="item.color"></span>
+        <div class="mini-total">
+          <strong>{{ getSessionTotalOrders() }}</strong>
+          <span>Total qty</span>
+        </div>
+      </div>
 
-          <div class="legend-text">
-            <div class="legend-label">{{ item.label }}</div>
-            <div class="legend-sub">{{ item.count }} Quantity</div>
+      <div class="donut-top-section">
+        <div class="donut-wrapper" (mouseleave)="hideTooltip()">
+          <svg class="donut-svg" viewBox="0 0 220 220">
+            <circle
+              cx="110"
+              cy="110"
+              r="70"
+              fill="none"
+              stroke="#ebe4de"
+              stroke-width="28"
+            ></circle>
+
+            <circle
+              *ngFor="let item of sessionDemand"
+              class="donut-slice"
+              cx="110"
+              cy="110"
+              r="70"
+              fill="none"
+              [attr.stroke]="item.color"
+              stroke-width="28"
+              [attr.stroke-dasharray]="item.strokeDasharray"
+              [attr.stroke-dashoffset]="item.strokeDashoffset"
+              transform="rotate(-90 110 110)"
+              (mouseenter)="showTooltip(item, $event)"
+              (mousemove)="moveTooltip($event)"
+            ></circle>
+          </svg>
+
+          <div class="donut-center">
+            <span class="center-label">Month quantity</span>
+            <strong>{{ getSessionTotalOrders() }}</strong>
+            <small>{{ sessionDemand.length }} active sessions</small>
+          </div>
+
+          <div
+            class="chart-tooltip"
+            *ngIf="tooltipVisible && tooltipData"
+            [style.left.px]="tooltipX"
+            [style.top.px]="tooltipY"
+          >
+            <div class="tooltip-title">{{ tooltipData.label }}</div>
+            <div>{{ tooltipData.count }} Quantity</div>
+            <div>{{ tooltipData.value }}%</div>
           </div>
         </div>
 
-        <div class="legend-right">{{ item.value }}%</div>
+        <div class="chart-note">
+          Hover each ring segment to see detailed session contribution.
+        </div>
       </div>
     </div>
 
-    <div class="right-panel">
-      <div class="panel-title">Session Breakdown</div>
+    <div class="insight-panel">
+      <div class="stat-strip">
+        <div class="stat-card">
+          <span>Tracked sessions</span>
+          <strong>{{ sessionDemand.length }}</strong>
+          <small>meal slots contributing this month</small>
+        </div>
 
-      <div class="legend-item" *ngFor="let item of rightSessionDemand">
-        <div class="legend-left">
-          <span class="legend-dot" [style.background]="item.color"></span>
+        <div class="stat-card alt">
+          <span>Distribution mapped</span>
+          <strong>100%</strong>
+          <small>complete monthly quantity split</small>
+        </div>
+      </div>
 
-          <div class="legend-text">
-            <div class="legend-label">{{ item.label }}</div>
-            <div class="legend-sub">{{ item.count }} Quantity</div>
+      <div class="breakdown-panel">
+        <div class="breakdown-header">
+          <div>
+            <div class="panel-kicker">Breakdown</div>
+            <div class="panel-title">Session share by quantity</div>
           </div>
         </div>
 
-        <div class="legend-right">{{ item.value }}%</div>
+        <div class="bottom-info-grid">
+          <div class="legend-column">
+            <div class="legend-item" *ngFor="let item of leftSessionDemand">
+              <div class="legend-top">
+                <div class="legend-left">
+                  <span class="legend-dot" [style.background]="item.color"></span>
+
+                  <div class="legend-text">
+                    <div class="legend-label">{{ item.label }}</div>
+                    <div class="legend-sub">{{ item.count }} Quantity</div>
+                  </div>
+                </div>
+
+                <div class="legend-right">{{ item.value }}%</div>
+              </div>
+
+              <div class="legend-progress">
+                <span [style.width.%]="item.value" [style.background]="item.color"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="legend-column">
+            <div class="legend-item" *ngFor="let item of rightSessionDemand">
+              <div class="legend-top">
+                <div class="legend-left">
+                  <span class="legend-dot" [style.background]="item.color"></span>
+
+                  <div class="legend-text">
+                    <div class="legend-label">{{ item.label }}</div>
+                    <div class="legend-sub">{{ item.count }} Quantity</div>
+                  </div>
+                </div>
+
+                <div class="legend-right">{{ item.value }}%</div>
+              </div>
+
+              <div class="legend-progress">
+                <span [style.width.%]="item.value" [style.background]="item.color"></span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<ng-template #emptyState>
+  <div class="empty-state">
+    <div class="empty-icon">
+      <i data-feather="pie-chart"></i>
+    </div>
+    <h4>No session demand data</h4>
+    <p>Monthly quantity split will appear here once session orders are available.</p>
+  </div>
+</ng-template>

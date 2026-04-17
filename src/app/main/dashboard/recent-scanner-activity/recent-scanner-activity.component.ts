@@ -1,6 +1,5 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
 import * as feather from 'feather-icons';
-import { DashboardService } from '../dashboard-services/dashboard.service';
 
 interface ScannerActivity {
   qrNo: string;
@@ -15,29 +14,49 @@ interface ScannerActivity {
   templateUrl: './recent-scanner-activity.component.html',
   styleUrls: ['./recent-scanner-activity.component.scss']
 })
-export class RecentScannerActivityComponent implements OnInit, AfterViewInit, OnDestroy {
+export class RecentScannerActivityComponent implements OnChanges, AfterViewInit {
+  @Input() dashboardData: any;
+
   scannerActivities: ScannerActivity[] = [];
   todayScans = 0;
   yesterdayScans = 0;
   scanChange = 0;
-  refreshInterval: any;
 
-  constructor(private dashboardService: DashboardService) {}
-
-  ngOnInit(): void {
-    this.loadScannerActivities();
-
-    this.refreshInterval = setInterval(() => {
-      this.loadScannerActivities();
-    }, 10000);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['dashboardData']) {
+      this.bindScannerActivities();
+    }
   }
 
   ngAfterViewInit(): void {
     feather.replace();
   }
 
-  ngOnDestroy(): void {
-    clearInterval(this.refreshInterval);
+  bindScannerActivities(): void {
+    const res = this.dashboardData || {};
+
+    this.todayScans = Number(res.todayScans || 0);
+    this.yesterdayScans = Number(res.yesterdayScans || 0);
+
+    if (this.yesterdayScans > 0) {
+      this.scanChange = Math.round(
+        ((this.todayScans - this.yesterdayScans) / this.yesterdayScans) * 100
+      );
+    } else {
+      this.scanChange = this.todayScans > 0 ? 100 : 0;
+    }
+
+    const data = res.totallatestUsedQRs || [];
+
+    this.scannerActivities = data.map((item: any) => ({
+      qrNo: item.uniqueCode,
+      companyName: item.companyName,
+      session: item.sessionName || '',
+      time: this.formatTime(item.usedDate),
+      status: 'Redeemed'
+    }));
+
+    setTimeout(() => feather.replace(), 0);
   }
 
   get leftScannerActivities(): ScannerActivity[] {
@@ -48,39 +67,6 @@ export class RecentScannerActivityComponent implements OnInit, AfterViewInit, On
   get rightScannerActivities(): ScannerActivity[] {
     const mid = Math.ceil(this.scannerActivities.length / 2);
     return this.scannerActivities.slice(mid);
-  }
-
-  loadScannerActivities(): void {
-    this.dashboardService.getDashboardData().subscribe({
-      next: (res: any) => {
-        this.todayScans = Number(res.todayScans || 0);
-        this.yesterdayScans = Number(res.yesterdayScans || 0);
-
-        if (this.yesterdayScans > 0) {
-          this.scanChange = Math.round(
-            ((this.todayScans - this.yesterdayScans) / this.yesterdayScans) * 100
-          );
-        } else {
-          this.scanChange = this.todayScans > 0 ? 100 : 0;
-        }
-
-        const data = res.totallatestUsedQRs || [];
-
-        this.scannerActivities = data.map((item: any) => ({
-          qrNo: item.uniqueCode,
-          companyName: item.companyName,
-          session: item.sessionName || '',
-          time: this.formatTime(item.usedDate),
-          status: 'Redeemed'
-        }));
-
-        setTimeout(() => feather.replace(), 0);
-      },
-      error: err => {
-        console.error('Scanner activity load error:', err);
-        this.scannerActivities = [];
-      }
-    });
   }
 
   formatTime(date: string): string {
