@@ -1,13 +1,16 @@
-<div class="row justify-content-center">
-  <div class="col-lg-7 col-md-10 col-12">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h4 class="card-title mb-0">
-          {{ isEditMode ? 'Update Configuration' : 'Create Configuration' }}
-        </h4>
+<div class="settings-page">
+  <div class="settings-shell">
+    <div class="settings-card">
+      <div class="settings-header">
+        <div class="settings-title-block">
+          <h4 class="settings-title">
+            {{ isEditMode ? 'Update Configuration' : 'Create Configuration' }}
+          </h4>
+          <p class="settings-subtitle">Manage cut-off timings and order lead days</p>
+        </div>
 
         <span
-          class="badge badge-light-primary"
+          class="settings-badge"
           *ngIf="selectedSiteSetting?.updatedDate || selectedSiteSetting?.createdDate || selectedSiteSetting?.UpdatedDate || selectedSiteSetting?.CreatedDate"
         >
           Last Updated :
@@ -20,89 +23,91 @@
         </span>
       </div>
 
-      <div class="card-body">
+      <div class="settings-body">
         <form #siteForm="ngForm" (ngSubmit)="onSubmit(siteForm)">
-          <div class="form-group">
-            <label for="breakfastCutOffTime">Breakfast Cut Off Time</label>
-            <input
-              type="time"
-              id="breakfastCutOffTime"
-              name="breakfastCutOffTime"
-              class="form-control"
-              [(ngModel)]="breakfastCutOffTime"
-              required
-            />
+          <div class="settings-grid">
+            <div class="form-group">
+              <label for="breakfastCutOffTime">Breakfast Cut Off Time</label>
+              <input
+                type="time"
+                id="breakfastCutOffTime"
+                name="breakfastCutOffTime"
+                class="form-control"
+                [(ngModel)]="breakfastCutOffTime"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="lunchCutOffTime">Lunch Cut Off Time</label>
+              <input
+                type="time"
+                id="lunchCutOffTime"
+                name="lunchCutOffTime"
+                class="form-control"
+                [(ngModel)]="lunchCutOffTime"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="lateLunchCutOffTime">Late Lunch Cut Off Time</label>
+              <input
+                type="time"
+                id="lateLunchCutOffTime"
+                name="lateLunchCutOffTime"
+                class="form-control"
+                [(ngModel)]="lateLunchCutOffTime"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="dinnerCutOffTime">Dinner Cut Off Time</label>
+              <input
+                type="time"
+                id="dinnerCutOffTime"
+                name="dinnerCutOffTime"
+                class="form-control"
+                [(ngModel)]="dinnerCutOffTime"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="lateDinnerCutOffTime">Late Dinner Cut Off Time</label>
+              <input
+                type="time"
+                id="lateDinnerCutOffTime"
+                name="lateDinnerCutOffTime"
+                class="form-control"
+                [(ngModel)]="lateDinnerCutOffTime"
+                required
+              />
+            </div>
+
+            <div class="form-group form-group-wide">
+              <label for="orderDate">Order Start Days</label>
+              <input
+                type="number"
+                id="orderDate"
+                name="orderDate"
+                class="form-control"
+                [(ngModel)]="orderDate"
+                placeholder="Enter minimum order days"
+                min="0"
+                required
+              />
+              <small class="field-note">Minimum number of days in advance required</small>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="lunchCutOffTime">Lunch Cut Off Time</label>
-            <input
-              type="time"
-              id="lunchCutOffTime"
-              name="lunchCutOffTime"
-              class="form-control"
-              [(ngModel)]="lunchCutOffTime"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="lateLunchCutOffTime">Late Lunch Cut Off Time</label>
-            <input
-              type="time"
-              id="lateLunchCutOffTime"
-              name="lateLunchCutOffTime"
-              class="form-control"
-              [(ngModel)]="lateLunchCutOffTime"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="dinnerCutOffTime">Dinner Cut Off Time</label>
-            <input
-              type="time"
-              id="dinnerCutOffTime"
-              name="dinnerCutOffTime"
-              class="form-control"
-              [(ngModel)]="dinnerCutOffTime"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="lateDinnerCutOffTime">Late Dinner Cut Off Time</label>
-            <input
-              type="time"
-              id="lateDinnerCutOffTime"
-              name="lateDinnerCutOffTime"
-              class="form-control"
-              [(ngModel)]="lateDinnerCutOffTime"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="orderDate">Order Start Days</label>
-            <input
-              type="number"
-              id="orderDate"
-              name="orderDate"
-              class="form-control"
-              [(ngModel)]="orderDate"
-              placeholder="Enter minimum order days"
-              min="0"
-              required
-            />
-            <small class="text-muted">Minimum number of days in advance required</small>
-          </div>
-
-          <div class="d-flex flex-wrap" style="gap: 12px;">
+          <div class="settings-actions">
             <button
               type="submit"
               class="btn-submit"
               [disabled]="!siteForm.form.valid">
-              <i data-feather="check-circle" style="width:14px; height:14px;"></i>
+              <i data-feather="check-circle" class="btn-icon"></i>
               Submit
             </button>
 
@@ -110,7 +115,7 @@
               type="button"
               class="btn-cancel"
               (click)="cancel()">
-              <i data-feather="x-circle" style="width:14px; height:14px;"></i>
+              <i data-feather="x-circle" class="btn-icon"></i>
               Cancel
             </button>
 
@@ -118,7 +123,7 @@
               type="button"
               class="btn-clear"
               (click)="clearFields()">
-              <i data-feather="rotate-ccw" style="width:14px; height:14px;"></i>
+              <i data-feather="rotate-ccw" class="btn-icon"></i>
               Clear
             </button>
           </div>
