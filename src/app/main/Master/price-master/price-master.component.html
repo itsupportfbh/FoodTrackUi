@@ -1,7 +1,11 @@
 <div class="price-master-page">
   <div class="card">
     <div class="card-header">
-      <div>
+      <div class="header-title-group">
+        <button type="button" class="btn btn-back" (click)="goBackToList()">
+          <i class="fas fa-arrow-left"></i>
+          <span>Back</span>
+        </button>
         <h4 class="mb-0">Price Master</h4>
       </div>
     </div>
@@ -58,7 +62,7 @@
       >
       <div class="form-grid">
         <div class="form-field">
-          <label class="form-label">Rate</label>
+          <label class="form-label">Rate (S$)</label>
           <input
             type="number"
             class="form-control"

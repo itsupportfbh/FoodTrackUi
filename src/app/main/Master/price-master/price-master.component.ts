@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { environment } from 'environments/environment';
 import { CuisinePriceService } from './cuisine-price.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-price-master',
@@ -27,12 +28,34 @@ export class PriceMasterComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private cuisinePriceService: CuisinePriceService
+    private cuisinePriceService: CuisinePriceService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadMasters();
     this.rateModel.effectiveFrom = this.todayDate();
+    this.loadFromQueryParams();
+  }
+
+  loadFromQueryParams(): void {
+    this.route.queryParams.subscribe(params => {
+      const companyId = Number(params['companyId'] || 0);
+      const sessionId = Number(params['sessionId'] || 0);
+
+      if (companyId > 0) {
+        this.selectedCompanyId = companyId;
+      }
+
+      if (sessionId > 0) {
+        this.selectedSessionId = sessionId;
+      }
+
+      if (this.selectedCompanyId && this.selectedSessionId) {
+        this.getSessionRate();
+      }
+    });
   }
 
   loadMasters(): void {
@@ -131,8 +154,9 @@ export class PriceMasterComponent implements OnInit {
     this.cuisinePriceService.saveBulkCuisineRates(payload).subscribe({
       next: (res: any) => {
         this.saving = false;
-        Swal.fire('Success', res?.message || 'Saved successfully', 'success');
-        this.getSessionRate();
+        Swal.fire('Success', res?.message || 'Saved successfully', 'success').then(() => {
+          this.router.navigate(['/master/priceLists']);
+        });
       },
       error: (err) => {
         this.saving = false;
@@ -143,6 +167,10 @@ export class PriceMasterComponent implements OnInit {
         );
       }
     });
+  }
+
+  goBackToList(): void {
+    this.router.navigate(['/master/priceLists']);
   }
 
   clearRate(): void {

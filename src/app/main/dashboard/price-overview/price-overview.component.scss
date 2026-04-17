@@ -1,0 +1,272 @@
+.price-overview-card {
+  background: #f8f4ef;
+  border: 1px solid rgba(111, 60, 47, 0.12);
+  border-radius: 24px;
+  padding: 1.25rem;
+}
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  .header-copy {
+    h3 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #5b3a30;
+    }
+
+    p {
+      margin: 0.35rem 0 0;
+      color: #8a776e;
+      font-size: 0.95rem;
+    }
+  }
+
+  .menu-btn {
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(111, 60, 47, 0.12);
+    background: #fff;
+    border-radius: 14px;
+    color: #8a776e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.price-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.chart-hero {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.25rem;
+  background: #fff;
+  border-radius: 22px;
+  padding: 1.25rem;
+  border: 1px solid rgba(111, 60, 47, 0.08);
+}
+
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .hero-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #5b3a30;
+    line-height: 1.1;
+  }
+
+  .hero-badge {
+    margin-top: 0.85rem;
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    background: #dff1e4;
+    color: #2d9b59;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .hero-note {
+    margin-top: 1rem;
+    color: #8a776e;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    max-width: 260px;
+  }
+}
+
+.hero-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-evenly;
+  gap: 1.5rem;
+  min-height: 230px;
+  padding: 0.5rem 0.5rem 0.25rem;
+}
+
+.chart-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 90px;
+
+  .column-track {
+    width: 22px;
+    height: 150px;
+    border-radius: 999px;
+    background: #efe6df;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .column-fill {
+    width: 100%;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #a96b4b 0%, #7b402d 100%);
+    transition: height 0.3s ease;
+  }
+
+  .column-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #7b6a62;
+    text-align: center;
+  }
+
+  .column-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #5b3a30;
+    text-align: center;
+  }
+
+  &.is-highlighted {
+    .column-track {
+      box-shadow: 0 10px 24px rgba(111, 60, 47, 0.16);
+    }
+
+    .column-label,
+    .column-value {
+      color: #5b3a30;
+    }
+  }
+}
+
+.session-price-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.session-price-card {
+  background: #fff;
+  border: 1px solid rgba(111, 60, 47, 0.08);
+  border-radius: 20px;
+  padding: 1rem 1rem 0.95rem;
+  box-shadow: 0 8px 20px rgba(91, 58, 48, 0.04);
+}
+
+.session-price-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.95rem;
+
+  h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #5b3a30;
+  }
+
+  .session-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: #f2ebe5;
+    color: #7a6258;
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+}
+
+.session-price-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  .label {
+    color: #8a776e;
+    font-size: 0.94rem;
+    font-weight: 500;
+  }
+
+  .value {
+    color: #5b3a30;
+    font-size: 0.96rem;
+    font-weight: 700;
+  }
+
+  &.total {
+    margin-top: 0.25rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed rgba(111, 60, 47, 0.14);
+
+    .label,
+    .value {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #5b3a30;
+    }
+  }
+}
+
+.empty-state {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2rem 1.25rem;
+  text-align: center;
+  border: 1px solid rgba(111, 60, 47, 0.08);
+
+  .empty-icon {
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 1rem;
+    border-radius: 18px;
+    background: #f4ece6;
+    color: #6f3c2f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+  }
+
+  h4 {
+    margin: 0 0 0.4rem;
+    color: #5b3a30;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: #8a776e;
+    font-size: 0.94rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .chart-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .session-price-grid {
+    grid-template-columns: 1fr;
+  }
+}

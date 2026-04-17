@@ -1,0 +1,76 @@
+<div class="price-overview-card">
+  <div class="card-top">
+    <div class="header-copy">
+      <h3>Session Price Breakdown</h3>
+      <p>Breakfast, Lunch, Dinner based on selected dashboard filters</p>
+    </div>
+
+    <button type="button" class="menu-btn" aria-label="More options">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+  </div>
+
+  <div class="price-content" *ngIf="!loading && items.length; else emptyState">
+    <div class="chart-hero">
+      <div class="hero-copy">
+        <div class="hero-value">S$ {{ totalCalculatedPrice | number:'1.2-2' }}</div>
+        <div class="hero-badge">{{ totalQty | number:'1.0-0' }} qty</div>
+        <div class="hero-note">Session-wise total calculated from quantity × active session rate.</div>
+      </div>
+
+      <div class="hero-chart">
+        <div
+          class="chart-column"
+          *ngFor="let column of chartColumns"
+          [class.is-highlighted]="column.highlighted"
+        >
+          <div class="column-track">
+            <span class="column-fill" [style.height.%]="column.percent"></span>
+          </div>
+          <div class="column-label">{{ column.label }}</div>
+          <div class="column-value">S$ {{ column.value | number:'1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="session-price-grid">
+      <div class="session-price-card" *ngFor="let item of items">
+        <div class="session-price-head">
+          <h4>{{ item.session }}</h4>
+          <span class="session-badge">{{ item.qty | number:'1.0-0' }} qty</span>
+        </div>
+
+        <div class="session-price-body">
+          <div class="price-row">
+            <span class="label">Rate</span>
+            <span class="value">S$ {{ item.rate | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="price-row">
+            <span class="label">Quantity</span>
+            <span class="value">{{ item.qty | number:'1.0-0' }}</span>
+          </div>
+
+          <div class="price-row total">
+            <span class="label">Total</span>
+            <span class="value">S$ {{ item.totalPrice | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #emptyState>
+  <div class="empty-state">
+    <div class="empty-icon">
+      <i class="fas fa-dollar-sign"></i>
+    </div>
+    <h4>{{ loading ? 'Loading session prices' : 'No price data found' }}</h4>
+    <p>
+      {{ loading
+        ? 'Current active price data is loading for the dashboard.'
+        : 'Session-wise price insights will appear here once active price records are available.' }}
+    </p>
+  </div>
+</ng-template>

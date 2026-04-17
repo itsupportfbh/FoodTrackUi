@@ -9,6 +9,7 @@ import { TotalCompanySummaryComponent } from './total-company-summary/total-comp
 import { CuisineSessionPerformanceComponent } from './cuisine-session-performance/cuisine-session-performance.component';
 import { RecentScannerActivityComponent } from './recent-scanner-activity/recent-scanner-activity.component';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { PriceOverviewComponent } from './price-overview/price-overview.component';
 
 const routes: Routes = [
   {
@@ -25,7 +26,8 @@ const routes: Routes = [
     TopCompaniesComponent,
     TotalCompanySummaryComponent,
     CuisineSessionPerformanceComponent,
-    RecentScannerActivityComponent
+    RecentScannerActivityComponent,
+    PriceOverviewComponent
   ],
   imports: [
     CommonModule,
