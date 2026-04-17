@@ -13,13 +13,17 @@ import { CuisinePriceService } from './cuisine-price.service';
 export class PriceMasterComponent implements OnInit {
   companyList: any[] = [];
   sessionList: any[] = [];
-  cuisineRates: any[] = [];
 
-  selectedCompanyId: number | null = null;
-  selectedSessionId: number | null = null;
+  selectedCompanyId: number =0 ;
+  selectedSessionId: number =0 ;
 
   loading = false;
   saving = false;
+
+  rateModel = {
+    rate: 0,
+    effectiveFrom: ''
+  };
 
   constructor(
     private http: HttpClient,
@@ -28,6 +32,7 @@ export class PriceMasterComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadMasters();
+    this.rateModel.effectiveFrom = this.todayDate();
   }
 
   loadMasters(): void {
@@ -54,42 +59,97 @@ export class PriceMasterComponent implements OnInit {
 
   onSelectionChange(): void {
     if (!this.selectedCompanyId || !this.selectedSessionId) {
-      this.cuisineRates = [];
+      this.clearRate();
       return;
     }
 
-    this.getCuisineRates();
+    this.getSessionRate();
   }
 
-  getCuisineRates(): void {
-    this.loading = true;
+ getSessionRate(): void {
+  this.loading = true;
 
-    this.cuisinePriceService
-      .getAllCuisinesWithRates(this.selectedCompanyId!, this.selectedSessionId!)
-      .subscribe({
-        next: (res: any) => {
-          this.loading = false;
+  this.cuisinePriceService
+    .getAllCuisinesWithRates(this.selectedCompanyId, this.selectedSessionId)
+    .subscribe({
+      next: (res: any) => {
+        this.loading = false;
 
-          const data = res?.data || [];
-          this.cuisineRates = data.map((x: any) => ({
-            cuisineId: x.cuisineId,
-            cuisineName: x.cuisineName,
-            rate: x.rate || 0,
-            effectiveFrom: x.effectiveFrom
-              ? this.toInputDate(x.effectiveFrom)
+        const data = res?.data || [];
+        const firstRow = Array.isArray(data) && data.length > 0 ? data[0] : null;
+
+        if (firstRow) {
+          this.rateModel = {
+            rate: Number(firstRow.rate) || 0,
+            effectiveFrom: firstRow.effectiveFrom
+              ? this.toInputDate(firstRow.effectiveFrom)
               : this.todayDate()
-          }));
-        },
-        error: (err) => {
-          this.loading = false;
-          this.cuisineRates = [];
-          Swal.fire(
-            'Error',
-            err?.error?.message || 'Failed to load cuisine rates',
-            'error'
-          );
+          };
+        } else {
+          this.clearRate();
         }
-      });
+      },
+      error: (err) => {
+        this.loading = false;
+        this.clearRate();
+
+        Swal.fire(
+          'Error',
+          err?.error?.message || 'Failed to load session rate',
+          'error'
+        );
+      }
+    });
+}
+
+  saveRate(): void {
+    if (!this.selectedCompanyId || !this.selectedSessionId) {
+      Swal.fire('Validation', 'Please select company and session', 'warning');
+      return;
+    }
+
+    if (!this.rateModel.rate || Number(this.rateModel.rate) <= 0) {
+      Swal.fire('Validation', 'Please enter valid rate', 'warning');
+      return;
+    }
+
+    if (!this.rateModel.effectiveFrom) {
+      Swal.fire('Validation', 'Please select effective from date', 'warning');
+      return;
+    }
+
+    const payload = {
+      companyId: this.selectedCompanyId,
+      sessionId: this.selectedSessionId,
+      rate: Number(this.rateModel.rate),
+      effectiveFrom: this.rateModel.effectiveFrom,
+      updatedBy: Number(localStorage.getItem('userId') || 1)
+    };
+
+    this.saving = true;
+
+    this.cuisinePriceService.saveBulkCuisineRates(payload).subscribe({
+      next: (res: any) => {
+        this.saving = false;
+        Swal.fire('Success', res?.message || 'Saved successfully', 'success');
+        this.getSessionRate();
+      },
+      error: (err) => {
+        this.saving = false;
+        Swal.fire(
+          'Error',
+          err?.error?.message || 'Failed to save rate',
+          'error'
+        );
+      }
+    });
+  }
+
+  clearRate(): void {
+    this.rateModel = {
+      rate: 0,
+      effectiveFrom: this.todayDate()
+    };
   }
 
   todayDate(): string {
@@ -106,58 +166,5 @@ export class PriceMasterComponent implements OnInit {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-  }
-
-  clearRates(): void {
-    this.cuisineRates = this.cuisineRates.map((x: any) => ({
-      ...x,
-      rate: 0,
-      effectiveFrom: this.todayDate()
-    }));
-  }
-
-  saveAllRates(): void {
-    if (!this.selectedCompanyId || !this.selectedSessionId) {
-      Swal.fire('Validation', 'Please select company and session', 'warning');
-      return;
-    }
-
-    const validRates = this.cuisineRates.filter(
-      (x: any) => Number(x.rate) > 0 && x.effectiveFrom
-    );
-
-    if (!validRates.length) {
-      Swal.fire('Validation', 'Please enter at least one cuisine rate with effective date', 'warning');
-      return;
-    }
-
-    const payload = {
-      companyId: this.selectedCompanyId,
-      sessionId: this.selectedSessionId,
-      updatedBy: Number(localStorage.getItem('userId') || 1),
-      rates: validRates.map((x: any) => ({
-        cuisineId: x.cuisineId,
-        rate: Number(x.rate),
-        effectiveFrom: x.effectiveFrom
-      }))
-    };
-
-    this.saving = true;
-
-    this.cuisinePriceService.saveBulkCuisineRates(payload).subscribe({
-      next: (res: any) => {
-        this.saving = false;
-        Swal.fire('Success', res?.message || 'Saved successfully', 'success');
-        this.getCuisineRates();
-      },
-      error: (err) => {
-        this.saving = false;
-        Swal.fire(
-          'Error',
-          err?.error?.message || 'Failed to save rates',
-          'error'
-        );
-      }
-    });
   }
 }

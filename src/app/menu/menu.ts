@@ -46,7 +46,7 @@ export const menu: CoreMenu[] = [
   translate: 'MENU.SAMPLE',
   type: 'item',
   icon: 'dollar-sign',
-  url: 'master/price'
+  url: 'master/priceLists'
 },
       {
         id: 'site_settings',
