@@ -4,6 +4,14 @@ import { SessionService } from 'app/main/Master/session/session.service';
 import { LocationService } from 'app/main/Master/location/location.service';
 import { CateringService } from 'app/main/services/catering.service';
 
+interface DashboardFilters {
+  companyIds: any[];
+  sessionIds: any[];
+  locationIds: any[];
+  fromDate: string;
+  toDate: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -17,13 +25,7 @@ export class DashboardComponent implements OnInit {
   sessionList: any[] = [];
   locationList: any[] = [];
 
-  filters: any = {
-    companyIds: [],
-    sessionIds: [],
-    locationIds: [],
-    fromDate: null,
-    toDate: null
-  };
+  filters: DashboardFilters = this.createDefaultFilters();
 
   constructor(
     private dashboardService: DashboardService,
@@ -94,14 +96,30 @@ export class DashboardComponent implements OnInit {
   }
 
   resetFilters(): void {
-    this.filters = {
+    this.filters = this.createDefaultFilters();
+
+    this.loadDashboard();
+  }
+
+  private createDefaultFilters(): DashboardFilters {
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    return {
       companyIds: [],
       sessionIds: [],
       locationIds: [],
-      fromDate: null,
-      toDate: null
+      fromDate: this.formatDateForInput(firstDayOfMonth),
+      toDate: this.formatDateForInput(lastDayOfMonth)
     };
+  }
 
-    this.loadDashboard();
+  private formatDateForInput(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 }
