@@ -7,8 +7,8 @@
     </div>
 
     <div class="card-body">
-      <div class="top-filter-row">
-        <div class="form-group">
+      <div class="form-grid">
+        <div class="form-field">
           <label class="form-label" for="companyId">Company</label>
 
           <ng-select
@@ -31,9 +31,10 @@
           </ng-select>
         </div>
 
-        <div class="filter-col">
-          <label>Session</label>
+        <div class="form-field">
+          <label class="form-label" for="sessionId">Session</label>
           <ng-select
+            id="sessionId"
             [items]="sessionList"
             bindLabel="sessionName"
             bindValue="id"
@@ -48,41 +49,37 @@
       </div>
 
       <div *ngIf="loading" class="loading-box">
-        Loading cuisines...
+        Loading rate...
       </div>
 
       <div
-        *ngIf="!loading && selectedCompanyId && selectedSessionId && cuisineRates?.length > 0"
-        class="rate-grid"
+        *ngIf="!loading && selectedCompanyId && selectedSessionId"
+        class="single-rate-box"
       >
-        <div class="rate-card" *ngFor="let row of cuisineRates">
-          <label>{{ row.cuisineName }}</label>
-
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label">Rate</label>
           <input
             type="number"
-            class="form-control mb-2"
-            [(ngModel)]="row.rate"
+            class="form-control"
+            [(ngModel)]="rateModel.rate"
             placeholder="Enter Rate"
           />
+        </div>
 
-          <label class="small-label">Effective From</label>
+        <div class="form-field">
+          <label class="form-label">Effective From</label>
           <input
             type="date"
-            class="form-control"
-            [(ngModel)]="row.effectiveFrom"
+            class="form-control date-control"
+            [(ngModel)]="rateModel.effectiveFrom"
           />
         </div>
       </div>
-
-      <div
-        *ngIf="!loading && selectedCompanyId && selectedSessionId && (!cuisineRates || cuisineRates.length === 0)"
-        class="empty-box"
-      >
-        No cuisines found
       </div>
 
-      <div class="action-row" *ngIf="!loading && cuisineRates?.length > 0">
-        <button type="button" class="btn btn-clear" (click)="clearRates()">
+      <div class="action-row" *ngIf="!loading && selectedCompanyId && selectedSessionId">
+        <button type="button" class="btn btn-clear" (click)="clearRate()">
           Clear
         </button>
 
@@ -90,9 +87,9 @@
           type="button"
           class="btn btn-save"
           [disabled]="saving"
-          (click)="saveAllRates()"
+          (click)="saveRate()"
         >
-          {{ saving ? 'Saving...' : 'Save All Rates' }}
+          {{ saving ? 'Saving...' : 'Save Rate' }}
         </button>
       </div>
     </div>

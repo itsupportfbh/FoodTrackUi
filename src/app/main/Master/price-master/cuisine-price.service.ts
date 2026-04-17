@@ -25,4 +25,24 @@ export class CuisinePriceService {
       `${this.apiUrl}/CuisinePrice/history?companyId=${companyId}&sessionId=${sessionId}&cuisineId=${cuisineId}`
     );
   }
+  getPriceList() {
+    return this.http.get(`${this.apiUrl}/CuisinePrice/GetPriceList`);
+  }
+  getCompanies() {
+    return this.http.get(`${this.apiUrl}/Company/list`);
+  }
+
+  getSessions() {
+    return this.http.get(`${this.apiUrl}/Session/GetAllSession`);
+  }
+
+  getCuisines() {
+    return this.http.get(`${this.apiUrl}/Cuisine/GetCuisines`);
+  }
+
+  exportPriceList() {
+    return this.http.get(`${this.apiUrl}/PriceMaster/ExportPriceList`, {
+      responseType: 'blob'
+    });
+  }
 }

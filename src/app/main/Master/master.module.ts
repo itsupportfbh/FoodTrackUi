@@ -13,6 +13,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CoreSidebarModule } from '@core/components';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { PriceListComponent } from './price-master/price-list/price-list.component';
 
 const routes = [
   {
@@ -29,12 +30,13 @@ const routes = [
    { path: 'site_settings', component: SitesettingsComponent ,data: { animation: 'site_settings' }},
 
   { path: 'price', component: PriceMasterComponent ,data: { animation: 'price' }},
+  { path: 'priceLists', component: PriceListComponent ,data: { animation: 'price' }},
 ]
 
 
 @NgModule({
   declarations: [    LocationComponent,
-    CuisineComponent,SessionComponent,SitesettingsComponent, PriceMasterComponent],
+    CuisineComponent,SessionComponent,SitesettingsComponent, PriceMasterComponent, PriceListComponent],
   imports: [
     RouterModule.forChild(routes),
     CommonModule,
