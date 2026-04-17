@@ -87,6 +87,14 @@
   line-height: 1;
 }
 
+.summary-subtitle {
+  margin-top: 0.45rem;
+  color: var(--card-title);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .summary-icon {
   position: relative;
   z-index: 1;
@@ -139,13 +147,18 @@
 }
 
 .summary-card:nth-child(4) {
-  --card-bg-start: #eef7f0;
-  --card-bg-end: #dceee1;
-  --card-border: #cae1d2;
-  --card-title: #4d8064;
-  --card-value: #183c2a;
-  --card-icon-start: #3f9b70;
-  --card-icon-end: #63ba8e;
+  --card-bg-start: #f3f6ff;
+  --card-bg-end: #e1e8fb;
+  --card-border: #cfdbf3;
+  --card-title: #506794;
+  --card-value: #27385f;
+  --card-icon-start: #5572b3;
+  --card-icon-end: #7f96d1;
+}
+
+.summary-card:nth-child(4) .summary-value {
+  font-size: 1.28rem;
+  line-height: 1.15;
 }
 
 @media (max-width: 1200px) {

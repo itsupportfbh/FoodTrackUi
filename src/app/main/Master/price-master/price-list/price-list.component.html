@@ -1,193 +1,112 @@
 <div class="price-list-page">
-  <div class="content-wrapper">
-    <div class="page-header">
-      <div class="header-left">
-        <h2>Price List</h2>
-        <p>Company, session, cuisine wise price history list</p>
-      </div>
+  <div class="content-wrapper container-xxl p-0">
+    <div class="content-body">
+      <section class="users-list-wrapper">
+        <div class="card">
+          <h4 class="card-title-text">
+            Price List
+          </h4>
 
-      <div class="header-right">
-        <button class="btn btn-primary add-btn" (click)="onAddPrice()">
-          <i data-feather="plus"></i>
-          Add Price
-        </button>
-      </div>
-    </div>
+          <div class="row top-control-row">
+            <div class="col-md-4 col-12">
+              <div class="d-flex justify-content-between align-items-center m-1">
+                <label class="d-flex align-items-center mb-0">
+                  Show
+                  <select class="form-control mx-25 page-size-select" [(ngModel)]="page.size" (change)="onPageSizeChange()">
+                    <option [ngValue]="10">10</option>
+                    <option [ngValue]="25">25</option>
+                    <option [ngValue]="50">50</option>
+                    <option [ngValue]="100">100</option>
+                  </select>
+                  entries
+                </label>
+              </div>
+            </div>
 
-    <div class="filter-card card">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-3 mb-1">
-            <label>Company</label>
-            <ng-select
-              [items]="companyList"
-              bindLabel="companyName"
-              bindValue="id"
-              [(ngModel)]="filters.companyId"
-              placeholder="Select Company"
-              [clearable]="true"
-              (change)="applyFilters()"
-            >
-            </ng-select>
-          </div>
+            <div class="col-md-8 col-12 d-flex justify-content-start justify-content-md-end">
+              <div class="d-flex align-items-center justify-content-end pr-1 pb-1 pb-md-0 flex-wrap">
+                <label class="d-flex align-items-center ml-1 ml-md-0 mb-0">
+                  Search:
+                  <input
+                    type="search"
+                    class="form-control ml-25 search-box"
+                    placeholder="Company / Session / Cuisine"
+                    [(ngModel)]="searchText"
+                    (input)="applyFilters()"
+                  />
+                </label>
 
-          <div class="col-md-3 mb-1">
-            <label>Session</label>
-            <ng-select
-              [items]="sessionList"
-              bindLabel="sessionName"
-              bindValue="id"
-              [(ngModel)]="filters.sessionId"
-              placeholder="Select Session"
-              [clearable]="true"
-              (change)="applyFilters()"
-            >
-            </ng-select>
-          </div>
-
-          <div class="col-md-3 mb-1">
-            <label>Cuisine</label>
-            <ng-select
-              [items]="cuisineList"
-              bindLabel="cuisineName"
-              bindValue="id"
-              [(ngModel)]="filters.cuisineId"
-              placeholder="Select Cuisine"
-              [clearable]="true"
-              (change)="applyFilters()"
-            >
-            </ng-select>
-          </div>
-
-          <div class="col-md-3 mb-1">
-            <label>Search</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Search company / session / cuisine"
-              [(ngModel)]="searchText"
-              (input)="applyFilters()"
-            />
-          </div>
-        </div>
-
-        <div class="filter-action-row">
-          <button class="btn btn-outline-secondary mr-1" (click)="resetFilters()">
-            Reset
-          </button>
-
-          <button class="btn btn-success" (click)="exportPriceList()">
-            <i data-feather="download"></i>
-            Export
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="table-card card">
-      <div class="card-body">
-        <div class="table-header-row">
-          <div class="left-info">
-            <label class="mb-0 mr-1">Show</label>
-            <select class="form-control page-size-select" [(ngModel)]="page.size" (change)="onPageSizeChange()">
-              <option [ngValue]="10">10</option>
-              <option [ngValue]="25">25</option>
-              <option [ngValue]="50">50</option>
-              <option [ngValue]="100">100</option>
-            </select>
-            <span class="ml-1">entries</span>
-          </div>
-
-          <div class="right-info">
-            <span class="total-count">Total: {{ filteredRows.length }}</span>
-          </div>
-        </div>
-
-        <ngx-datatable
-          class="bootstrap price-datatable"
-          [rows]="pagedRows"
-          [columnMode]="ColumnMode.force"
-          [headerHeight]="50"
-          [footerHeight]="50"
-          [rowHeight]="'auto'"
-          [limit]="page.size"
-          [count]="filteredRows.length"
-          [offset]="page.pageNumber"
-          [externalPaging]="true"
-          (page)="onPageChange($event)"
-        >
-          <ngx-datatable-column name="S.No" [width]="70" [sortable]="false">
-            <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-              {{ (page.pageNumber * page.size) + rowIndex + 1 }}
-            </ng-template>
-          </ngx-datatable-column>
-
-          <ngx-datatable-column name="Company" prop="companyName"></ngx-datatable-column>
-
-          <ngx-datatable-column name="Session" prop="sessionName"></ngx-datatable-column>
-
-          <ngx-datatable-column name="Cuisine" prop="cuisineName"></ngx-datatable-column>
-
-          <ngx-datatable-column name="Rate" prop="rate">
-            <ng-template let-row="row" ngx-datatable-cell-template>
-              ₹ {{ row.rate | number:'1.2-2' }}
-            </ng-template>
-          </ngx-datatable-column>
-
-          <ngx-datatable-column name="Effective From" prop="effectiveFrom">
-            <ng-template let-row="row" ngx-datatable-cell-template>
-              {{ row.effectiveFrom | date:'dd-MM-yyyy' }}
-            </ng-template>
-          </ngx-datatable-column>
-
-          <ngx-datatable-column name="Effective To" prop="effectiveTo">
-            <ng-template let-row="row" ngx-datatable-cell-template>
-              {{ row.effectiveTo ? (row.effectiveTo | date:'dd-MM-yyyy') : '-' }}
-            </ng-template>
-          </ngx-datatable-column>
-
-          <ngx-datatable-column name="Action Type" prop="actionType"></ngx-datatable-column>
-
-          <ngx-datatable-column name="Status" [sortable]="false">
-            <ng-template let-row="row" ngx-datatable-cell-template>
-              <span
-                class="status-badge"
-                [ngClass]="row.isCurrent ? 'active-badge' : 'history-badge'"
-              >
-                {{ row.isCurrent ? 'Current' : 'History' }}
-              </span>
-            </ng-template>
-          </ngx-datatable-column>
-
-          <ngx-datatable-column name="Actions" [sortable]="false" [width]="130">
-            <ng-template let-row="row" ngx-datatable-cell-template>
-              <div class="action-btn-group">
+              
                 <button
                   type="button"
-                  class="btn action-icon-btn edit-btn"
-                  title="Edit"
-                  (click)="editPrice(row)"
+                  class="btn btn-primary ml-1"
+                  rippleEffect
+                  (click)="onAddPrice()"
                 >
-                  <i data-feather="edit-2"></i>
-                </button>
-
-                <button
-                  type="button"
-                  class="btn action-icon-btn view-btn"
-                  title="View History"
-                  (click)="viewHistory(row)"
-                >
-                  <i data-feather="clock"></i>
+                  <i data-feather="plus" class="d-sm-none d-inline-block mr-0 mr-sm-1"></i>
+                  <span class="d-none d-sm-inline-block">Add Price</span>
                 </button>
               </div>
-            </ng-template>
-          </ngx-datatable-column>
-        </ngx-datatable>
+            </div>
+          </div>
 
-        <div *ngIf="!pagedRows || pagedRows.length === 0" class="no-data-found">
-          No price records found.
+          <ngx-datatable
+            class="bootstrap core-bootstrap price-datatable"
+            [rows]="pagedRows"
+            [rowHeight]="50"
+            [columnMode]="ColumnMode.force"
+            [headerHeight]="50"
+            [footerHeight]="50"
+            [limit]="page.size"
+            [count]="filteredRows.length"
+            [offset]="page.pageNumber"
+            [externalPaging]="true"
+            [scrollbarH]="false"
+            (page)="onPageChange($event)"
+          >
+            
+
+            <ngx-datatable-column name="Company" prop="companyName" [width]="250"></ngx-datatable-column>
+
+            <ngx-datatable-column name="Session" prop="sessionName"></ngx-datatable-column>
+
+           
+
+            <ngx-datatable-column name="Rate" prop="rate">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                S$ {{ row.rate | number:'1.2-2' }}
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Effective From" prop="effectiveFrom">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.effectiveFrom | date:'dd-MM-yyyy' }}
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Actions" [width]="80" [sortable]="false">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div class="action-btn-group">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary action-icon-btn"
+                    title="Edit"
+                    (click)="editPrice(row)"
+                  >
+                    <i class="fas fa-pen action-icon"></i>
+                  </button>
+
+                 
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+
+          <div *ngIf="!pagedRows || pagedRows.length === 0" class="no-data-found">
+            No price records found.
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </div>
