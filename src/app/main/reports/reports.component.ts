@@ -291,6 +291,8 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
             <td>${this.escapeHtml(row.cuisineName || '')}</td>
             <td>${this.escapeHtml(row.locationName || '')}</td>
             <td class="text-right">${Number(row.count || 0)}</td>
+            <td class="text-right">${Number(row.rate || 0).toFixed(2)}</td>
+            <td class="text-right">${Number(row.totalAmount || 0).toFixed(2)}</td>
           </tr>
         `
       )
@@ -499,10 +501,20 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
               <th>Cuisine</th>
               <th>Location</th>
               <th class="text-right">Count</th>
+              <th class="text-right">Rate (S$)</th>
+              <th class="text-right">Total (S$)</th>
             </tr>
           </thead>
           <tbody>
             ${rowsHtml}
+            <tr>
+              <td colspan="8" class="text-right" style="font-weight:700; color:#6f3c2f;">
+                Grand Total (S$)
+              </td>
+              <td class="text-right" style="font-weight:700; color:#6f3c2f;">
+                ${this.getGrandTotalAmount().toFixed(2)}
+              </td>
+            </tr>
           </tbody>
         </table>
       </body>
@@ -743,5 +755,8 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
 
       return true;
     });
+  }
+  getGrandTotalAmount(): number {
+    return this.rows.reduce((sum: number, x: any) => sum + Number(x.totalAmount || 0), 0);
   }
 }

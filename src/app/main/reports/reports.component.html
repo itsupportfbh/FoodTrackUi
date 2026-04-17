@@ -267,6 +267,8 @@
               <th>Cuisine</th>
               <th>Location</th>
               <th class="text-right">Count</th>
+              <th class="text-right">Rate (S$)</th>
+              <th class="text-right">Total (S$)</th>
             </tr>
           </thead>
           <tbody>
@@ -277,10 +279,20 @@
               <td>{{ row.cuisineName }}</td>
               <td>{{ row.locationName }}</td>
               <td class="text-right font-weight-bold">{{ row.count }}</td>
+              <td class="text-right font-weight-bold">{{ row.rate | number:'1.2-2' }}</td>
+      <td class="text-right font-weight-bold">{{ row.totalAmount | number:'1.2-2' }}</td>
             </tr>
-
+              <tr *ngIf="rows.length > 0" class="grand-total-row">
+              <td colspan="7" class="text-right font-weight-bold">
+                Grand Total (S$)
+              </td>
+              <td class="text-right font-weight-bold">
+                {{ getGrandTotalAmount() | number:'1.2-2' }}
+              </td>
+            </tr>
+            
             <tr *ngIf="rows.length === 0">
-              <td colspan="6" class="text-center text-muted py-3">No data available</td>
+              <td colspan="8" class="text-center text-muted py-3">No data available</td>
             </tr>
           </tbody>
         </table>
