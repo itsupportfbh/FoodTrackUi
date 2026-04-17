@@ -6,169 +6,146 @@
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.9rem;
+  gap: 0.75rem;
   margin-bottom: 0;
 }
 
 .summary-card {
+  --card-bg-start: #f8f3ed;
+  --card-bg-end: #f3e7de;
+  --card-border: #ead8c9;
+  --card-title: #8c5a42;
+  --card-value: #2f1f18;
+  --card-icon-start: #aa6d4e;
+  --card-icon-end: #c78c69;
   position: relative;
-  border-radius: 20px;
-  padding: 1.05rem 1.15rem;
-  min-height: 110px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  gap: 0.85rem;
+  min-height: 88px;
+  padding: 0.9rem 1rem;
   overflow: hidden;
-  border: 1px solid #eadfd7;
-  box-shadow: 0 6px 18px rgba(123, 67, 47, 0.08);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  background: linear-gradient(145deg, var(--card-bg-start), var(--card-bg-end));
+  box-shadow: 0 10px 24px rgba(86, 48, 34, 0.08);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0.8rem;
+  left: 1rem;
+  width: 34px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .summary-card::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0));
+  top: -24px;
+  right: -20px;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
   pointer-events: none;
 }
 
 .summary-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 24px rgba(123, 67, 47, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(86, 48, 34, 0.12);
 }
 
 .summary-body {
-  flex: 1 1 auto;
-  min-width: 0;
   position: relative;
   z-index: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-top: 0.45rem;
 }
 
 .summary-title {
-  font-size: 0.92rem;
-  font-weight: 600;
-  margin-bottom: 0.45rem;
-  line-height: 1.3;
-}
-
-.summary-sub {
-  font-size: 12px;
-  margin-top: 4px;
+  margin-bottom: 0.3rem;
+  color: var(--card-title);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .summary-value {
-  font-size: 1.85rem;
-  font-weight: 700;
-  line-height: 1.05;
+  color: var(--card-value);
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
 .summary-icon {
-  width: 54px;
-  height: 54px;
-  border-radius: 18px;
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  flex: 0 0 54px;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
   margin-left: auto;
-  position: relative;
-  z-index: 1;
-  box-shadow: 0 10px 20px rgba(123, 67, 47, 0.12);
+  color: #ffffff;
+  border-radius: 13px;
+  background: linear-gradient(145deg, var(--card-icon-start), var(--card-icon-end));
+  box-shadow: 0 8px 16px rgba(86, 48, 34, 0.14);
 }
 
 .summary-icon i {
-  width: 21px;
-  height: 21px;
+  width: 16px;
+  height: 16px;
 }
 
-/* Card 1 - soft violet */
 .summary-card:nth-child(1) {
-  background: linear-gradient(135deg, #f3f0fb, #ebe5f7);
-  border-color: #ddd3ef;
+  --card-bg-start: #f6f0ea;
+  --card-bg-end: #efe1d5;
+  --card-border: #e5d3c3;
+  --card-title: #8e6245;
+  --card-value: #332118;
+  --card-icon-start: #a56b47;
+  --card-icon-end: #c98c68;
 }
 
-.summary-card:nth-child(1) .summary-title {
-  color: #6f58a8;
-}
-
-.summary-card:nth-child(1) .summary-value {
-  color: #3e2f5e;
-}
-
-.summary-card:nth-child(1) .summary-sub {
-  color: #8a7ca5;
-}
-
-.summary-card:nth-child(1) .summary-icon {
-  background: linear-gradient(135deg, #7f68bb, #947fca);
-}
-
-/* Card 2 - muted blue */
 .summary-card:nth-child(2) {
-  background: linear-gradient(135deg, #eef6fb, #e1edf6);
-  border-color: #d3e2ee;
+  --card-bg-start: #edf5f7;
+  --card-bg-end: #deebf1;
+  --card-border: #cfe0e7;
+  --card-title: #56798d;
+  --card-value: #173746;
+  --card-icon-start: #4d8aa6;
+  --card-icon-end: #71abc1;
 }
 
-.summary-card:nth-child(2) .summary-title {
-  color: #3f7695;
-}
-
-.summary-card:nth-child(2) .summary-value {
-  color: #25465c;
-}
-
-.summary-card:nth-child(2) .summary-sub {
-  color: #7a96a7;
-}
-
-.summary-card:nth-child(2) .summary-icon {
-  background: linear-gradient(135deg, #4e99c2, #6aaed0);
-}
-
-/* Card 3 - dusty pink */
 .summary-card:nth-child(3) {
-  background: linear-gradient(135deg, #fbf0f3, #f6e1e8);
-  border-color: #edd2dc;
+  --card-bg-start: #f8eff1;
+  --card-bg-end: #f2dfe5;
+  --card-border: #e7d0d8;
+  --card-title: #9b6274;
+  --card-value: #4a2432;
+  --card-icon-start: #c96d88;
+  --card-icon-end: #e196ac;
 }
 
-.summary-card:nth-child(3) .summary-title {
-  color: #b05873;
-}
-
-.summary-card:nth-child(3) .summary-value {
-  color: #5b2b3d;
-}
-
-.summary-card:nth-child(3) .summary-sub {
-  color: #a37b89;
-}
-
-.summary-card:nth-child(3) .summary-icon {
-  background: linear-gradient(135deg, #d96b88, #e488a4);
-}
-
-/* Card 4 - muted green */
 .summary-card:nth-child(4) {
-  background: linear-gradient(135deg, #eef8f1, #dff0e5);
-  border-color: #cfe7d7;
-}
-
-.summary-card:nth-child(4) .summary-title {
-  color: #2f8a63;
-}
-
-.summary-card:nth-child(4) .summary-value {
-  color: #1d4d38;
-}
-
-.summary-card:nth-child(4) .summary-sub {
-  color: #709680;
-}
-
-.summary-card:nth-child(4) .summary-icon {
-  background: linear-gradient(135deg, #36b37e, #4cc38f);
+  --card-bg-start: #eef7f0;
+  --card-bg-end: #dceee1;
+  --card-border: #cae1d2;
+  --card-title: #4d8064;
+  --card-value: #183c2a;
+  --card-icon-start: #3f9b70;
+  --card-icon-end: #63ba8e;
 }
 
 @media (max-width: 1200px) {
@@ -183,28 +160,28 @@
   }
 
   .summary-card {
-    min-height: 98px;
-    padding: 0.9rem 1rem;
+    min-height: 82px;
+    padding: 0.82rem 0.9rem;
     border-radius: 16px;
   }
 
   .summary-title {
-    font-size: 0.84rem;
+    font-size: 0.69rem;
   }
 
   .summary-value {
-    font-size: 1.45rem;
+    font-size: 1.35rem;
   }
 
   .summary-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    flex-basis: 46px;
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
   }
 
   .summary-icon i {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
   }
 }

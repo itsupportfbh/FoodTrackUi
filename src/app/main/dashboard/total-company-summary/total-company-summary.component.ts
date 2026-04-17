@@ -1,13 +1,11 @@
-import { Component, Input, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import * as feather from 'feather-icons';
 
 interface SummaryCard {
   title: string;
   value: string;
-  sub: string;
   icon: string;
   theme: 'primary' | 'info' | 'pink' | 'success';
-  progress: number;
 }
 
 @Component({
@@ -34,36 +32,28 @@ export class TotalCompanySummaryComponent implements OnChanges, AfterViewInit {
 
     this.summaryCards = [
       {
-        title: 'Total Companies',
+        title: 'Companies',
         value: (res.totalCompanies ?? 0).toString(),
-        sub: `${res.totalcompanyWiseOrders?.length ?? 0} company wise entries`,
         icon: 'briefcase',
-        theme: 'primary',
-        progress: 62
+        theme: 'primary'
       },
       {
-        title: 'Today Ordered',
+        title: 'Today Orders',
         value: (res.todayOrderedQty ?? 0).toString(),
-        sub: `${res.todayRedeemedQty ?? 0} redeemed • ${res.todayPendingQty ?? 0} pending`,
         icon: 'shopping-bag',
-        theme: 'info',
-        progress: 84
+        theme: 'info'
       },
       {
-        title: 'This Month Ordered',
+        title: 'Month Orders',
         value: (res.monthOrderedQty ?? 0).toString(),
-        sub: `${res.monthRedeemedQty ?? 0} redeemed • ${res.monthPendingQty ?? 0} pending`,
         icon: 'bar-chart-2',
-        theme: 'pink',
-        progress: 76
+        theme: 'pink'
       },
       {
-        title: 'QR Generated',
+        title: 'QR Codes',
         value: (res.totalQRCodes ?? 0).toString(),
-        sub: `${res.totallatestUsedQRs?.length ?? 0} latest used`,
         icon: 'grid',
-        theme: 'success',
-        progress: 71
+        theme: 'success'
       }
     ];
 
