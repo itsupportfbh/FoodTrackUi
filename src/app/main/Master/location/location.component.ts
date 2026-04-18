@@ -142,44 +142,54 @@ else{
     });
   }
 
-  deletelocations(id) {
-    const _self = this;
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "success",
-      showCancelButton: true,
-      confirmButtonColor: "#7367F0",
-      cancelButtonColor: "#E42728",
-      confirmButtonText: "Yes, Delete it!",
-      customClass: {
-        confirmButton: "btn btn-primary",
-        cancelButton: "btn btn-danger ml-1",
-      },
-      allowOutsideClick: false,
-    }).then(function (result) {
-      if (result.value) {
-        _self._service.deleteLocation(id).subscribe((response: any) => {
-          if (response.isSuccess) {
-            Swal.fire({
-              icon: "success",
-              title: "Deleted!",
-              text: response.message,
-              allowOutsideClick: false,
-            });
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Error!",
-              text: response.message,
-              allowOutsideClick: false,
-            });
-          }
-          _self.getAlllocations();
-        });
-      }
-    });
-  }
+deletelocations(id) {
+  const _self = this;
+
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    buttonsStyling: false,
+    confirmButtonText: 'Yes, Delete it!',
+    cancelButtonText: 'Cancel',
+    customClass: {
+      confirmButton: 'btn btn-danger',
+      cancelButton: 'btn btn-secondary ml-1'
+    },
+    allowOutsideClick: false
+  }).then(function (result) {
+    if (result.isConfirmed) {
+      _self._service.deleteLocation(id).subscribe((response: any) => {
+        if (response.isSuccess) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: response.message,
+            allowOutsideClick: false,
+            buttonsStyling: false,
+            customClass: {
+              confirmButton: 'btn btn-success'
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: response.message,
+            allowOutsideClick: false,
+            buttonsStyling: false,
+            customClass: {
+              confirmButton: 'btn btn-danger'
+            }
+          });
+        }
+
+        _self.getAlllocations();
+      });
+    }
+  });
+}
 
 }
 

@@ -302,42 +302,42 @@ export class SessionComponent implements OnInit, AfterViewInit, AfterViewChecked
     });
   }
 
-  deletesessions(id: any): void {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#7367F0',
-      cancelButtonColor: '#E42728',
-      confirmButtonText: 'Yes, Delete it!',
-      customClass: {
-        confirmButton: 'btn btn-primary',
-        cancelButton: 'btn btn-danger ml-1'
-      },
-      allowOutsideClick: false
-    }).then((result) => {
-      if (result.value) {
-        this._service.deleteSession(id).subscribe((response: any) => {
-          if (response.isSuccess) {
-            Swal.fire({
-              icon: 'success',
-              title: 'Deleted!',
-              text: response.message,
-              allowOutsideClick: false
-            });
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error!',
-              text: response.message,
-              allowOutsideClick: false
-            });
-          }
+ deletesessions(id: any): void {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    buttonsStyling: false,
+    confirmButtonText: 'Yes, Delete it!',
+    cancelButtonText: 'Cancel',
+    customClass: {
+      confirmButton: 'btn btn-danger',
+      cancelButton: 'btn btn-secondary ml-1'
+    },
+    allowOutsideClick: false
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this._service.deleteSession(id).subscribe((response: any) => {
+        if (response.isSuccess) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: response.message,
+            allowOutsideClick: false
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: response.message,
+            allowOutsideClick: false
+          });
+        }
 
-          this.getAllsessions();
-        });
-      }
-    });
-  }
+        this.getAllsessions();
+      });
+    }
+  });
+}
 }
