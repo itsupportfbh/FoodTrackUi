@@ -3,194 +3,179 @@
 .price-master-page {
   padding: 16px;
   background: #f7f7f7;
-  min-height: auto;
 
-  .card {
+  .price-master-card {
     border: 0;
-    border-radius: 22px;
+    border-radius: 24px;
     background: #fff;
-    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 6px 22px rgba(15, 23, 42, 0.06);
     overflow: visible;
   }
 
   .card-header {
-    padding: 18px 28px;
-    
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-
-    h4 {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 700;
-      color: #2f1c17;
-    }
+    padding: 24px 28px 10px;
+    border-bottom: 0;
   }
 
   .header-title-group {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 16px;
+  }
+
+  .title-wrap {
+    h4 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: #2f1c17;
+    }
+
+    .page-subtitle {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #7b8794;
+      font-weight: 500;
+    }
   }
 
   .btn-back {
-    min-width: auto;
-    height: 40px;
-    padding: 0 16px;
+    height: 44px;
+    padding: 0 18px;
     border: 1px solid #6f3c2f;
-    border-radius: 12px;
+    border-radius: 14px;
     background: #fff;
     color: #6f3c2f;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 8px;
-    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-
-    i {
-      font-size: 13px;
-    }
-
-    &:hover,
-    &:focus {
-      background: rgba(111, 60, 47, 0.08);
-      color: #6f3c2f;
-      box-shadow: 0 0 0 0.2rem rgba(111, 60, 47, 0.12);
-    }
+    font-weight: 600;
   }
 
   .card-body {
-    padding: 28px;
-    overflow: visible;
+    padding: 20px 28px 28px;
   }
 
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px;
-    align-items: start;
+  .company-row {
+    margin-bottom: 22px;
   }
 
-  .form-field {
-    min-width: 0;
+  .company-field {
+    max-width: 620px;
   }
 
-  .top-filter-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 36px;
-    margin-bottom: 24px;
-  }
-
-  label {
+  .form-label {
     display: block;
     margin-bottom: 10px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     color: #22324a;
   }
 
-  .rate-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 15px;
-    margin-top: 12px;
-  }
-
-  .rate-card {
-    padding: 14px;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    background: #fff;
-  }
-
-  // .form-control {
-  //   width: 100%;
-  //   height: 46px;
-  //   border-radius: 14px;
-  //   border: 1px solid #d6dbe2;
-  //   padding: 0 18px;
-  //   font-size: 18px;
-
-  //   &:focus {
-  //     border-color: #6F3C2F;
-  //     box-shadow: 0 0 0 3px rgba(111, 60, 47, 0.12);
-  //     outline: none;
-  //   }
-  // }
-
-  .loading-box,
-  .empty-box {
+  .session-rate-section {
     margin-top: 8px;
-    padding: 20px;
-    border-radius: 14px;
-    border: 1px solid #ececec;
-    background: #fafafa;
-    color: #6b7280;
-    font-size: 15px;
-    font-weight: 500;
   }
 
-  .action-row {
-    margin-top: 26px;
+  .session-rate-header,
+  .session-rate-row {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1fr;
+    gap: 18px;
+    align-items: center;
+  }
+
+  .session-rate-header {
+    margin-bottom: 12px;
+    padding: 0 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #22324a;
+  }
+
+  .session-rate-row {
+    margin-bottom: 14px;
+  }
+
+  .session-name-box {
+    height: 44px;
     display: flex;
-    justify-content: flex-end;
-    gap: 14px;
-  }
-
-  .btn {
-    min-width: 90px;
-    height: 42px;
+    align-items: center;
+    padding: 0 16px;
+    border: 1px solid #d6dbe2;
     border-radius: 12px;
+    background: #f8f8f8;
     font-size: 14px;
     font-weight: 600;
-    padding: 0 24px;
+    color: #2f1c17;
   }
 
-  .btn-clear {
-    background: #fff;
-    color: #6b7280;
-    border: 1px solid #b8bec8;
-  }
-
-  .btn-save {
-    background: #6F3C2F;
-    color: #fff;
-    border: none;
-  }
-
-  @media (max-width: 767.98px) {
-    .form-grid {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-  }
-}
-
-/* -------------------- ng-select full override -------------------- */
-
-.ng-select {
-  .ng-select-container {
-    height: 42px !important;
+  .form-control {
+    width: 100%;
+    height: 44px;
     border-radius: 12px;
     border: 1px solid #d6dbe2;
+    padding: 0 16px;
     font-size: 14px;
-    font-weight: 600;
-    padding: 0 24px;
-    box-sizing: border-box;
+    font-weight: 500;
 
     &:focus {
-      border-color: #6F3C2F;
+      border-color: #6f3c2f;
       box-shadow: 0 0 0 3px rgba(111, 60, 47, 0.12);
       outline: none;
     }
   }
 
-  .ng-dropdown-panel {
+  .loading-box,
+  .empty-box {
+    margin-top: 18px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    border: 1px solid #ececec;
+    background: #fafafa;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .action-row {
+    margin-top: 28px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .btn-save {
+    min-width: 120px;
+    height: 44px;
     border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0 24px;
+    background: #6f3c2f;
+    color: #fff;
+    border: none;
+  }
+
+  @media (max-width: 991.98px) {
+    .session-rate-header,
+    .session-rate-row {
+      grid-template-columns: 1fr;
+    }
   }
 }
 
+.ng-select {
+  .ng-select-container {
+    min-height: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: 1px solid #d6dbe2 !important;
+    box-shadow: none !important;
+  }
+
+  &.ng-select-focused:not(.ng-select-opened) > .ng-select-container,
+  &.ng-select-opened > .ng-select-container {
+    border-color: #6f3c2f !important;
+    box-shadow: 0 0 0 3px rgba(111, 60, 47, 0.12) !important;
+  }
+}

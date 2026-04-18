@@ -1,9 +1,15 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
-import { environment } from 'environments/environment';
 import { CuisinePriceService } from './cuisine-price.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+
+interface SessionRateRow {
+  sessionId: number;
+  sessionName: string;
+  rate: number;
+  effectiveFrom: string;
+}
 
 @Component({
   selector: 'app-price-master',
@@ -13,148 +19,149 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class PriceMasterComponent implements OnInit {
   companyList: any[] = [];
-  sessionList: any[] = [];
+  selectedCompanyId: number = 0;
 
-  selectedCompanyId: number =0 ;
-  selectedSessionId: number =0 ;
-
-  loading = false;
+  sessionLoading = false;
   saving = false;
 
-  rateModel = {
-    rate: 0,
-    effectiveFrom: ''
-  };
+  sessionRateRows: SessionRateRow[] = [];
 
   constructor(
-    private http: HttpClient,
     private cuisinePriceService: CuisinePriceService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadMasters();
-    this.rateModel.effectiveFrom = this.todayDate();
-    this.loadFromQueryParams();
+    this.loadCompanies();
   }
 
-  loadFromQueryParams(): void {
-    this.route.queryParams.subscribe(params => {
-      const companyId = Number(params['companyId'] || 0);
-      const sessionId = Number(params['sessionId'] || 0);
-
-      if (companyId > 0) {
-        this.selectedCompanyId = companyId;
-      }
-
-      if (sessionId > 0) {
-        this.selectedSessionId = sessionId;
-      }
-
-      if (this.selectedCompanyId && this.selectedSessionId) {
-        this.getSessionRate();
-      }
-    });
-  }
-
-  loadMasters(): void {
-    const apiUrl = environment.apiUrl;
-
+  loadCompanies(): void {
     this.cuisinePriceService.getCompanies().subscribe({
       next: (res: any) => {
         this.companyList = res?.data || res || [];
+        this.loadFromQueryParams();
       },
       error: () => {
         this.companyList = [];
       }
     });
+  }
 
-    this.cuisinePriceService.getSessions().subscribe({
-      next: (res: any) => {
-        this.sessionList = res?.data || res || [];
-      },
-      error: () => {
-        this.sessionList = [];
+  loadFromQueryParams(): void {
+    this.route.queryParams.subscribe(params => {
+      const companyId = Number(params['companyId'] || 0);
+
+      if (companyId > 0) {
+        this.selectedCompanyId = companyId;
+        this.loadAssignedSessions(companyId);
       }
     });
   }
 
-  onSelectionChange(): void {
-    if (!this.selectedCompanyId || !this.selectedSessionId) {
-      this.clearRate();
+  onCompanyChange(companyId: number): void {
+    this.selectedCompanyId = Number(companyId || 0);
+    this.sessionRateRows = [];
+
+    if (!this.selectedCompanyId) {
       return;
     }
 
-    this.getSessionRate();
+    this.loadAssignedSessions(this.selectedCompanyId);
   }
 
- getSessionRate(): void {
-  this.loading = true;
+  loadAssignedSessions(companyId: number): void {
+    this.sessionLoading = true;
+    this.sessionRateRows = [];
 
-  this.cuisinePriceService
-    .getAllCuisinesWithRates(this.selectedCompanyId, this.selectedSessionId)
-    .subscribe({
+    this.cuisinePriceService.getAssignedSessionsByCompanyId(companyId).subscribe({
       next: (res: any) => {
-        this.loading = false;
+        const sessions = (res?.data || res || []).map((x: any) => ({
+          sessionId: Number(x.id ?? x.Id),
+          sessionName: x.sessionName || x.SessionName,
+          rate: 0,
+          effectiveFrom: this.todayDate()
+        }));
 
-        const data = res?.data || [];
-        const firstRow = Array.isArray(data) && data.length > 0 ? data[0] : null;
+        this.sessionRateRows = sessions;
+        this.sessionLoading = false;
 
-        if (firstRow) {
-          this.rateModel = {
-            rate: Number(firstRow.rate) || 0,
-            effectiveFrom: firstRow.effectiveFrom
-              ? this.toInputDate(firstRow.effectiveFrom)
-              : this.todayDate()
-          };
-        } else {
-          this.clearRate();
+        if (this.sessionRateRows.length > 0) {
+          this.loadExistingRates();
         }
       },
-      error: (err) => {
-        this.loading = false;
-        this.clearRate();
-
-        Swal.fire(
-          'Error',
-          err?.error?.message || 'Failed to load session rate',
-          'error'
-        );
+      error: () => {
+        this.sessionLoading = false;
+        this.sessionRateRows = [];
       }
     });
-}
+  }
 
-  saveRate(): void {
-    if (!this.selectedCompanyId || !this.selectedSessionId) {
-      Swal.fire('Validation', 'Please select company and session', 'warning');
+  loadExistingRates(): void {
+    const requests = this.sessionRateRows.map(row =>
+      this.cuisinePriceService.getAllCuisinesWithRates(this.selectedCompanyId, row.sessionId)
+    );
+
+    forkJoin(requests).subscribe({
+      next: (responses: any[]) => {
+        responses.forEach((res: any, index: number) => {
+          const data = res?.data || [];
+          const firstRow = Array.isArray(data) && data.length > 0 ? data[0] : null;
+
+          if (firstRow) {
+            this.sessionRateRows[index].rate = Number(firstRow.rate) || 0;
+            this.sessionRateRows[index].effectiveFrom = firstRow.effectiveFrom
+              ? this.toInputDate(firstRow.effectiveFrom)
+              : this.todayDate();
+          }
+        });
+      },
+      error: () => {
+        // fallback leave default values
+      }
+    });
+  }
+
+  saveRates(): void {
+    if (!this.selectedCompanyId) {
+      Swal.fire('Validation', 'Please select company', 'warning');
       return;
     }
 
-    if (!this.rateModel.rate || Number(this.rateModel.rate) <= 0) {
-      Swal.fire('Validation', 'Please enter valid rate', 'warning');
+    if (!this.sessionRateRows.length) {
+      Swal.fire('Validation', 'No sessions available for this company', 'warning');
       return;
     }
 
-    if (!this.rateModel.effectiveFrom) {
-      Swal.fire('Validation', 'Please select effective from date', 'warning');
+    const invalidRow = this.sessionRateRows.find(
+      x => !x.rate || Number(x.rate) <= 0 || !x.effectiveFrom
+    );
+
+    if (invalidRow) {
+      Swal.fire(
+        'Validation',
+        `Please enter valid rate and effective from for ${invalidRow.sessionName}`,
+        'warning'
+      );
       return;
     }
-
-    const payload = {
-      companyId: this.selectedCompanyId,
-      sessionId: this.selectedSessionId,
-      rate: Number(this.rateModel.rate),
-      effectiveFrom: this.rateModel.effectiveFrom,
-      updatedBy: Number(localStorage.getItem('userId') || 1)
-    };
 
     this.saving = true;
 
-    this.cuisinePriceService.saveBulkCuisineRates(payload).subscribe({
-      next: (res: any) => {
+    const requests = this.sessionRateRows.map(row =>
+      this.cuisinePriceService.saveBulkCuisineRates({
+        companyId: this.selectedCompanyId,
+        sessionId: row.sessionId,
+        rate: Number(row.rate),
+        effectiveFrom: row.effectiveFrom,
+        updatedBy: Number(localStorage.getItem('userId') || 1)
+      })
+    );
+
+    forkJoin(requests).subscribe({
+      next: () => {
         this.saving = false;
-        Swal.fire('Success', res?.message || 'Saved successfully', 'success').then(() => {
+        Swal.fire('Success', 'Rates saved successfully', 'success').then(() => {
           this.router.navigate(['/master/priceLists']);
         });
       },
@@ -162,7 +169,7 @@ export class PriceMasterComponent implements OnInit {
         this.saving = false;
         Swal.fire(
           'Error',
-          err?.error?.message || 'Failed to save rate',
+          err?.error?.message || 'Failed to save rates',
           'error'
         );
       }
@@ -171,13 +178,6 @@ export class PriceMasterComponent implements OnInit {
 
   goBackToList(): void {
     this.router.navigate(['/master/priceLists']);
-  }
-
-  clearRate(): void {
-    this.rateModel = {
-      rate: 0,
-      effectiveFrom: this.todayDate()
-    };
   }
 
   todayDate(): string {

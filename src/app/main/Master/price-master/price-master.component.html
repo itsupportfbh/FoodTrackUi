@@ -1,18 +1,25 @@
 <div class="price-master-page">
-  <div class="card">
+  <div class="card price-master-card">
     <div class="card-header">
       <div class="header-title-group">
         <button type="button" class="btn btn-back" (click)="goBackToList()">
           <i class="fas fa-arrow-left"></i>
           <span>Back</span>
         </button>
-        <h4 class="mb-0">Price Master</h4>
+
+        <div class="title-wrap">
+          <h4 class="mb-0">Price Master</h4>
+          <p class="page-subtitle mb-0">
+            Select company first. Assigned sessions will load automatically.
+          </p>
+        </div>
       </div>
     </div>
 
     <div class="card-body">
-      <div class="form-grid">
-        <div class="form-field">
+      <!-- Company -->
+      <div class="company-row">
+        <div class="form-field company-field">
           <label class="form-label" for="companyId">Company</label>
 
           <ng-select
@@ -20,79 +27,68 @@
             [items]="companyList"
             bindLabel="companyName"
             bindValue="id"
-            [searchable]="false"
+            [searchable]="true"
             [clearable]="true"
             [closeOnSelect]="true"
-            [virtualScroll]="true"
             placeholder="Select Company"
-            name="companyId"
             [(ngModel)]="selectedCompanyId"
-            (ngModelChange)="onSelectionChange()"
-            appendTo="body">
-            <ng-template ng-option-tmp let-item="item">
-              {{ item.companyName || item.name }}
-            </ng-template>
-          </ng-select>
-        </div>
-
-        <div class="form-field">
-          <label class="form-label" for="sessionId">Session</label>
-          <ng-select
-            id="sessionId"
-            [items]="sessionList"
-            bindLabel="sessionName"
-            bindValue="id"
-            [(ngModel)]="selectedSessionId"
-            (ngModelChange)="onSelectionChange()"
-            placeholder="Select Session"
-            [clearable]="true"
-            [searchable]="false"
+            (ngModelChange)="onCompanyChange($event)"
             appendTo="body">
           </ng-select>
         </div>
       </div>
 
-      <div *ngIf="loading" class="loading-box">
-        Loading rate...
+      <div *ngIf="sessionLoading" class="loading-box">
+        Loading assigned sessions...
       </div>
 
       <div
-        *ngIf="!loading && selectedCompanyId && selectedSessionId"
-        class="single-rate-box"
-      >
-      <div class="form-grid">
-        <div class="form-field">
-          <label class="form-label">Rate (S$)</label>
-          <input
-            type="number"
-            class="form-control"
-            [(ngModel)]="rateModel.rate"
-            placeholder="Enter Rate"
-          />
-        </div>
-
-        <div class="form-field">
-          <label class="form-label">Effective From</label>
-          <input
-            type="date"
-            class="form-control date-control"
-            [(ngModel)]="rateModel.effectiveFrom"
-          />
-        </div>
-      </div>
+        class="empty-box"
+        *ngIf="selectedCompanyId && !sessionLoading && sessionRateRows.length === 0">
+        No session mapped for this company.
       </div>
 
-      <div class="action-row" *ngIf="!loading && selectedCompanyId && selectedSessionId">
-        <!-- <button type="button" class="btn btn-clear" (click)="clearRate()">
-          Clear
-        </button> -->
+      <!-- Auto session rows -->
+     <div
+  class="session-rate-section"
+  *ngIf="selectedCompanyId && !sessionLoading && sessionRateRows.length > 0"
+>
+  <div class="session-rate-header">
+    <div>Session</div>
+    <div>Rate (S$)</div>
+    <div>Effective From</div>
+  </div>
 
+  <div class="session-rate-row" *ngFor="let row of sessionRateRows; let i = index">
+    <div class="session-name-box">
+      {{ row.sessionName }}
+    </div>
+
+    <div>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="row.rate"
+        placeholder="Enter Rate"
+      />
+    </div>
+
+    <div>
+      <input
+        type="date"
+        class="form-control"
+        [(ngModel)]="row.effectiveFrom"
+      />
+    </div>
+  </div>
+</div>
+
+      <div class="action-row" *ngIf="selectedCompanyId && sessionRateRows.length > 0">
         <button
           type="button"
           class="btn btn-save"
           [disabled]="saving"
-          (click)="saveRate()"
-        >
+          (click)="saveRates()">
           {{ saving ? 'Saving...' : 'Save Rate' }}
         </button>
       </div>

@@ -45,4 +45,9 @@ export class CuisinePriceService {
       responseType: 'blob'
     });
   }
+  getAssignedSessionsByCompanyId(companyId: number) {
+  return this.http.get<any>(
+    `${this.apiUrl}/CuisinePrice/GetAssignedSessionsByCompanyId/${companyId}`
+  );
+}
 }
