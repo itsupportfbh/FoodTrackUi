@@ -61,7 +61,7 @@ export class PriceMasterComponent implements OnInit {
   loadMasters(): void {
     const apiUrl = environment.apiUrl;
 
-    this.http.get(`${apiUrl}/Company/list`).subscribe({
+    this.cuisinePriceService.getCompanies().subscribe({
       next: (res: any) => {
         this.companyList = res?.data || res || [];
       },
@@ -70,7 +70,7 @@ export class PriceMasterComponent implements OnInit {
       }
     });
 
-    this.http.get(`${apiUrl}/Session/GetAllSession`).subscribe({
+    this.cuisinePriceService.getSessions().subscribe({
       next: (res: any) => {
         this.sessionList = res?.data || res || [];
       },
