@@ -24,39 +24,38 @@ export class VerticalMenuComponent implements OnInit, OnDestroy {
   public isSupportExpanded = false;
   public isManualPopupOpen = false;
 
-  public manualLanguages = [
-    {
-      code: 'en',
-      label: 'English',
-      file: 'assets/docs/QRServe_English.docx',
-      name: 'QRServe_English.docx'
-    },
-    {
-      code: 'ta',
-      label: 'Tamil',
-      file: 'assets/docs/QRServe_Tamil.docx',
-      name: 'QRServe_Tamil.docx'
-    },
-    {
-      code: 'ms',
-      label: 'Malay',
-      file: 'assets/docs/QRServe_Malay.docx',
-      name: 'QRServe_Malay.docx'
-    },
-    {
-      code: 'bn',
-      label: 'Bengali',
-      file: 'assets/docs/QRServe_Bengali.docx',
-      name: 'QRServe_Bengali.docx'
-    },
-    {
-      code: 'zh',
-      label: 'Chinese',
-      file: 'assets/docs/QRServe_Chinese.docx',
-      name: 'QRServe_Chinese.docx'
-    }
-  ];
-
+public manualLanguages = [
+  {
+    code: 'en',
+    label: 'English',
+    file: 'assets/docs/QRServe_English.pdf',
+    name: 'QRServe_English.pdf'
+  },
+  {
+    code: 'ta',
+    label: 'Tamil',
+    file: 'assets/docs/QRServe_Tamil.pdf',
+    name: 'QRServe_Tamil.pdf'
+  },
+  {
+    code: 'ms',
+    label: 'Malay',
+    file: 'assets/docs/QRServe_Malay.pdf',
+    name: 'QRServe_Malay.pdf'
+  },
+  {
+    code: 'bn',
+    label: 'Bengali',
+    file: 'assets/docs/QRServe_Bengali.pdf',
+    name: 'QRServe_Bengali.pdf'
+  },
+  {
+    code: 'zh',
+    label: 'Chinese',
+    file: 'assets/docs/QRServe_Chines.pdf',
+    name: 'QRServe_Chines.pdf'
+  }
+];
   private _unsubscribeAll: Subject<any>;
 
   @ViewChild(PerfectScrollbarDirective, { static: false })
