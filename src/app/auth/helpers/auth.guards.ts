@@ -35,10 +35,12 @@ export class AuthGuard implements CanActivate {
   private hasRouteAccess(user: any, url: string): boolean {
     const roleId = Number(user?.roleId || user?.RoleId || user?.role || 0);
     const cleanUrl = (url || '').toLowerCase();
+    const isDashboardRoute =
+      cleanUrl === '' || cleanUrl === '/' || cleanUrl.startsWith('/dashboard');
 
     if (roleId === 1) {
       return (
-        cleanUrl.startsWith('/dashboard') ||
+        isDashboardRoute ||
         cleanUrl.startsWith('/master') ||
         cleanUrl.startsWith('/catering/companymaster') ||
         cleanUrl.startsWith('/scanner/listqr') ||
@@ -52,7 +54,7 @@ export class AuthGuard implements CanActivate {
 
     if (roleId === 2) {
       return (
-        cleanUrl.startsWith('/dashboard') ||
+        isDashboardRoute ||
         cleanUrl.startsWith('requestoverride/Request-override-list') ||
         cleanUrl.startsWith('/catering/request') ||
         cleanUrl.startsWith('/requestoverride/request-override') ||
@@ -69,7 +71,7 @@ export class AuthGuard implements CanActivate {
 
       if (roleId === 4) {
       return (
-        cleanUrl.startsWith('/dashboard') ||
+        isDashboardRoute ||
         cleanUrl.startsWith('requestoverride/Request-override-list') ||
         cleanUrl.startsWith('/catering/request') ||
         cleanUrl.startsWith('/requestoverride/request-override') ||

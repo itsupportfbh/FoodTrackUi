@@ -11,6 +11,7 @@ export interface CoreMenuItem {
     hidden?      : boolean;
     classes?     : string;
     exactMatch?  : boolean;
+    activeUrls?  : string[];
     externalUrl? : boolean;
     openInNewTab?: boolean;
     badge?       : {
