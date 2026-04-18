@@ -10,28 +10,7 @@
   margin: 0 !important;
 }
 
-.brand-logo {
-  position: absolute;
-  top: 20px;
-  left: 24px;
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  text-decoration: none;
 
-  .brand-text {
-    color: #6f3c2f !important;
-    font-weight: 700;
-    font-size: 1.35rem;
-    margin-bottom: 0;
-    line-height: 1;
-  }
-
-  img {
-    display: block;
-    object-fit: contain;
-  }
-}
 
 /* LEFT HERO */
 .login-hero-section {
