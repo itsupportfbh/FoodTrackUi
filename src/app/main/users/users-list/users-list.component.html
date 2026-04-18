@@ -231,7 +231,7 @@
           <ngx-datatable-column name="Actions" [width]="120" [sortable]="false">
             <ng-template ngx-datatable-cell-template let-row="row">
               <div class="d-flex align-items-center justify-content-center">
-                <button
+                <!-- <button
                   type="button"
                   class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center action-icon-btn"
                   rippleEffect
@@ -239,8 +239,16 @@
                   title="Edit"
                 >
                   <i class="fas fa-pen action-icon"></i>
+                </button> -->
+  <button
+                  type="button"
+                  class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center"
+                  style="width: 28px; height: 28px;"
+                   (click)="editUser(row)"
+                  title="Edit"
+                >
+                  <i data-feather="edit" style="width: 14px; height: 14px;"></i>
                 </button>
-
                 <button
                   type="button"
                   class="btn p-0 d-flex align-items-center justify-content-center ml-1 action-icon-btn"
