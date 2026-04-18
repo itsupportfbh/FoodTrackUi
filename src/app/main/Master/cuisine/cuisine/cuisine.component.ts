@@ -117,44 +117,56 @@ export class CuisineComponent implements OnInit {
     });
   }
 
-  confirmdeleteCuisine(data: any) {
-    Swal.fire({
-      title: 'Confirm Delete',
-      text: 'Are you sure you want to delete this cuisine?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.deleteCuisine(data);
-      }
-    });
-  }
+ confirmdeleteCuisine(data: any) {
+  Swal.fire({
+    title: 'Confirm Delete',
+    text: 'Are you sure you want to delete this cuisine?',
+    icon: 'warning',
+    showCancelButton: true,
+    buttonsStyling: false,
+    confirmButtonText: 'Delete',
+    cancelButtonText: 'Cancel',
+    customClass: {
+      confirmButton: 'btn btn-danger',
+      cancelButton: 'btn btn-secondary ml-1'
+    },
+    allowOutsideClick: false
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.deleteCuisine(data);
+    }
+  });
+}
 
-  deleteCuisine(item: any) {
-    this.cuisineService.deleteCuisine(item.id, this.userId).subscribe({
-      next: (res: any) => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: res.message || 'Cuisine deleted successfully',
-          confirmButtonColor: '#3085d6'
-        });
-        this.loadCuisine();
-      },
-      error: (err) => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: err?.error || 'Failed to delete cuisine',
-          confirmButtonColor: '#d33'
-        });
-      }
-    });
-  }
+deleteCuisine(item: any) {
+  this.cuisineService.deleteCuisine(item.id, this.userId).subscribe({
+    next: (res: any) => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Deleted!',
+        text: res.message || 'Cuisine deleted successfully',
+        buttonsStyling: false,
+        customClass: {
+          confirmButton: 'btn btn-success'
+        },
+        allowOutsideClick: false
+      });
+      this.loadCuisine();
+    },
+    error: (err) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err?.error || 'Failed to delete cuisine',
+        buttonsStyling: false,
+        customClass: {
+          confirmButton: 'btn btn-danger'
+        },
+        allowOutsideClick: false
+      });
+    }
+  });
+}
 
 }
 

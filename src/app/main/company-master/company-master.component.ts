@@ -254,69 +254,72 @@ export class CompanyMasterComponent implements OnInit {
     });
   }
 
-  toggleCompanyStatus(row: any): void {
-    const nextStatus = !row.isActive;
+toggleCompanyStatus(row: any): void {
+  const nextStatus = !row.isActive;
 
-    Swal.fire({
-      title: nextStatus ? 'Activate Company?' : 'Deactivate Company?',
-      text: `Do you want to mark ${row.companyName || 'this company'} as ${nextStatus ? 'Active' : 'Inactive'}?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: nextStatus ? 'Yes, Activate' : 'Yes, Deactivate',
-      cancelButtonText: 'Cancel',
-      customClass: {
-        confirmButton: nextStatus ? 'btn btn-success' : 'btn btn-warning',
-        cancelButton: 'btn btn-outline-secondary ml-1'
-      },
-      buttonsStyling: false
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const payload = {
-          id: row.id,
-          companyCode: row.companyCode,
-          companyName: row.companyName,
-          contactPerson: row.contactPerson,
-          contactNo: row.contactNo,
-          email: row.email,
-          addressLine1: row.addressLine1,
-          addressLine2: row.addressLine2,
-          city: row.city,
-          stateName: row.stateName,
-          postalCode: row.postalCode,
-          isActive: nextStatus,
-          userId: 1,
-          password: null
-        };
+  Swal.fire({
+    title: nextStatus ? 'Activate Company?' : 'Deactivate Company?',
+    text: `Do you want to mark ${row.companyName || 'this company'} as ${nextStatus ? 'Active' : 'Inactive'}?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: nextStatus ? 'Yes, Activate' : 'Yes, Deactivate',
+    cancelButtonText: 'Cancel',
+    buttonsStyling: false,
+    customClass: {
+      confirmButton: 'btn btn-primary',
+      cancelButton: 'btn btn-secondary ml-1'
+    },
+    allowOutsideClick: false
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const payload = {
+        id: row.id,
+        companyCode: row.companyCode,
+        companyName: row.companyName,
+        contactPerson: row.contactPerson,
+        contactNo: row.contactNo,
+        email: row.email,
+        addressLine1: row.addressLine1,
+        addressLine2: row.addressLine2,
+        city: row.city,
+        stateName: row.stateName,
+        postalCode: row.postalCode,
+        isActive: nextStatus,
+        userId: 1,
+        password: null
+      };
 
-        this.companyService.saveCompany(payload).subscribe({
-          next: () => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Success',
-              text: `Company marked as ${nextStatus ? 'Active' : 'Inactive'} successfully`,
-              customClass: {
-                confirmButton: 'btn btn-primary'
-              },
-              buttonsStyling: false
-            });
+      this.companyService.saveCompany(payload).subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: `Company marked as ${nextStatus ? 'Active' : 'Inactive'} successfully`,
+            buttonsStyling: false,
+            customClass: {
+              confirmButton: 'btn btn-primary'
+            },
+            allowOutsideClick: false
+          });
 
-            this.loadCompanies();
-          },
-          error: err => {
-            Swal.fire({
-              icon: 'error',
-              title: 'Update Failed',
-              text: err?.error?.message || 'Status update failed',
-              customClass: {
-                confirmButton: 'btn btn-primary'
-              },
-              buttonsStyling: false
-            });
-          }
-        });
-      }
-    });
-  }
+          this.loadCompanies();
+        },
+        error: err => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Update Failed',
+            text: err?.error?.message || 'Status update failed',
+            buttonsStyling: false,
+            customClass: {
+              confirmButton: 'btn btn-primary'
+            },
+            allowOutsideClick: false
+          });
+        }
+      });
+    }
+  });
+}
 
   filterUpdate(event: any): void {
     const val = (event.target.value || '').toLowerCase();
