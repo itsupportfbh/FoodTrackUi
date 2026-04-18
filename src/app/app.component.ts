@@ -1,9 +1,10 @@
 import { Component, Inject, OnDestroy, OnInit, ElementRef, Renderer2 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, Location } from '@angular/common';
 import { Title } from '@angular/platform-browser';
+import { NavigationEnd, Router } from '@angular/router';
 
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import * as Waves from 'node-waves';
 
@@ -34,6 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
   private currentMenuKey = '';
+  private readonly maskedRouteStorageKey = 'foodtrack_internal_route';
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -46,6 +48,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private _coreMenuService: CoreMenuService,
     private _coreTranslationService: CoreTranslationService,
     private _translateService: TranslateService,
+    private _router: Router,
+    private _location: Location,
     private tabSessionService: TabSessionService,
     private _authenticationService: AuthenticationService
   ) {
@@ -59,6 +63,8 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.tabSessionService.initTabCheck();
     Waves.init();
+    this.restoreMaskedRoute();
+    this.maskBrowserUrl();
 
     this.loadMenuByRole();
 
@@ -163,6 +169,44 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     this._title.setTitle(this.coreConfig?.app?.appTitle || 'FoodTrack');
+  }
+
+  private restoreMaskedRoute(): void {
+    const currentVisiblePath = this._location.path() || '/';
+    const savedInternalRoute = sessionStorage.getItem(this.maskedRouteStorageKey);
+
+    if (
+      (currentVisiblePath === '' || currentVisiblePath === '/') &&
+      savedInternalRoute &&
+      savedInternalRoute !== '/'
+    ) {
+      setTimeout(() => {
+        if (this._router.url === '/' || this._router.url === '') {
+          this._router.navigateByUrl(savedInternalRoute, { replaceUrl: true });
+        }
+      });
+    }
+  }
+
+  private maskBrowserUrl(): void {
+    this._router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this._unsubscribeAll)
+      )
+      .subscribe((event: NavigationEnd) => {
+        const actualUrl = event.urlAfterRedirects || event.url;
+
+        if (actualUrl && actualUrl !== '/') {
+          sessionStorage.setItem(this.maskedRouteStorageKey, actualUrl);
+        } else {
+          sessionStorage.removeItem(this.maskedRouteStorageKey);
+        }
+
+        if (this._location.path() !== '/') {
+          this._location.replaceState('/');
+        }
+      });
   }
 
   private loadMenuByRole(): void {

@@ -106,6 +106,44 @@
   overflow: hidden;
 }
 
+.vertical-layout.vertical-menu-modern .main-menu .navigation-main {
+  > li.sidebar-group-active > a,
+  > li.open > a,
+  > li.menu-route-active > a {
+    background: rgba(201, 108, 85, 0.45) !important;
+    color: #fff !important;
+    border-radius: 20px !important;
+  }
+
+  > li.sidebar-group-active > a i,
+  > li.sidebar-group-active > a svg,
+  > li.open > a i,
+  > li.open > a svg,
+  > li.menu-route-active > a i,
+  > li.menu-route-active > a svg,
+  > li.menu-route-active > a .menu-title {
+    color: #fff !important;
+    stroke: #fff !important;
+  }
+
+  .menu-content > li.active > a,
+  .menu-content > li.menu-route-active > a {
+    background: #b97258 !important;
+    color: #fff !important;
+    border-radius: 18px !important;
+  }
+
+  .menu-content > li.active > a i,
+  .menu-content > li.active > a svg,
+  .menu-content > li.active > a .menu-title,
+  .menu-content > li.menu-route-active > a i,
+  .menu-content > li.menu-route-active > a svg,
+  .menu-content > li.menu-route-active > a .menu-title {
+    color: #fff !important;
+    stroke: #fff !important;
+  }
+}
+
 /* Support Card */
 .sidebar-support-card {
   margin: 8px 14px 10px;

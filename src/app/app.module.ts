@@ -73,14 +73,15 @@ const appRoutes: Routes = [
       )
   },
   {
-    path: 'dashboard',
+    path: '',
     canActivate: [AuthGuard],
     loadChildren: () =>
-      import('./main/dashboard/dashboard.module').then(m => m.DashboardModule)
+      import('./main/dashboard/dashboard.module').then(m => m.DashboardModule),
+    pathMatch: 'full'
   },
   {
-    path: '',
-    redirectTo: 'dashboard',
+    path: 'dashboard',
+    redirectTo: '',
     pathMatch: 'full'
   },
   {

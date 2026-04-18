@@ -188,7 +188,7 @@ export class MenuComponent implements OnInit {
       }))
       .filter(row => !!row.date);
 
-    this.currentWeekKey = this.getUploadedWeekRangeLabel(normalizedRows);
+    this.currentWeekKey = this.getCurrentWeekRangeLabel();
     this.currentWeekSessions = this.groupRowsBySessionFixedWeek(normalizedRows);
     this.buildSessionTabs();
     this.setDefaultActiveTab();
@@ -252,49 +252,19 @@ export class MenuComponent implements OnInit {
     );
   }
 
-  getUploadedWeekRangeLabel(rows: MenuRow[]): string {
-    if (!rows || rows.length === 0) {
-      return '';
-    }
-
-    const validDates = rows
-      .map(x => this.parseDate(x.date))
-      .filter(date => this.isValidDate(date))
-      .sort((a, b) => a.getTime() - b.getTime());
-
-    if (validDates.length === 0) {
-      return '';
-    }
-
-    const start = validDates[0];
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-
+  getCurrentWeekRangeLabel(): string {
+    const { start, end } = this.getCurrentWeekRange();
     return `${this.formatDateShort(start)} - ${this.formatDateShort(end)}`;
   }
 
   groupRowsBySessionFixedWeek(rows: MenuRow[]): any {
     const grouped: any = {};
-
-    if (!rows || rows.length === 0) {
-      return grouped;
-    }
-
-    const validDates = rows
-      .map(x => this.parseDate(x.date))
-      .filter(date => this.isValidDate(date))
-      .sort((a, b) => a.getTime() - b.getTime());
-
-    if (validDates.length === 0) {
-      return grouped;
-    }
-
-    const startDate = new Date(validDates[0]);
+    const { start } = this.getCurrentWeekRange();
     const fixedWeekDates: string[] = [];
 
     for (let i = 0; i < 7; i++) {
-      const d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
       fixedWeekDates.push(this.normalizeDate(d));
     }
 
@@ -711,5 +681,21 @@ export class MenuComponent implements OnInit {
 
   private isValidDate(date: Date): boolean {
     return date instanceof Date && !isNaN(date.getTime());
+  }
+
+  private getCurrentWeekRange(): { start: Date; end: Date } {
+    const today = new Date();
+    const currentDay = today.getDay();
+    const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1;
+
+    const start = new Date(today);
+    start.setHours(0, 0, 0, 0);
+    start.setDate(today.getDate() - daysFromMonday);
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    end.setHours(0, 0, 0, 0);
+
+    return { start, end };
   }
 }
