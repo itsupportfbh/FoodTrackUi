@@ -7,7 +7,8 @@ export const menu: CoreMenu[] = [
     translate: 'MENU.HOME',
     type: 'item',
     icon: 'home',
-    url: 'dashboard'
+    url: '/',
+    exactMatch: true
   },
   {
     id: 'master',
@@ -40,13 +41,14 @@ export const menu: CoreMenu[] = [
         icon: 'coffee',
         url: 'master/cuisine'
       },
-   {
+      {
   id: 'price',
   title: 'Price',
   translate: 'MENU.SAMPLE',
   type: 'item',
   icon: 'dollar-sign',
-  url: 'master/priceLists'
+  url: 'master/priceLists',
+  activeUrls: ['master/price']
 },
       {
         id: 'site_settings',
@@ -72,7 +74,8 @@ export const menu: CoreMenu[] = [
     translate: 'MENU.SAMPLE',
     type: 'item',
     icon: 'shopping-cart',
-    url: 'catering/request'
+    url: 'catering/request',
+    activeUrls: ['catering/request-create', 'catering/request-edit']
   },
   {
     id: 'Request',
@@ -80,7 +83,8 @@ export const menu: CoreMenu[] = [
     translate: 'MENU.SAMPLE',
     type: 'item',
     icon: 'edit-3',
-    url: 'requestoverride/Request-override-list'
+    url: 'requestoverride/Request-override-list',
+    activeUrls: ['requestoverride/Request-override']
   },
   {
     id: 'qrgenerateList',
@@ -88,7 +92,8 @@ export const menu: CoreMenu[] = [
     translate: 'MENU.SAMPLE',
     type: 'item',
     icon: 'grid',
-    url: 'scanner/listqr'
+    url: 'scanner/listqr',
+    activeUrls: ['scanner/qrgenerate']
   },
   {
     id: 'Scanner',
@@ -112,7 +117,8 @@ export const menu: CoreMenu[] = [
     translate: 'MENU.SAMPLE',
     type: 'item',
     icon: 'user-plus',
-    url: 'users/users-list'
+    url: 'users/users-list',
+    activeUrls: ['users/users-create']
   },
     {
     id: 'menu',

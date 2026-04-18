@@ -51,6 +51,8 @@ export class MenuComponent implements OnInit {
 
   currentWeekKey: string = '';
   currentWeekSessions: any = {};
+  currentWeekDates: string[] = [];
+  previewDate: string = '';
 
   selectedMonth: number = new Date().getMonth() + 1;
   selectedYear: number = new Date().getFullYear();
@@ -65,6 +67,7 @@ export class MenuComponent implements OnInit {
 
   ngOnInit(): void {
     this.setRoleIdFromLocalStorage();
+    this.resetPreviewDateToCurrentWeek();
     this.getSessionList();
     this.getCuisineList();
     this.loadMenuFromDb();
@@ -175,6 +178,7 @@ export class MenuComponent implements OnInit {
   }
 
   onMonthYearChange(): void {
+    this.resetPreviewDateForSelectedMonth();
     this.loadMenuFromDb();
   }
 
@@ -188,10 +192,15 @@ export class MenuComponent implements OnInit {
       }))
       .filter(row => !!row.date);
 
-    this.currentWeekKey = this.getUploadedWeekRangeLabel(normalizedRows);
-    this.currentWeekSessions = this.groupRowsBySessionFixedWeek(normalizedRows);
+    this.currentWeekDates = this.getPreviewWeekDates();
+    this.currentWeekKey = this.formatWeekRangeLabel(this.currentWeekDates);
+    this.currentWeekSessions = this.groupRowsBySessionFixedWeek(normalizedRows, this.currentWeekDates);
     this.buildSessionTabs();
     this.setDefaultActiveTab();
+  }
+
+  onPreviewDateChange(): void {
+    this.refreshPreview();
   }
 
   buildSessionTabs(): void {
@@ -252,51 +261,36 @@ export class MenuComponent implements OnInit {
     );
   }
 
-  getUploadedWeekRangeLabel(rows: MenuRow[]): string {
-    if (!rows || rows.length === 0) {
-      return '';
-    }
-
-    const validDates = rows
-      .map(x => this.parseDate(x.date))
-      .filter(date => this.isValidDate(date))
-      .sort((a, b) => a.getTime() - b.getTime());
-
-    if (validDates.length === 0) {
-      return '';
-    }
-
-    const start = validDates[0];
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-
-    return `${this.formatDateShort(start)} - ${this.formatDateShort(end)}`;
+  getCurrentWeekRangeLabel(): string {
+    return this.formatWeekRangeLabel(this.currentWeekDates);
   }
 
-  groupRowsBySessionFixedWeek(rows: MenuRow[]): any {
+  getPreviewFromDateLabel(): string {
+    if (!this.currentWeekDates.length) {
+      return '-';
+    }
+
+    return this.formatCellDate(this.currentWeekDates[0]);
+  }
+
+  getPreviewToDateLabel(): string {
+    if (!this.currentWeekDates.length) {
+      return '-';
+    }
+
+    return this.formatCellDate(this.currentWeekDates[this.currentWeekDates.length - 1]);
+  }
+
+  getPreviewDateMin(): string {
+    return this.normalizeDate(new Date(this.selectedYear, this.selectedMonth - 1, 1));
+  }
+
+  getPreviewDateMax(): string {
+    return this.normalizeDate(new Date(this.selectedYear, this.selectedMonth, 0));
+  }
+
+  groupRowsBySessionFixedWeek(rows: MenuRow[], fixedWeekDates: string[]): any {
     const grouped: any = {};
-
-    if (!rows || rows.length === 0) {
-      return grouped;
-    }
-
-    const validDates = rows
-      .map(x => this.parseDate(x.date))
-      .filter(date => this.isValidDate(date))
-      .sort((a, b) => a.getTime() - b.getTime());
-
-    if (validDates.length === 0) {
-      return grouped;
-    }
-
-    const startDate = new Date(validDates[0]);
-    const fixedWeekDates: string[] = [];
-
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
-      fixedWeekDates.push(this.normalizeDate(d));
-    }
 
     const sessionNames = Array.from(
       new Set(rows.map(x => (x.sessionName || '').trim()).filter(Boolean))
@@ -711,5 +705,80 @@ export class MenuComponent implements OnInit {
 
   private isValidDate(date: Date): boolean {
     return date instanceof Date && !isNaN(date.getTime());
+  }
+
+  private getCurrentWeekRange(): { start: Date; end: Date } {
+    const anchor = this.getPreviewAnchorDate();
+    const currentDay = anchor.getDay();
+    const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1;
+
+    const start = new Date(anchor);
+    start.setHours(0, 0, 0, 0);
+    start.setDate(anchor.getDate() - daysFromMonday);
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    end.setHours(0, 0, 0, 0);
+
+    return { start, end };
+  }
+
+  private resetPreviewDateToCurrentWeek(): void {
+    this.previewDate = this.normalizeDate(new Date());
+  }
+
+  private resetPreviewDateForSelectedMonth(): void {
+    const today = new Date();
+    const isCurrentMonthSelection =
+      this.selectedMonth === today.getMonth() + 1 &&
+      this.selectedYear === today.getFullYear();
+
+    this.previewDate = isCurrentMonthSelection
+      ? this.normalizeDate(today)
+      : this.normalizeDate(new Date(this.selectedYear, this.selectedMonth - 1, 1));
+  }
+
+  private getPreviewAnchorDate(): Date {
+    const parsed = this.parseDate(this.previewDate);
+
+    if (this.isValidDate(parsed)) {
+      return parsed;
+    }
+
+    return new Date(this.selectedYear, this.selectedMonth - 1, 1);
+  }
+
+  private getPreviewWeekDates(): string[] {
+    const { start } = this.getCurrentWeekRange();
+    const dates: string[] = [];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+
+      if (
+        d.getMonth() + 1 === this.selectedMonth &&
+        d.getFullYear() === this.selectedYear
+      ) {
+        dates.push(this.normalizeDate(d));
+      }
+    }
+
+    return dates;
+  }
+
+  private formatWeekRangeLabel(weekDates: string[]): string {
+    if (!weekDates.length) {
+      return '';
+    }
+
+    const start = this.parseDate(weekDates[0]);
+    const end = this.parseDate(weekDates[weekDates.length - 1]);
+
+    if (!this.isValidDate(start) || !this.isValidDate(end)) {
+      return '';
+    }
+
+    return `${this.formatDateShort(start)} - ${this.formatDateShort(end)}`;
   }
 }

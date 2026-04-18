@@ -1,11 +1,9 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 interface PriceOverviewItem {
-  companyId: number;
   label: string;
   sessionId: number;
   session: string;
-  rate: number;
   qty: number;
   totalPrice: number;
   percent: number;
@@ -32,6 +30,7 @@ export class PriceOverviewComponent implements OnChanges {
   chartColumns: PriceChartColumn[] = [];
   loading = false;
   totalQty = 0;
+  totalPrice = 0;
 
   private readonly sessionDisplayOrder = [
     'breakfast',
@@ -50,49 +49,54 @@ export class PriceOverviewComponent implements OnChanges {
   loadPriceOverview(): void {
     this.loading = true;
 
-    const currentPrices = this.dashboardData?.currentSessionPrices || [];
+    const dashboard = this.dashboardData || {};
     const sessionRows = this.getFilteredSessionRows();
-    const sessionRateMap = this.buildSessionRateMap(currentPrices);
 
-    const computedRows: PriceOverviewItem[] = sessionRows
+    // backend final total
+    this.totalPrice = Number(dashboard.totalPrice || 0);
+
+   const breakdown = dashboard.sessionPriceBreakdown || [];
+
+   const computedRows: PriceOverviewItem[] = sessionRows
       .map((row: any) => {
         const sessionName = String(row.sessionName || row.label || '').trim();
-        const sessionKey = sessionName.toLowerCase();
+        const sessionId = Number(row.sessionId || row.id || 0);
         const qty = Number(row.totalQty || row.qty || 0);
-        const rate = sessionRateMap[sessionKey] || 0;
+
+        // match backend session total
+        const match = breakdown.find(
+          (b: any) =>
+            b.sessionId === sessionId ||
+            String(b.sessionName || '').toLowerCase() === sessionName.toLowerCase()
+        );
 
         return {
-          companyId: 0,
           label: sessionName,
-          sessionId: Number(row.sessionId || row.id || 0),
+          sessionId,
           session: sessionName,
-          rate,
           qty,
-          totalPrice: rate * qty,
+          totalPrice: Number(match?.totalPrice || 0),
           percent: 0
         };
-      })
-      .filter((item: PriceOverviewItem) => item.qty > 0 || item.rate > 0)
-      .sort((a: PriceOverviewItem, b: PriceOverviewItem) => {
-        const aIndex = this.getSessionOrder(a.session);
-        const bIndex = this.getSessionOrder(b.session);
+      }).filter((item: PriceOverviewItem) => item.qty > 0)
+          .sort((a: PriceOverviewItem, b: PriceOverviewItem) => {
+            const aIndex = this.getSessionOrder(a.session);
+            const bIndex = this.getSessionOrder(b.session);
 
-        if (aIndex !== bIndex) {
-          return aIndex - bIndex;
-        }
+            if (aIndex !== bIndex) {
+              return aIndex - bIndex;
+            }
 
-        return b.totalPrice - a.totalPrice;
-      });
-
-    const maxAmount = computedRows.length
-      ? Math.max(...computedRows.map((item: PriceOverviewItem) => item.totalPrice))
-      : 0;
+            return b.qty - a.qty;
+          });
 
     this.totalQty = computedRows.reduce((sum, item) => sum + item.qty, 0);
 
+    const totalQtyValue = this.totalQty > 0 ? this.totalQty : 1;
+
     this.allItems = computedRows.map((item: PriceOverviewItem) => ({
       ...item,
-      percent: maxAmount > 0 ? Math.round((item.totalPrice / maxAmount) * 100) : 0
+      percent: Math.max(18, Math.round((item.qty / totalQtyValue) * 100))
     }));
 
     this.items = [...this.allItems];
@@ -104,23 +108,6 @@ export class PriceOverviewComponent implements OnChanges {
   private getSessionOrder(sessionName: string): number {
     const index = this.sessionDisplayOrder.indexOf(String(sessionName || '').trim().toLowerCase());
     return index === -1 ? 999 : index;
-  }
-
-  private buildSessionRateMap(prices: any[]): { [key: string]: number } {
-    const map: { [key: string]: number } = {};
-
-    prices
-      .filter((item: any) => this.matchesFilters(item))
-      .forEach((item: any) => {
-        const sessionKey = String(item.sessionName || '').trim().toLowerCase();
-        const rate = Number(item.rate || 0);
-
-        if (!(sessionKey in map)) {
-          map[sessionKey] = rate;
-        }
-      });
-
-    return map;
   }
 
   private getFilteredSessionRows(): any[] {
@@ -140,7 +127,7 @@ export class PriceOverviewComponent implements OnChanges {
   bindChartColumns(): void {
     const grouped = this.items.map((item: PriceOverviewItem) => ({
       label: item.session,
-      value: item.totalPrice
+      value: item.qty
     }));
 
     const maxValue = grouped.length
@@ -161,40 +148,7 @@ export class PriceOverviewComponent implements OnChanges {
     }));
   }
 
-  matchesFilters(item: any): boolean {
-    const companyIds = this.filters?.companyIds || [];
-    const sessionIds = this.filters?.sessionIds || [];
-    const fromDate = this.filters?.fromDate;
-    const toDate = this.filters?.toDate;
-
-    if (companyIds.length && !companyIds.includes(item.companyId)) {
-      return false;
-    }
-
-    if (sessionIds.length && !sessionIds.includes(item.sessionId)) {
-      return false;
-    }
-
-    if (fromDate || toDate) {
-      const effectiveFrom = item.effectiveFrom ? new Date(item.effectiveFrom) : null;
-
-      if (effectiveFrom && fromDate && effectiveFrom < new Date(fromDate)) {
-        return false;
-      }
-
-      if (effectiveFrom && toDate && effectiveFrom > new Date(toDate)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  get totalActivePrices(): number {
-    return this.allItems.length;
-  }
-
   get totalCalculatedPrice(): number {
-    return this.allItems.reduce((sum, item) => sum + item.totalPrice, 0);
+    return this.totalPrice;
   }
 }

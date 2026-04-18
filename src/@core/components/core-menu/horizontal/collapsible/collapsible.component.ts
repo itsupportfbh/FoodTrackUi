@@ -175,12 +175,39 @@ export class CoreMenuHorizontalCollapsibleComponent implements OnInit, OnDestroy
         }
       }
 
-      // If child.url is same as provided url
-      if (child.url === url || url.includes(child.url)) {
+      if (this.matchesRoute(child, url)) {
         return true;
       }
     }
 
     return false;
+  }
+
+  private matchesRoute(item: any, currentUrl: string): boolean {
+    const normalizedCurrentUrl = this.normalizeUrl(currentUrl);
+    const candidates = [item.url || '', ...(item.activeUrls || [])]
+      .map(url => this.normalizeUrl(url))
+      .filter(Boolean);
+
+    return candidates.some(candidate => {
+      if (item.exactMatch) {
+        return normalizedCurrentUrl === candidate;
+      }
+
+      return (
+        normalizedCurrentUrl === candidate ||
+        normalizedCurrentUrl.startsWith(`${candidate}/`)
+      );
+    });
+  }
+
+  private normalizeUrl(url: string): string {
+    const cleanUrl = (url || '').split('?')[0].split('#')[0].trim().toLowerCase();
+
+    if (!cleanUrl) {
+      return '';
+    }
+
+    return cleanUrl.startsWith('/') ? cleanUrl : `/${cleanUrl}`;
   }
 }

@@ -228,7 +228,7 @@ export class ChangePasswordComponent implements OnInit, AfterViewInit {
 
 
   Cancel(){
-    this.router.navigate(['/dashboard'])
+    this.router.navigate(['/'])
   }
 
   goTologout(){

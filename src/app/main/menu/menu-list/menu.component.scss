@@ -239,6 +239,39 @@
   margin-bottom: 18px;
 }
 
+.preview-filter-bar {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) repeat(2, minmax(160px, 220px));
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.preview-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preview-filter-item label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #695d55;
+}
+
+.preview-date-pill {
+  min-height: 48px;
+  border: 1px solid #dfd4cc;
+  border-radius: 14px;
+  padding: 0 14px;
+  background: linear-gradient(180deg, #fffaf7 0%, #fff 100%);
+  color: #5d4c42;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
 .empty-box {
   border: 1px dashed #d8c9bf;
   border-radius: 20px;
@@ -533,11 +566,19 @@
     min-width: 980px;
     table-layout: auto;
   }
+
+  .preview-filter-bar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 992px) {
   .summary-cards {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .preview-filter-bar {
+    grid-template-columns: 1fr;
   }
 
   .header-left h2,

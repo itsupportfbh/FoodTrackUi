@@ -3,25 +3,25 @@
   <div class="header-row">
     <a class="navbar-brand" [routerLink]="['/']">
       <span class="brand-logo">
-        <img [src]="coreConfig.app.appLogoImage" alt="brand-logo" />
+        <img [src]="coreConfig?.app?.appLogoImage" alt="brand-logo" />
       </span>
-      <h2 class="brand-text mb-0">{{ coreConfig.app.appName }}</h2>
+      <h2 class="brand-text mb-0">{{ coreConfig?.app?.appName }}</h2>
     </a>
 
     <div class="nav-toggle">
       <a
         class="nav-link modern-nav-toggle desktop-toggle"
-        (click)="toggleSidebarCollapsible()"
+        href="javascript:void(0)"
+        (click)="toggleSidebarCollapsible($event)"
       >
         <i
           [ngClass]="isCollapsed ? 'icon-circle' : 'icon-disc'"
-          class="toggle-icon feather font-medium-4 text-primary"
+          class="toggle-icon feather font-medium-4"
         ></i>
       </a>
     </div>
   </div>
 </div>
-<!--/ Menu header -->
 
 <div class="shadow-bottom" [ngClass]="{ 'd-block': isScrolled }"></div>
 
@@ -30,8 +30,31 @@
     <ul class="navigation navigation-main" layout="vertical" core-menu></ul>
   </div>
 
+  <!-- User Manual -->
+  <div
+    class="sidebar-manual-card compact"
+    *ngIf="!isCollapsed"
+    (click)="openManualPopup($event)"
+  >
+    <div class="manual-left">
+      <span class="manual-icon-wrap">
+        <i data-feather="book-open" class="manual-icon"></i>
+      </span>
+
+      <div class="manual-text-wrap">
+        <div class="manual-title">User Manual</div>
+        <div class="manual-subtitle">Download guide</div>
+      </div>
+    </div>
+
+    <span class="manual-arrow-wrap">
+      <i data-feather="chevron-right" class="manual-download-icon"></i>
+    </span>
+  </div>
+
+  <!-- Support Card -->
   <div class="sidebar-support-card" *ngIf="!isCollapsed">
-    <div class="support-card-header clickable" (click)="toggleSupportCard()">
+    <div class="support-card-header clickable" (click)="toggleSupportCard($event)">
       <div class="support-title-wrap">
         <span class="support-icon-wrap">
           <i data-feather="user" class="support-icon"></i>
@@ -75,6 +98,41 @@
           <div class="support-email">vimalla@cspl.sg</div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Manual Popup -->
+<div
+  class="manual-popup-backdrop"
+  *ngIf="isManualPopupOpen"
+  (click)="closeManualPopup()"
+>
+  <div class="manual-popup" (click)="$event.stopPropagation()">
+    <div class="manual-popup-header">
+      <div class="manual-popup-title">User Manual</div>
+
+      <button
+        type="button"
+        class="manual-close-btn"
+        (click)="closeManualPopup()"
+      >
+        <i data-feather="x"></i>
+      </button>
+    </div>
+
+    <div class="manual-popup-subtitle">Select language</div>
+
+    <div class="manual-language-list">
+      <button
+        type="button"
+        class="manual-language-btn"
+        *ngFor="let item of manualLanguages"
+        (click)="downloadManual(item.file, item.name, $event)"
+      >
+        <span>{{ item.label }}</span>
+        <i data-feather="download"></i>
+      </button>
     </div>
   </div>
 </div>

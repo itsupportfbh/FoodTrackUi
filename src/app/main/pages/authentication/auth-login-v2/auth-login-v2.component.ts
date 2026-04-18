@@ -66,7 +66,7 @@ public downloadingMonthlyPdf = false;
 
   private getDefaultRouteByRole(roleId: number): string {
     if (roleId === 1) {
-      return '/dashboard';
+      return '/';
     }
 
     if (roleId === 2) {
@@ -77,19 +77,21 @@ public downloadingMonthlyPdf = false;
       return '/scanner/scanner';
     }
 
-    return '/dashboard';
+    return '/';
   }
 
   private isAllowedReturnUrl(roleId: number, url: string): boolean {
     const cleanUrl = (url || '').toLowerCase();
+    const isDashboardRoute =
+      cleanUrl === '' || cleanUrl === '/' || cleanUrl.startsWith('/dashboard');
 
-    if (!cleanUrl || cleanUrl === '/') {
+    if (!cleanUrl) {
       return false;
     }
 
     if (roleId === 1) {
       return (
-        cleanUrl.startsWith('/dashboard') ||
+        isDashboardRoute ||
         cleanUrl.startsWith('/master') ||
         cleanUrl.startsWith('/catering/companymaster') ||
         cleanUrl.startsWith('/scanner/listqr') ||
@@ -99,7 +101,7 @@ public downloadingMonthlyPdf = false;
 
     if (roleId === 2) {
       return (
-        cleanUrl.startsWith('/dashboard') ||
+        isDashboardRoute ||
         cleanUrl.startsWith('/requestoverride/request-override-list') ||
         cleanUrl.startsWith('/catering/request')
       );
