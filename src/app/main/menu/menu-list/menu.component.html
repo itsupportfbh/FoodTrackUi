@@ -116,6 +116,31 @@
         </div>
       </div>
 
+      <div class="preview-filter-bar">
+        <div class="preview-filter-item">
+          <label for="previewDate">Select Date</label>
+          <input
+            id="previewDate"
+            type="date"
+            class="form-control"
+            [(ngModel)]="previewDate"
+            [min]="getPreviewDateMin()"
+            [max]="getPreviewDateMax()"
+            (change)="onPreviewDateChange()"
+          />
+        </div>
+
+        <div class="preview-filter-item readonly">
+          <label>From Date</label>
+          <div class="preview-date-pill">{{ getPreviewFromDateLabel() }}</div>
+        </div>
+
+        <div class="preview-filter-item readonly">
+          <label>To Date</label>
+          <div class="preview-date-pill">{{ getPreviewToDateLabel() }}</div>
+        </div>
+      </div>
+
       <div *ngIf="!currentWeekKey || sessionTabs.length === 0" class="empty-box">
         <div class="empty-icon"><i class="fa fa-folder-open"></i></div>
         <div class="empty-title">No current week menu available</div>
