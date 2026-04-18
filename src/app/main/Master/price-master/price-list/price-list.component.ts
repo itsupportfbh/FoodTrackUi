@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   selector: 'app-price-list',
   templateUrl: './price-list.component.html',
   styleUrls: ['./price-list.component.scss'],
-  encapsulation:ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None
 })
 export class PriceListComponent implements OnInit {
   ColumnMode = ColumnMode;
@@ -27,7 +27,10 @@ export class PriceListComponent implements OnInit {
 
   loading = false;
 
-  constructor(private priceService: CuisinePriceService,private router: Router) {}
+  constructor(
+    private priceService: CuisinePriceService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.getPriceList();
@@ -42,7 +45,7 @@ export class PriceListComponent implements OnInit {
 
     this.priceService.getPriceList().subscribe({
       next: (res: any) => {
-        this.rows = (res || [])
+        const rawRows = (res || [])
           .map((item: any) => ({
             id: item.id,
             priceId: item.priceId,
@@ -50,16 +53,14 @@ export class PriceListComponent implements OnInit {
             companyName: item.companyName,
             sessionId: item.sessionId,
             sessionName: item.sessionName,
-            cuisineId: item.cuisineId,
-            cuisineName: item.cuisineName,
-            rate: item.rate,
             effectiveFrom: item.effectiveFrom,
-            effectiveTo: item.effectiveTo,
-            actionType: item.actionType,
             isCurrent: item.isCurrent
           }))
           .filter((item: any) => item.isCurrent);
 
+        const grouped = this.groupByCompany(rawRows);
+
+        this.rows = grouped;
         this.applyFilters();
         this.loading = false;
       },
@@ -78,6 +79,51 @@ export class PriceListComponent implements OnInit {
     });
   }
 
+  groupByCompany(data: any[]): any[] {
+    const map = new Map<number, any>();
+
+    data.forEach((item: any) => {
+      if (!map.has(item.companyId)) {
+        map.set(item.companyId, {
+          companyId: item.companyId,
+          companyName: item.companyName,
+          sessionNames: [],
+          sessionIds: [],
+          earliestEffectiveFrom: item.effectiveFrom
+        });
+      }
+
+      const group = map.get(item.companyId);
+
+      if (item.sessionName && !group.sessionNames.includes(item.sessionName)) {
+        group.sessionNames.push(item.sessionName);
+      }
+
+      if (item.sessionId && !group.sessionIds.includes(item.sessionId)) {
+        group.sessionIds.push(item.sessionId);
+      }
+
+      if (item.effectiveFrom) {
+        const currentDate = new Date(group.earliestEffectiveFrom);
+        const itemDate = new Date(item.effectiveFrom);
+
+        if (isNaN(currentDate.getTime()) || itemDate < currentDate) {
+          group.earliestEffectiveFrom = item.effectiveFrom;
+        }
+      }
+    });
+
+    return Array.from(map.values()).map((group: any) => ({
+      companyId: group.companyId,
+      companyName: group.companyName,
+      sessionNames: group.sessionNames.join(', '),
+      sessionIds: group.sessionIds,
+      effectiveFromDisplay: group.earliestEffectiveFrom
+        ? this.formatDate(group.earliestEffectiveFrom)
+        : '-'
+    }));
+  }
+
   applyFilters(): void {
     let data = [...this.rows];
 
@@ -86,9 +132,7 @@ export class PriceListComponent implements OnInit {
 
       data = data.filter(x =>
         (x.companyName || '').toLowerCase().includes(search) ||
-        (x.sessionName || '').toLowerCase().includes(search) ||
-        (x.cuisineName || '').toLowerCase().includes(search) ||
-        (x.rate != null ? x.rate.toString() : '').includes(search)
+        (x.sessionNames || '').toLowerCase().includes(search)
       );
     }
 
@@ -120,10 +164,17 @@ export class PriceListComponent implements OnInit {
   editPrice(row: any): void {
     this.router.navigate(['/master/price'], {
       queryParams: {
-        companyId: row.companyId,
-        sessionId: row.sessionId
+        companyId: row.companyId
       }
     });
+  }
+
+  formatDate(value: string): string {
+    const d = new Date(value);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
   }
 
   exportPriceList(): void {
