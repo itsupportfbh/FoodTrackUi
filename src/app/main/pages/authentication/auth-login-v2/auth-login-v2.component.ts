@@ -8,6 +8,8 @@ import Swal from 'sweetalert2';
 import { AuthenticationService } from 'app/auth/service';
 import { TabSessionService } from 'app/services/tab-session.service';
 import { environment } from 'environments/environment';
+import { MenuItem, MenuService } from 'app/main/menu/menuService/menu.service';
+
 
 @Component({
   selector: 'app-auth-login-v2',
@@ -24,8 +26,12 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
   public error = '';
   public passwordTextType = false;
   public rememberMe = false;
-  private readonly loginUrl = `${environment.apiUrl}/Auth/Login`;
 
+  public todayMenu: MenuItem[] = [];
+  public loadingMenu = false;
+  public downloadingPdf = false;
+public downloadingMonthlyPdf = false;
+  private readonly loginUrl = `${environment.apiUrl}/Auth/Login`;
   private _unsubscribeAll: Subject<any>;
 
   constructor(
@@ -34,7 +40,8 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     private _route: ActivatedRoute,
     private _router: Router,
     private _authenticationService: AuthenticationService,
-    private _tabSessionService: TabSessionService
+    private _tabSessionService: TabSessionService,
+    private _menuService: MenuService
   ) {
     this._unsubscribeAll = new Subject();
 
@@ -147,8 +154,6 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     localStorage.setItem('id', String(currentUser.id || ''));
     localStorage.setItem('companyId', String(currentUser.companyId || ''));
     localStorage.setItem('email', currentUser.email || email || '');
-
-    // optional extra values if needed elsewhere
     localStorage.setItem('roleId', String(currentUser.roleId || ''));
     localStorage.setItem('isLoggedIn', 'true');
   }
@@ -176,18 +181,14 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
     const email = (this.loginForm.value.email || '').trim();
     const password = this.loginForm.value.password || '';
 
-    // old auth data clear pannalam
-    // but fresh login success aana பிறகு localStorage la manual-ah set pannuvom
     this._authenticationService.clearAuthData();
+
     this._authenticationService.login(email, password, this.rememberMe).subscribe({
       next: (response: any) => {
         this.loading = false;
 
         if (response?.success && response?.data) {
-          // remember me fields மட்டும் checkbox based
           this.handleRememberMe(email, password);
-
-          // remember me false இருந்தாலும் auth data localStorage la save ஆகும்
           this.setAuthDataToLocalStorage(response.data, email);
 
           this._tabSessionService.activateCurrentTab();
@@ -206,37 +207,75 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
         } else {
           this.error = response?.message || 'Invalid email or password';
 
-             Swal.fire({
+          Swal.fire({
             icon: 'error',
             title: 'Login Failed',
             text: this.error
           });
-
-          // Swal.fire({
-          //   icon: 'error',
-          //   title: 'Login Failed',
-          //   text: `${this.error}\nURL: ${this.loginUrl}\nResponse: ${JSON.stringify(response)}`
-          // });
         }
       },
       error: (err: any) => {
         this.loading = false;
         this.error = err?.error?.message || 'Invalid email or password';
-        const responseBody = err?.error ? JSON.stringify(err.error) : 'No error body';
 
-        // Swal.fire({
-        //   icon: 'error',
-        //   title: 'Login Failed',
-        //   text: `${this.error}\nURL: ${this.loginUrl}\nResponse: ${responseBody}`
-        // });
-
-         Swal.fire({
+        Swal.fire({
           icon: 'error',
           title: 'Login Failed',
           text: this.error
         });
       }
     });
+  }
+
+  loadTodayMenu(): void {
+    this.loadingMenu = true;
+
+    const today = this.formatDate(new Date());
+
+    this._menuService.getMenuByDate(today).subscribe({
+      next: (response: any) => {
+        this.todayMenu = Array.isArray(response) ? response : (response?.data || []);
+        this.loadingMenu = false;
+      },
+      error: () => {
+        this.todayMenu = [];
+        this.loadingMenu = false;
+      }
+    });
+  }
+
+  downloadTodayMenuPdf(): void {
+    this.downloadingPdf = true;
+
+    const today = this.formatDate(new Date());
+
+    this._menuService.downloadMenuPdf(today).subscribe({
+      next: (blob: Blob) => {
+        const fileUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = fileUrl;
+        a.download = `Menu_${today}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(fileUrl);
+        this.downloadingPdf = false;
+      },
+      error: () => {
+        this.downloadingPdf = false;
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Download Failed',
+          text: 'Unable to download menu PDF.'
+        });
+      }
+    });
+  }
+
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = ('0' + (date.getMonth() + 1)).slice(-2);
+    const day = ('0' + date.getDate()).slice(-2);
+    return `${year}-${month}-${day}`;
   }
 
   ngOnInit(): void {
@@ -260,10 +299,40 @@ export class AuthLoginV2Component implements OnInit, OnDestroy {
       .subscribe(config => {
         this.coreConfig = config;
       });
+
+    this.loadTodayMenu();
   }
 
   ngOnDestroy(): void {
     this._unsubscribeAll.next(null);
     this._unsubscribeAll.complete();
   }
+  downloadMonthlyMenuPdf(): void {
+  this.downloadingMonthlyPdf = true;
+
+  const today = new Date();
+  const month = today.getMonth() + 1;
+  const year = today.getFullYear();
+
+  this._menuService.downloadMonthlyMenuPdf(month, year).subscribe({
+    next: (blob: Blob) => {
+      const fileUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = fileUrl;
+      a.download = `Monthly_Menu_${year}_${('0' + month).slice(-2)}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(fileUrl);
+      this.downloadingMonthlyPdf = false;
+    },
+    error: () => {
+      this.downloadingMonthlyPdf = false;
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Download Failed',
+        text: 'Unable to download monthly menu PDF.'
+      });
+    }
+  });
+}
 }

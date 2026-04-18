@@ -1,8 +1,367 @@
-@import '@core/scss/base/bootstrap-extended/include'; // Bootstrap includes
-@import '@core/scss/base/pages/page-auth.scss';
+.auth-wrapper.auth-v2 {
+  min-height: 100vh;
+  background: #f7f3f0;
+  overflow: hidden;
+}
 
-.auth-help-icon {
+.auth-wrapper .auth-inner {
+  min-height: 100vh;
+  position: relative;
+  margin: 0 !important;
+}
+
+.brand-logo {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 20px;
+  left: 24px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+
+  .brand-text {
+    color: #6f3c2f !important;
+    font-weight: 700;
+    font-size: 1.35rem;
+    margin-bottom: 0;
+    line-height: 1;
+  }
+
+  img {
+    display: block;
+    object-fit: contain;
+  }
+}
+
+/* LEFT HERO */
+.login-hero-section {
+  position: relative;
+  min-height: 100vh;
+  padding: 0 !important;
+  overflow: hidden;
+  background: #eadfd8;
+}
+
+.hero-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  background: #eadfd8;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(111, 60, 47, 0.05) 0%,
+    rgba(111, 60, 47, 0.015) 45%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+  pointer-events: none;
+}
+
+/* RIGHT LOGIN */
+.login-form-panel {
+  min-height: 100vh;
+  background: #ffffff;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+.auth-bg {
+  background: #ffffff;
+}
+
+/* form container compact */
+.login-form-panel .mx-auto {
+  max-width: 360px !important;
+}
+
+.card-title {
+  color: #5c5576;
+  font-size: 1.55rem;
+  line-height: 1.2;
+  margin-bottom: 0.45rem !important;
+  font-weight: 700;
+}
+
+.card-text {
+  color: #7b748c;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  margin-bottom: 1.15rem !important;
+}
+
+.form-label,
+label {
+  color: #736b86;
+  font-weight: 500;
+  font-size: 0.92rem;
+  margin-bottom: 0.42rem;
+}
+
+.form-group {
+  margin-bottom: 0.95rem;
+}
+
+.form-control,
+.form-control-merge {
+  min-height: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #d8d3de;
+  box-shadow: none;
+  font-size: 0.95rem;
+  padding: 0.55rem 0.9rem;
+  color: #5d5670;
+  background: #fff;
+}
+
+.form-control::placeholder,
+.form-control-merge::placeholder {
+  color: #9b93aa;
+}
+
+.form-control:focus,
+.form-control-merge:focus {
+  border-color: #6f3c2f;
+  box-shadow: 0 0 0 0.15rem rgba(111, 60, 47, 0.08);
+}
+
+.input-group.input-group-merge {
+  .form-control {
+    border-right: 0;
+  }
+}
+
+.input-group-text {
+  height: 42px;
+  border-radius: 0 12px 12px 0;
+  background: #fff;
+  border-color: #d8d3de;
+  padding: 0 0.85rem;
+  color: #8c839e;
+}
+
+.forgot-link {
+  text-decoration: none;
+
+  small {
+    color: #9a6b59;
+    font-weight: 500;
+    font-size: 0.88rem;
+  }
+}
+
+.invalid-feedback {
+  font-size: 0.82rem;
+  margin-top: 0.3rem;
+}
+
+.custom-control {
+  min-height: auto;
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+  background-color: #7b4433;
+  border-color: #7b4433;
+}
+
+.custom-control-label {
+  color: #7a7387;
+  font-size: 0.92rem;
+  padding-top: 1px;
+}
+
+.login-btn {
+  height: 44px;
+  border-radius: 10px;
+  background: #7b4433 !important;
+  border-color: #7b4433 !important;
+  font-weight: 600;
+  font-size: 0.98rem;
+  margin-top: 0.15rem;
+
+  &:hover,
+  &:focus {
+    background: #683726 !important;
+    border-color: #683726 !important;
+  }
+
+  &:disabled {
+    opacity: 0.85;
+    cursor: not-allowed;
+  }
+}
+
+/* monthly menu button */
+.btn-outline-menu {
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid #7b4433;
+  color: #7b4433;
+  background: #fff;
+  font-weight: 600;
+  font-size: 0.93rem;
+  box-shadow: none;
+
+  &:hover,
+  &:focus {
+    background: #f7eeea;
+    color: #7b4433;
+    border-color: #7b4433;
+  }
+
+  &:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+  }
+}
+
+/* remove big spacing from alert */
+.alert {
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  margin-bottom: 0.9rem;
+}
+
+.alert .alert-body p {
+  font-size: 0.88rem;
+}
+
+/* spinner size alignment */
+.spinner-border-sm {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-width: 0.14em;
+}
+
+/* large desktop compact alignment */
+@media (min-width: 992px) {
+  .login-form-panel .col-lg-12 {
+    flex: 0 0 360px;
+    max-width: 360px;
+  }
+}
+
+/* medium desktop */
+@media (max-width: 1199.98px) {
+  .brand-logo {
+    top: 18px;
+    left: 20px;
+
+    .brand-text {
+      font-size: 1.25rem;
+    }
+  }
+
+  .login-form-panel .mx-auto {
+    max-width: 340px !important;
+  }
+
+  .card-title {
+    font-size: 1.45rem;
+  }
+}
+
+/* mobile / tablet */
+@media (max-width: 991.98px) {
+  .brand-logo {
+    top: 16px;
+    left: 18px;
+  }
+
+  .login-hero-section {
+    display: none !important;
+  }
+
+  .login-form-panel {
+    width: 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+    padding-top: 4.5rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  .login-form-panel .col-lg-12,
+  .login-form-panel .mx-auto {
+    max-width: 100% !important;
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* small mobile */
+@media (max-width: 575.98px) {
+  .brand-logo {
+    top: 14px;
+    left: 16px;
+
+    .brand-text {
+      font-size: 1.15rem;
+    }
+  }
+
+  .login-form-panel {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-top: 4.25rem !important;
+  }
+
+  .card-title {
+    font-size: 1.4rem;
+  }
+
+  .card-text {
+    font-size: 0.9rem;
+  }
+
+  .form-control,
+  .form-control-merge,
+  .input-group-text,
+  .btn-outline-menu,
+  .login-btn {
+    height: 40px;
+    min-height: 40px;
+  }
+
+  .form-control,
+  .form-control-merge {
+    font-size: 0.92rem;
+  }
+}
+.login-header {
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.login-company-logo {
+  display: block;
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  margin: 0 auto 0.9rem;
+}
+
+.login-header .card-title {
+  margin-bottom: 0.45rem !important;
+}
+
+.login-header .card-text {
+  margin-bottom: 0 !important;
 }
