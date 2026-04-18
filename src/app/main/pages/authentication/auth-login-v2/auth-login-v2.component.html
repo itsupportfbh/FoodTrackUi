@@ -1,114 +1,133 @@
 <div class="auth-wrapper auth-v2">
   <div class="auth-inner row m-0">
-    <a class="brand-logo" href="javascript:void(0);">
-      <img [src]="coreConfig?.app?.appLogoImage" alt="brand-logo" height="28" />
-      <h2 class="brand-text text-primary ml-1">FoodTrack</h2>
-    </a>
+   
 
-    <div class="d-none d-lg-flex col-lg-8 align-items-center p-5">
-      <div class="w-100 d-lg-flex align-items-center justify-content-center px-5">
+    <!-- LEFT SIDE IMAGE ONLY -->
+    <div class="d-none d-lg-flex col-lg-8 login-hero-section">
+      <div class="hero-image-wrap">
         <img
-          class="img-fluid"
-          [src]="
+          class="hero-image"
+           [src]="
             coreConfig?.layout?.skin === 'dark'
               ? 'assets/images/pages/login-v2-dark.svg'
               : 'assets/images/pages/login-v2.svg'
           "
-          alt="Login V2"
+          alt="Login Visual"
         />
+        <div class="hero-overlay"></div>
       </div>
     </div>
 
-    <div class="d-flex col-lg-4 align-items-center auth-bg px-2 p-lg-5">
-      <div class="col-12 col-sm-8 col-md-6 col-lg-12 px-xl-2 mx-auto">
-        <h2 class="card-title font-weight-bold mb-1">Welcome Back 👋</h2>
-        <p class="card-text mb-2">Please sign in with your email and password</p>
+    <!-- RIGHT SIDE LOGIN -->
+    <div class="d-flex col-lg-4 align-items-center auth-bg px-2 p-lg-5 login-form-panel">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-12 px-xl-2 mx-auto">
+  <div class="login-header text-center">
+    <img
+      class="login-company-logo"
+      [src]="coreConfig?.app?.appLogoImage || 'assets/images/logo/logo.png'"
+      alt="Company Logo"
+    />
 
-        <ngb-alert [type]="'danger'" [dismissible]="false" *ngIf="error">
-          <div class="alert-body">
-            <p class="mb-0">{{ error }}</p>
-          </div>
-        </ngb-alert>
+    <h2 class="card-title font-weight-bold mb-1">Welcome Back 👋</h2>
+    <p class="card-text mb-2">Please sign in with your email and password</p>
+  </div>
 
-        <form class="auth-login-form mt-2" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <div class="form-group">
-            <label class="form-label" for="login-email">Email</label>
-            <input
-              id="login-email"
-              type="email"
-              formControlName="email"
-              class="form-control"
-              [ngClass]="{ 'is-invalid': submitted && f.email?.errors }"
-              placeholder="Enter your email"
-              autocomplete="email"
-            />
-            <div *ngIf="submitted && f.email?.errors" class="invalid-feedback d-block">
-              <div *ngIf="f.email?.errors?.required">Email is required</div>
-              <div *ngIf="f.email?.errors?.email">Enter a valid email address</div>
-            </div>
-          </div>
+  <ngb-alert [type]="'danger'" [dismissible]="false" *ngIf="error">
+    <div class="alert-body">
+      <p class="mb-0">{{ error }}</p>
+    </div>
+  </ngb-alert>
 
-          <div class="form-group">
-            <div class="d-flex justify-content-between">
-              <label for="login-password">Password</label>
-              <a routerLink="/pages/authentication/forgot-password">
-                <small>Forgot Password?</small>
-              </a>
-            </div>
-
-            <div class="input-group input-group-merge form-password-toggle">
-              <input
-                id="login-password"
-                [type]="passwordTextType ? 'text' : 'password'"
-                formControlName="password"
-                class="form-control form-control-merge"
-                [ngClass]="{ 'is-invalid': submitted && f.password?.errors }"
-                placeholder="Enter password"
-                autocomplete="current-password"
-              />
-
-              <div class="input-group-append">
-                <span class="input-group-text cursor-pointer" (click)="togglePasswordTextType()">
-                  <i
-                    class="feather font-small-4"
-                    [ngClass]="{
-                      'icon-eye-off': passwordTextType,
-                      'icon-eye': !passwordTextType
-                    }"
-                  ></i>
-                </span>
-              </div>
-            </div>
-
-            <div *ngIf="submitted && f.password?.errors" class="invalid-feedback d-block">
-              <div *ngIf="f.password?.errors?.required">Password is required</div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <div class="custom-control custom-checkbox">
-              <input
-                class="custom-control-input"
-                id="remember-me"
-                type="checkbox"
-                [(ngModel)]="rememberMe"
-                [ngModelOptions]="{ standalone: true }"
-              />
-              <label class="custom-control-label" for="remember-me">Remember Me</label>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            [disabled]="loading"
-            class="btn btn-primary btn-block"
-            rippleEffect
-          >
-            <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
-            Sign in
-          </button>
-        </form>
+  <form class="auth-login-form mt-2" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label class="form-label" for="login-email">Email</label>
+      <input
+        id="login-email"
+        type="email"
+        formControlName="email"
+        class="form-control"
+        [ngClass]="{ 'is-invalid': submitted && f.email?.errors }"
+        placeholder="Enter your email"
+        autocomplete="email"
+      />
+      <div *ngIf="submitted && f.email?.errors" class="invalid-feedback d-block">
+        <div *ngIf="f.email?.errors?.required">Email is required</div>
+        <div *ngIf="f.email?.errors?.email">Enter a valid email address</div>
       </div>
+    </div>
+
+    <div class="form-group">
+      <div class="d-flex justify-content-between align-items-center">
+        <label for="login-password" class="mb-0">Password</label>
+        <a routerLink="/pages/authentication/forgot-password" class="forgot-link">
+          <small>Forgot Password?</small>
+        </a>
+      </div>
+
+      <div class="input-group input-group-merge form-password-toggle">
+        <input
+          id="login-password"
+          [type]="passwordTextType ? 'text' : 'password'"
+          formControlName="password"
+          class="form-control form-control-merge"
+          [ngClass]="{ 'is-invalid': submitted && f.password?.errors }"
+          placeholder="Enter password"
+          autocomplete="current-password"
+        />
+
+        <div class="input-group-append">
+          <span class="input-group-text cursor-pointer" (click)="togglePasswordTextType()">
+            <i
+              class="feather font-small-4"
+              [ngClass]="{
+                'icon-eye-off': passwordTextType,
+                'icon-eye': !passwordTextType
+              }"
+            ></i>
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="submitted && f.password?.errors" class="invalid-feedback d-block">
+        <div *ngIf="f.password?.errors?.required">Password is required</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="custom-control custom-checkbox">
+        <input
+          class="custom-control-input"
+          id="remember-me"
+          type="checkbox"
+          [(ngModel)]="rememberMe"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        <label class="custom-control-label" for="remember-me">Remember Me</label>
+      </div>
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="loading"
+      class="btn btn-primary btn-block login-btn"
+      rippleEffect
+    >
+      <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+      Sign in
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-outline-menu btn-block mt-1"
+      (click)="downloadMonthlyMenuPdf()"
+      [disabled]="downloadingMonthlyPdf"
+    >
+      <span *ngIf="downloadingMonthlyPdf" class="spinner-border spinner-border-sm mr-1"></span>
+      <i *ngIf="!downloadingMonthlyPdf" class="fas fa-file-pdf mr-50"></i>
+      {{ downloadingMonthlyPdf ? 'Downloading...' : 'Download Monthly Menu' }}
+    </button>
+  </form>
+</div>
     </div>
   </div>
 </div>
