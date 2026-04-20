@@ -77,6 +77,9 @@ public downloadingMonthlyPdf = false;
       return '/scanner/scanner';
     }
 
+    if (roleId === 4) {
+      return '/catering/request';
+    }
     return '/';
   }
 
