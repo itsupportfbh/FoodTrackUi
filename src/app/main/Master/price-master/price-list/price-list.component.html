@@ -2,108 +2,94 @@
   <div class="content-wrapper p-0">
     <div class="content-body">
       <section class="users-list-wrapper">
-        <div class="card">
-          <h4 class="card-title-text"
-          style="margin-left:0.85rem;margin-top:0.75rem;font-size:1.25rem;font-weight:600;color:#6F3C2F;"
-          >Price List</h4>
-
-          <div class="row top-control-row">
-            <div class="col-md-4 col-12">
-              <div class="d-flex justify-content-between align-items-center m-1">
-                <label class="d-flex align-items-center mb-0">
-                  Show
-                  <select
-                    class="form-control mx-25 page-size-select"
-                    [(ngModel)]="page.size"
-                    (change)="onPageSizeChange()"
-                  >
-                    <option [ngValue]="10">10</option>
-                    <option [ngValue]="25">25</option>
-                    <option [ngValue]="50">50</option>
-                    <option [ngValue]="100">100</option>
-                  </select>
-                  entries
-                </label>
-              </div>
+        <div class="card price-list-card">
+          <div class="master-header">
+            <div class="master-header-left">
+              <div class="eyebrow">Price Configuration</div>
+              <h3 class="master-title">Default Price Master</h3>
+              <p class="master-subtitle">
+                Common Basic / Standard / Premium pricing for all companies
+              </p>
             </div>
 
-            <div class="col-md-8 col-12 d-flex justify-content-start justify-content-md-end">
-              <div class="d-flex align-items-center justify-content-end pr-1 pb-1 pb-md-0 flex-wrap">
-                <label class="d-flex align-items-center ml-1 ml-md-0 mb-0">
-                  Search:
-                  <input
-                    type="search"
-                    class="form-control ml-25 search-box"
-                    placeholder="Company / Session"
-                    [(ngModel)]="searchText"
-                    (input)="applyFilters()"
-                  />
-                </label>
-
-                <button
-                  type="button"
-                  class="btn btn-primary ml-1"
-                  rippleEffect
-                  (click)="onAddPrice()"
-                >
-                  <i data-feather="plus" class="d-sm-none d-inline-block mr-0 mr-sm-1"></i>
-                  <span class="d-none d-sm-inline-block">Add Price</span>
-                </button>
-              </div>
-            </div>
+            <button
+              type="button"
+              class="btn btn-primary master-edit-btn"
+              rippleEffect
+              (click)="editPrice()"
+            >
+              <i data-feather="edit-2" class="btn-icon"></i>
+              <span>{{ planCards?.length ? 'Edit Price' : 'Add Price' }}</span>
+            </button>
           </div>
 
-          <ngx-datatable
-            class="bootstrap core-bootstrap price-datatable"
-            [rows]="pagedRows"
-            [rowHeight]="56"
-            [columnMode]="ColumnMode.force"
-            [headerHeight]="50"
-            [footerHeight]="50"
-            [limit]="page.size"
-            [count]="filteredRows.length"
-            [offset]="page.pageNumber"
-            [externalPaging]="true"
-            [scrollbarH]="false"
-            (page)="onPageChange($event)"
-          >
-            <ngx-datatable-column name="Company" prop="companyName" [width]="260">
-            </ngx-datatable-column>
+          <div *ngIf="loading" class="state-box">
+            Loading price details...
+          </div>
 
-            <ngx-datatable-column name="Sessions" prop="sessionNames">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                <span class="session-text" [title]="row.sessionNames">
-                  {{ row.sessionNames }}
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
+          <ng-container *ngIf="!loading && summary">
+            <!-- <div class="master-summary">
+              <div class="summary-left">
+                <div class="summary-badge">{{ summary.title }}</div>
+                <div class="summary-meta">
+                  <div class="meta-chip">
+                    <span class="meta-label">Plans</span>
+                    <span class="meta-value">{{ summary.plansText }}</span>
+                  </div>
 
-            <ngx-datatable-column name="Effective From" prop="effectiveFromDisplay" [width]="180">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.effectiveFromDisplay }}
-              </ng-template>
-            </ngx-datatable-column>
+                  <div class="meta-chip">
+                    <span class="meta-label">Sessions</span>
+                    <span class="meta-value">{{ summary.sessionsText }}</span>
+                  </div>
 
-            <ngx-datatable-column name="Actions" [width]="90" [sortable]="false">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                <div class="action-btn-group">
-                 
-                   <button
-                  type="button"
-                  class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center"
-                  style="width: 28px; height: 28px;"
-                  (click)="editPrice(row)"
-                  title="Edit"
-                >
-                  <i data-feather="edit" style="width: 14px; height: 14px;"></i>
-                </button>
+                  <div class="meta-chip">
+                    <span class="meta-label">Effective From</span>
+                    <span class="meta-value">{{ summary.effectiveFromDisplay }}</span>
+                  </div>
                 </div>
-              </ng-template>
-            </ngx-datatable-column>
-          </ngx-datatable>
+              </div>
 
-          <div *ngIf="!pagedRows || pagedRows.length === 0" class="no-data-found">
-            No price records found.
+              <button
+                type="button"
+                class="icon-edit-btn"
+                (click)="editPrice()"
+                title="Edit Price"
+              >
+                <i data-feather="edit" style="width: 16px; height: 16px;"></i>
+              </button>
+            </div> -->
+
+            <div class="plan-card-grid">
+              <div class="plan-card basic" *ngFor="let item of planCards" [ngClass]="item.planType.toLowerCase()">
+                <div class="plan-card-top">
+                  <div class="plan-name">{{ item.planType }}</div>
+                  <div class="plan-price">S$ {{ formatAmount(item.perDay) }}</div>
+                </div>
+
+                <div class="plan-price-label">Per Day</div>
+
+                <div class="plan-details">
+                  <div class="detail-row">
+                    <span>Monthly</span>
+                    <strong>S$ {{ formatAmount(item.monthly) }}</strong>
+                  </div>
+
+                  <div class="detail-row">
+                    <span>Effective From</span>
+                    <strong>{{ item.effectiveFromDisplay }}</strong>
+                  </div>
+
+                  <div class="detail-row sessions-row">
+                    <span>Sessions</span>
+                    <strong>{{ item.sessionNames }}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <div *ngIf="!loading && !summary" class="state-box empty">
+            No default price records found.
           </div>
         </div>
       </section>

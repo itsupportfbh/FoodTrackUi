@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { ColumnMode } from '@swimlane/ngx-datatable';
 import { CuisinePriceService } from '../cuisine-price.service';
 import Swal from 'sweetalert2';
 import * as feather from 'feather-icons';
@@ -12,20 +11,10 @@ import { Router } from '@angular/router';
   encapsulation: ViewEncapsulation.None
 })
 export class PriceListComponent implements OnInit {
-  ColumnMode = ColumnMode;
-
-  rows: any[] = [];
-  filteredRows: any[] = [];
-  pagedRows: any[] = [];
-
-  searchText: string = '';
-
-  page = {
-    pageNumber: 0,
-    size: 10
-  };
-
   loading = false;
+
+  summary: any = null;
+  planCards: any[] = [];
 
   constructor(
     private priceService: CuisinePriceService,
@@ -53,22 +42,20 @@ export class PriceListComponent implements OnInit {
             companyName: item.companyName,
             sessionId: item.sessionId,
             sessionName: item.sessionName,
+            planType: item.planType,
+            rate: Number(item.rate || 0),
             effectiveFrom: item.effectiveFrom,
             isCurrent: item.isCurrent
           }))
           .filter((item: any) => item.isCurrent);
 
-        const grouped = this.groupByCompany(rawRows);
-
-        this.rows = grouped;
-        this.applyFilters();
+        this.buildView(rawRows);
         this.loading = false;
       },
       error: (err) => {
         this.loading = false;
-        this.rows = [];
-        this.filteredRows = [];
-        this.pagedRows = [];
+        this.summary = null;
+        this.planCards = [];
 
         Swal.fire({
           icon: 'error',
@@ -79,94 +66,78 @@ export class PriceListComponent implements OnInit {
     });
   }
 
-  groupByCompany(data: any[]): any[] {
-    const map = new Map<number, any>();
+  buildView(data: any[]): void {
+    if (!data || data.length === 0) {
+      this.summary = null;
+      this.planCards = [];
+      return;
+    }
 
-    data.forEach((item: any) => {
-      if (!map.has(item.companyId)) {
-        map.set(item.companyId, {
-          companyId: item.companyId,
-          companyName: item.companyName,
-          sessionNames: [],
-          sessionIds: [],
-          earliestEffectiveFrom: item.effectiveFrom
-        });
-      }
+    const uniqueSessions = [...new Set(data.map(x => x.sessionName).filter(Boolean))];
+    const uniquePlans = [...new Set(data.map(x => x.planType).filter(Boolean))];
 
-      const group = map.get(item.companyId);
+    let earliestEffectiveFrom = data[0]?.effectiveFrom || null;
 
-      if (item.sessionName && !group.sessionNames.includes(item.sessionName)) {
-        group.sessionNames.push(item.sessionName);
-      }
-
-      if (item.sessionId && !group.sessionIds.includes(item.sessionId)) {
-        group.sessionIds.push(item.sessionId);
-      }
-
+    data.forEach(item => {
       if (item.effectiveFrom) {
-        const currentDate = new Date(group.earliestEffectiveFrom);
+        const currentDate = new Date(earliestEffectiveFrom);
         const itemDate = new Date(item.effectiveFrom);
 
         if (isNaN(currentDate.getTime()) || itemDate < currentDate) {
-          group.earliestEffectiveFrom = item.effectiveFrom;
+          earliestEffectiveFrom = item.effectiveFrom;
         }
       }
     });
 
-    return Array.from(map.values()).map((group: any) => ({
-      companyId: group.companyId,
-      companyName: group.companyName,
-      sessionNames: group.sessionNames.join(', '),
-      sessionIds: group.sessionIds,
-      effectiveFromDisplay: group.earliestEffectiveFrom
-        ? this.formatDate(group.earliestEffectiveFrom)
-        : '-'
-    }));
-  }
+    this.summary = {
+      title: 'Default For All Companies',
+      sessionsText: uniqueSessions.join(', '),
+      plansText: uniquePlans.join(', '),
+      effectiveFromDisplay: earliestEffectiveFrom ? this.formatDate(earliestEffectiveFrom) : '-'
+    };
 
-  applyFilters(): void {
-    let data = [...this.rows];
+    const orderedPlans = ['Basic', 'Standard', 'Premium'];
 
-    if (this.searchText && this.searchText.trim() !== '') {
-      const search = this.searchText.toLowerCase().trim();
+    this.planCards = orderedPlans
+      .filter(plan => data.some(x => x.planType === plan))
+      .map(plan => {
+        const planRows = data.filter(x => x.planType === plan);
+        const sessionNames = [...new Set(planRows.map(x => x.sessionName).filter(Boolean))];
+        const perDay = planRows.reduce((sum, item) => sum + Number(item.rate || 0), 0);
 
-      data = data.filter(x =>
-        (x.companyName || '').toLowerCase().includes(search) ||
-        (x.sessionNames || '').toLowerCase().includes(search)
-      );
-    }
+        let effectiveFrom = planRows[0]?.effectiveFrom || null;
 
-    this.filteredRows = data;
-    this.page.pageNumber = 0;
-    this.setPagedRows();
-  }
+        planRows.forEach(item => {
+          if (item.effectiveFrom) {
+            const currentDate = new Date(effectiveFrom);
+            const itemDate = new Date(item.effectiveFrom);
 
-  setPagedRows(): void {
-    const start = this.page.pageNumber * this.page.size;
-    const end = start + this.page.size;
-    this.pagedRows = this.filteredRows.slice(start, end);
-  }
+            if (isNaN(currentDate.getTime()) || itemDate < currentDate) {
+              effectiveFrom = item.effectiveFrom;
+            }
+          }
+        });
 
-  onPageChange(event: any): void {
-    this.page.pageNumber = event.offset;
-    this.setPagedRows();
-  }
-
-  onPageSizeChange(): void {
-    this.page.pageNumber = 0;
-    this.setPagedRows();
+        return {
+          planType: plan,
+          sessionNames: sessionNames.join(', '),
+          perDay,
+          monthly: perDay * 30,
+          effectiveFromDisplay: effectiveFrom ? this.formatDate(effectiveFrom) : '-'
+        };
+      });
   }
 
   onAddPrice(): void {
     this.router.navigate(['/master/price']);
   }
 
-  editPrice(row: any): void {
-    this.router.navigate(['/master/price'], {
-      queryParams: {
-        companyId: row.companyId
-      }
-    });
+  editPrice(): void {
+    this.router.navigate(['/master/price']);
+  }
+
+  formatAmount(value: number): string {
+    return Number(value || 0).toFixed(2);
   }
 
   formatDate(value: string): string {
@@ -175,25 +146,5 @@ export class PriceListComponent implements OnInit {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
     return `${day}-${month}-${year}`;
-  }
-
-  exportPriceList(): void {
-    this.priceService.exportPriceList().subscribe({
-      next: (response: Blob) => {
-        const blob = new Blob([response], {
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        });
-
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'PriceList.xlsx';
-        a.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => {
-        Swal.fire('Error', 'Failed to export price list', 'error');
-      }
-    });
   }
 }

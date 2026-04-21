@@ -8,46 +8,24 @@
         </button>
 
         <div class="title-wrap">
-          <h4 class="mb-0">Price Master</h4>
+          <h4 class="mb-0">Default Price Master</h4>
+          <small class="text-muted">Same price will apply for all companies</small>
         </div>
       </div>
     </div>
 
     <div class="card-body">
-      <!-- Company -->
-      <div class="company-row">
-        <div class="form-field company-field">
-          <label class="form-label" for="companyId">Company</label>
-
-          <ng-select
-            id="companyId"
-            [items]="companyList"
-            bindLabel="companyName"
-            bindValue="id"
-            [searchable]="true"
-            [clearable]="true"
-            [closeOnSelect]="true"
-            placeholder="Select Company"
-            [(ngModel)]="selectedCompanyId"
-            (ngModelChange)="onCompanyChange($event)"
-            appendTo="body">
-          </ng-select>
-        </div>
-      </div>
-
       <div *ngIf="sessionLoading" class="loading-box">
-        Loading assigned sessions...
+        Loading sessions...
       </div>
 
-      <div
-        class="empty-box"
-        *ngIf="selectedCompanyId && !sessionLoading && assignedSessions.length === 0">
-        No session mapped for this company.
+      <div class="empty-box" *ngIf="!sessionLoading && assignedSessions.length === 0">
+        No active sessions available.
       </div>
 
       <div
         class="plan-table-wrapper"
-        *ngIf="selectedCompanyId && !sessionLoading && assignedSessions.length > 0"
+        *ngIf="!sessionLoading && assignedSessions.length > 0"
       >
         <div
           class="plan-table-header"
@@ -103,14 +81,11 @@
         </div>
       </div>
 
-      <div
-        class="price-note"
-        *ngIf="selectedCompanyId && !sessionLoading && assignedSessions.length > 0"
-      >
-        * Monthly Price refers to 30 day of calendar period.
+      <div class="price-note" *ngIf="!sessionLoading && assignedSessions.length > 0">
+        * These Basic / Standard / Premium rates are common for all companies.
       </div>
 
-      <div class="action-row" *ngIf="selectedCompanyId && assignedSessions.length > 0">
+      <div class="action-row" *ngIf="assignedSessions.length > 0">
         <button
           type="button"
           class="btn btn-save"
