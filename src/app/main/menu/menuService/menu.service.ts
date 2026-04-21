@@ -21,6 +21,7 @@ export interface SaveMenuUploadRequest {
   createdBy?: number | null;
   rows: MenuRow[];
 }
+
 export interface MenuItem {
   id: number;
   date: string;
@@ -33,6 +34,7 @@ export interface MenuItem {
   item4: string;
   notes: string;
 }
+
 @Injectable({
   providedIn: 'root'
 })
@@ -52,6 +54,7 @@ export class MenuService {
 
     return this.http.get(`${this.url}/Menu/list`, { params });
   }
+
   getMenuByDate(menuDate: string): Observable<MenuItem[]> {
     const params = new HttpParams().set('menuDate', menuDate);
     return this.http.get<MenuItem[]>(`${this.url}/Menu/by-date`, { params });
@@ -59,19 +62,32 @@ export class MenuService {
 
   downloadMenuPdf(menuDate: string): Observable<Blob> {
     const params = new HttpParams().set('menuDate', menuDate);
+
     return this.http.get(`${this.url}/Menu/download-pdf`, {
       params,
       responseType: 'blob'
     });
   }
-  downloadMonthlyMenuPdf(month: number, year: number): Observable<Blob> {
-  const params = new HttpParams()
-    .set('month', month.toString())
-    .set('year', year.toString());
 
-  return this.http.get(`${this.url}/Menu/download-monthly-pdf`, {
-    params,
-    responseType: 'blob'
-  });
-}
+  downloadMonthlyMenuPdf(month: number, year: number): Observable<Blob> {
+    const params = new HttpParams()
+      .set('month', month.toString())
+      .set('year', year.toString());
+
+    return this.http.get(`${this.url}/Menu/download-monthly-pdf`, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  downloadPreviousMenuTemplate(month: number, year: number): Observable<Blob> {
+    const params = new HttpParams()
+      .set('month', month.toString())
+      .set('year', year.toString());
+
+    return this.http.get(`${this.url}/Menu/download-previous-template`, {
+      params,
+      responseType: 'blob'
+    });
+  }
 }
