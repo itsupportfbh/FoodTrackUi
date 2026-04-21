@@ -1,172 +1,237 @@
 @import "~@ng-select/ng-select/themes/default.theme.css";
 
 .price-master-page {
-  
+ // padding: 1.25rem;
+
+  .price-master-card {
+    border: 0;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+    overflow: hidden;
+  }
 
   .card-header {
-    padding: 24px 28px 10px;
+    background: linear-gradient(135deg, #6f3c2f 0%, #8b5a4a 100%);
     border-bottom: 0;
+    padding: 1rem 1.25rem;
   }
 
   .header-title-group {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 
   .title-wrap {
     h4 {
-      margin: 0;
-      font-size: 22px;
+      color: #fff;
+      font-size: 1.2rem;
       font-weight: 700;
-      color: #2f1c17;
+      margin: 0;
     }
 
-    .page-subtitle {
-      margin-top: 6px;
-      font-size: 13px;
-      color: #7b8794;
-      font-weight: 500;
+    .sub-text {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
     }
   }
 
   .btn-back {
-    height: 44px;
-    padding: 0 18px;
-    border: 1px solid #6f3c2f;
-    border-radius: 14px;
-    background: #fff;
-    color: #6f3c2f;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
+    background: #fff;
+    color: #6f3c2f;
+    border: 0;
+    border-radius: 10px;
+    padding: 0.55rem 1rem;
     font-weight: 600;
   }
 
   .card-body {
-    padding: 20px 28px 28px;
+    padding: 1.5rem;
   }
 
   .company-row {
-    margin-bottom: 22px;
+    margin-bottom: 1.25rem;
   }
 
   .company-field {
-    max-width: 620px;
+    max-width: 420px;
   }
 
   .form-label {
-    display: block;
-    margin-bottom: 10px;
-    font-size: 14px;
     font-weight: 600;
-    color: #22324a;
-  }
-
-  .session-rate-section {
-    margin-top: 8px;
-  }
-
-  .session-rate-header,
-  .session-rate-row {
-    display: grid;
-    grid-template-columns: 1.1fr 1fr 1fr;
-    gap: 18px;
-    align-items: center;
-  }
-
-  .session-rate-header {
-    margin-bottom: 12px;
-    padding: 0 4px;
-    font-size: 14px;
-    font-weight: 700;
-    color: #22324a;
-  }
-
-  .session-rate-row {
-    margin-bottom: 14px;
-  }
-
-  .session-name-box {
-    height: 44px;
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    border: 1px solid #d6dbe2;
-    border-radius: 12px;
-    background: #f8f8f8;
-    font-size: 14px;
-    font-weight: 600;
-    color: #2f1c17;
-  }
-
-  .form-control {
-    width: 100%;
-    height: 44px;
-    border-radius: 12px;
-    border: 1px solid #d6dbe2;
-    padding: 0 16px;
-    font-size: 14px;
-    font-weight: 500;
-
-    &:focus {
-      border-color: #6f3c2f;
-      box-shadow: 0 0 0 3px rgba(111, 60, 47, 0.12);
-      outline: none;
-    }
+    color: #374151;
+    margin-bottom: 0.45rem;
+    display: inline-block;
   }
 
   .loading-box,
   .empty-box {
-    margin-top: 18px;
-    padding: 16px 18px;
-    border-radius: 14px;
-    border: 1px solid #ececec;
-    background: #fafafa;
+    background: #f8fafc;
+    border: 1px dashed #d1d5db;
     color: #6b7280;
-    font-size: 14px;
+    padding: 1rem;
+    border-radius: 14px;
+    text-align: center;
     font-weight: 500;
   }
 
+  .plan-table-wrapper {
+    margin-top: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .plan-table-header,
+  .plan-table-row {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1fr 1fr 1fr 1.2fr 1.1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+
+  .plan-table-header {
+    background: #f5f7fb;
+    border-bottom: 1px solid #e5e7eb;
+
+    > div {
+      padding: 0.95rem 0.85rem;
+      font-weight: 700;
+      color: #374151;
+      font-size: 0.92rem;
+    }
+  }
+
+  .plan-table-row {
+    border-bottom: 1px solid #eef2f7;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    > div {
+      padding: 0.45rem;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .plan-badge {
+    min-width: 95px;
+    justify-content: center;
+    text-align: center;
+    padding: 0.55rem 0.9rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.9rem;
+
+    &.basic {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    &.standard {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+
+    &.premium {
+      background: #fef3c7;
+      color: #b45309;
+    }
+  }
+
+  .input-wrap {
+    position: relative;
+    width: 100%;
+
+    &.currency span {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+      font-weight: 600;
+      font-size: 0.9rem;
+      z-index: 2;
+    }
+
+    .form-control {
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      box-shadow: none;
+    }
+
+    &.currency .form-control {
+      padding-left: 42px;
+    }
+  }
+
+  .value-box {
+    font-weight: 700;
+    color: #111827;
+    background: #fafafa;
+
+    &.monthly {
+      color: #6f3c2f;
+    }
+  }
+
+  .price-note {
+    margin-top: 0.9rem;
+    font-size: 0.88rem;
+    color: #6b7280;
+    font-style: italic;
+  }
+
   .action-row {
-    margin-top: 28px;
     display: flex;
     justify-content: flex-end;
+    margin-top: 1.5rem;
   }
 
   .btn-save {
-    min-width: 120px;
-    height: 44px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 0 24px;
     background: #6f3c2f;
     color: #fff;
-    border: none;
-  }
+    border: 0;
+    border-radius: 12px;
+    padding: 0.7rem 1.4rem;
+    font-weight: 700;
+    min-width: 140px;
 
-  @media (max-width: 991.98px) {
-    .session-rate-header,
-    .session-rate-row {
-      grid-template-columns: 1fr;
+    &:hover,
+    &:focus {
+      background: #5f3328;
+      color: #fff;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
     }
   }
-}
 
-.ng-select {
-  .ng-select-container {
+  .ng-select .ng-select-container {
     min-height: 44px !important;
-    height: 44px !important;
-    border-radius: 12px !important;
-    border: 1px solid #d6dbe2 !important;
-    box-shadow: none !important;
+    border-radius: 10px !important;
+    border: 1px solid #d1d5db !important;
   }
 
-  &.ng-select-focused:not(.ng-select-opened) > .ng-select-container,
-  &.ng-select-opened > .ng-select-container {
-    border-color: #6f3c2f !important;
-    box-shadow: 0 0 0 3px rgba(111, 60, 47, 0.12) !important;
+  @media (max-width: 1200px) {
+    .plan-table-wrapper {
+      overflow-x: auto;
+    }
+
+    .plan-table-header,
+    .plan-table-row {
+      min-width: 1100px;
+    }
   }
 }

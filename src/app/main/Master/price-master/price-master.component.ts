@@ -4,11 +4,21 @@ import { CuisinePriceService } from './cuisine-price.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
-interface SessionRateRow {
+interface AssignedSession {
+  sessionId: number;
+  sessionName: string;
+}
+
+interface PlanRateItem {
   sessionId: number;
   sessionName: string;
   rate: number;
+}
+
+interface PlanRateRow {
+  planType: string;
   effectiveFrom: string;
+  sessionRates: PlanRateItem[];
 }
 
 @Component({
@@ -19,12 +29,13 @@ interface SessionRateRow {
 })
 export class PriceMasterComponent implements OnInit {
   companyList: any[] = [];
-  selectedCompanyId: number = 0;
+  selectedCompanyId = 0;
 
   sessionLoading = false;
   saving = false;
 
-  sessionRateRows: SessionRateRow[] = [];
+  assignedSessions: AssignedSession[] = [];
+  planRows: PlanRateRow[] = [];
 
   constructor(
     private cuisinePriceService: CuisinePriceService,
@@ -61,7 +72,8 @@ export class PriceMasterComponent implements OnInit {
 
   onCompanyChange(companyId: number): void {
     this.selectedCompanyId = Number(companyId || 0);
-    this.sessionRateRows = [];
+    this.planRows = [];
+    this.assignedSessions = [];
 
     if (!this.selectedCompanyId) {
       return;
@@ -72,54 +84,84 @@ export class PriceMasterComponent implements OnInit {
 
   loadAssignedSessions(companyId: number): void {
     this.sessionLoading = true;
-    this.sessionRateRows = [];
+    this.planRows = [];
+    this.assignedSessions = [];
 
     this.cuisinePriceService.getAssignedSessionsByCompanyId(companyId).subscribe({
       next: (res: any) => {
-        const sessions = (res?.data || res || []).map((x: any) => ({
+        this.assignedSessions = (res?.data || res || []).map((x: any) => ({
           sessionId: Number(x.id ?? x.Id),
-          sessionName: x.sessionName || x.SessionName,
-          rate: 0,
-          effectiveFrom: this.todayDate()
+          sessionName: x.sessionName || x.SessionName
         }));
 
-        this.sessionRateRows = sessions;
+        this.buildPlanRows();
         this.sessionLoading = false;
 
-        if (this.sessionRateRows.length > 0) {
-          this.loadExistingRates();
+        if (this.planRows.length > 0) {
+          this.loadExistingPlanRates();
         }
       },
       error: () => {
         this.sessionLoading = false;
-        this.sessionRateRows = [];
+        this.assignedSessions = [];
+        this.planRows = [];
       }
     });
   }
 
-  loadExistingRates(): void {
-    const requests = this.sessionRateRows.map(row =>
-      this.cuisinePriceService.getAllCuisinesWithRates(this.selectedCompanyId, row.sessionId)
-    );
+  buildPlanRows(): void {
+    const planTypes = ['Basic', 'Standard', 'Premium'];
 
-    forkJoin(requests).subscribe({
-      next: (responses: any[]) => {
-        responses.forEach((res: any, index: number) => {
-          const data = res?.data || [];
-          const firstRow = Array.isArray(data) && data.length > 0 ? data[0] : null;
+    this.planRows = planTypes.map(plan => ({
+      planType: plan,
+      effectiveFrom: this.todayDate(),
+      sessionRates: this.assignedSessions.map(session => ({
+        sessionId: session.sessionId,
+        sessionName: session.sessionName,
+        rate: 0
+      }))
+    }));
+  }
 
-          if (firstRow) {
-            this.sessionRateRows[index].rate = Number(firstRow.rate) || 0;
-            this.sessionRateRows[index].effectiveFrom = firstRow.effectiveFrom
-              ? this.toInputDate(firstRow.effectiveFrom)
-              : this.todayDate();
+  loadExistingPlanRates(): void {
+    this.cuisinePriceService.getCompanyPlanRates(this.selectedCompanyId).subscribe({
+      next: (res: any) => {
+        const data = res?.data || [];
+
+        this.planRows.forEach(planRow => {
+          const existingPlan = data.find((x: any) => x.planType === planRow.planType);
+
+          if (!existingPlan) {
+            return;
           }
+
+          if (existingPlan.effectiveFrom) {
+            planRow.effectiveFrom = this.toInputDate(existingPlan.effectiveFrom);
+          }
+
+          planRow.sessionRates.forEach(session => {
+            const matched = (existingPlan.sessionRates || []).find(
+              (x: any) => Number(x.sessionId) === session.sessionId
+            );
+
+            if (matched) {
+              session.rate = Number(matched.rate || 0);
+            }
+          });
         });
       },
       error: () => {
-        // fallback leave default values
+        // keep default
       }
     });
+  }
+
+  getPerDay(row: PlanRateRow): number {
+    return row.sessionRates.reduce((sum, item) => sum + Number(item.rate || 0), 0);
+  }
+
+  getMonthly(row: PlanRateRow): number {
+    return this.getPerDay(row) * 30;
   }
 
   saveRates(): void {
@@ -128,56 +170,66 @@ export class PriceMasterComponent implements OnInit {
       return;
     }
 
-    if (!this.sessionRateRows.length) {
+    if (!this.planRows.length) {
       Swal.fire('Validation', 'No sessions available for this company', 'warning');
       return;
     }
 
-    const invalidRow = this.sessionRateRows.find(
-      x => !x.rate || Number(x.rate) <= 0 || !x.effectiveFrom
+    const invalidRow = this.planRows.find(row =>
+      !row.effectiveFrom || row.sessionRates.some(x => Number(x.rate) <= 0)
     );
 
     if (invalidRow) {
       Swal.fire(
         'Validation',
-        `Please enter valid rate and effective from for ${invalidRow.sessionName}`,
+        `Please enter valid rates for all sessions in ${invalidRow.planType}`,
         'warning'
       );
       return;
     }
 
     this.saving = true;
+    const updatedBy = Number(localStorage.getItem('userId') || 1);
 
-    const requests = this.sessionRateRows.map(row =>
-      this.cuisinePriceService.saveBulkCuisineRates({
+    const requests = this.planRows.map(row =>
+      this.cuisinePriceService.saveCompanyPlanRates({
         companyId: this.selectedCompanyId,
-        sessionId: row.sessionId,
-        rate: Number(row.rate),
+        planType: row.planType,
         effectiveFrom: row.effectiveFrom,
-        updatedBy: Number(localStorage.getItem('userId') || 1)
+        updatedBy,
+        sessionRates: row.sessionRates.map(x => ({
+          sessionId: x.sessionId,
+          rate: Number(x.rate)
+        }))
       })
     );
 
     forkJoin(requests).subscribe({
       next: () => {
         this.saving = false;
-        Swal.fire('Success', 'Rates saved successfully', 'success').then(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Plan rates saved successfully',
+          showConfirmButton: false,
+          timer: 1500
+        }).then(() => {
           this.router.navigate(['/master/priceLists']);
         });
       },
-      error: (err) => {
+      error: (err: any) => {
         this.saving = false;
-        Swal.fire(
-          'Error',
-          err?.error?.message || 'Failed to save rates',
-          'error'
-        );
+        Swal.fire('Error', err?.error?.message || 'Failed to save plan rates', 'error');
       }
     });
   }
 
   goBackToList(): void {
     this.router.navigate(['/master/priceLists']);
+  }
+
+  formatSessionName(sessionName: string): string {
+    return sessionName || '';
   }
 
   todayDate(): string {
