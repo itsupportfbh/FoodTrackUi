@@ -95,12 +95,14 @@ export class LocationComponent implements OnInit,AfterViewInit, AfterViewChecked
  if(this.id == 0){
   this._service.insertLocation(obj).subscribe((res) => {
     if (res.isSuccess) {
-      Swal.fire({
-        title: "Hi",
-        text: res.message,
-        icon: "success",
-        allowOutsideClick: false,
-      });
+        Swal.fire({
+          title: 'Success',
+          text: res.message,
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+          allowOutsideClick: false
+        });
 
       this.getAlllocations();
       this.isDisplay = false;
@@ -111,12 +113,14 @@ export class LocationComponent implements OnInit,AfterViewInit, AfterViewChecked
 else{
    this._service.updateLocation(obj).subscribe((res) => {
     if (res.isSuccess) {
-      Swal.fire({
-        title: "Hi",
-        text: res.message,
-        icon: "success",
-        allowOutsideClick: false,
-      });
+       Swal.fire({
+          title: 'Success',
+          text: res.message,
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+          allowOutsideClick: false
+        });
 
       this.getAlllocations();
       this.isDisplay = false;
@@ -168,6 +172,8 @@ deletelocations(id) {
             text: response.message,
             allowOutsideClick: false,
             buttonsStyling: false,
+            showConfirmButton: false,
+            timer: 1500,
             customClass: {
               confirmButton: 'btn btn-success'
             }

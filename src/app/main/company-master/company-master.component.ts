@@ -296,9 +296,8 @@ toggleCompanyStatus(row: any): void {
             title: 'Success',
             text: `Company marked as ${nextStatus ? 'Active' : 'Inactive'} successfully`,
             buttonsStyling: false,
-            customClass: {
-              confirmButton: 'btn btn-primary'
-            },
+            showConfirmButton: false,
+            timer: 1500,
             allowOutsideClick: false
           });
 
