@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import Swal from 'sweetalert2';
 import { CuisinePriceService } from './cuisine-price.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { Router } from '@angular/router';
+
 
 interface AssignedSession {
   sessionId: number;
@@ -28,9 +28,6 @@ interface PlanRateRow {
   encapsulation: ViewEncapsulation.None
 })
 export class PriceMasterComponent implements OnInit {
-  companyList: any[] = [];
-  selectedCompanyId = 0;
-
   sessionLoading = false;
   saving = false;
 
@@ -39,55 +36,19 @@ export class PriceMasterComponent implements OnInit {
 
   constructor(
     private cuisinePriceService: CuisinePriceService,
-    private route: ActivatedRoute,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadCompanies();
+    this.loadSessions();
   }
 
-  loadCompanies(): void {
-    this.cuisinePriceService.getCompanies().subscribe({
-      next: (res: any) => {
-        this.companyList = res?.data || res || [];
-        this.loadFromQueryParams();
-      },
-      error: () => {
-        this.companyList = [];
-      }
-    });
-  }
-
-  loadFromQueryParams(): void {
-    this.route.queryParams.subscribe(params => {
-      const companyId = Number(params['companyId'] || 0);
-
-      if (companyId > 0) {
-        this.selectedCompanyId = companyId;
-        this.loadAssignedSessions(companyId);
-      }
-    });
-  }
-
-  onCompanyChange(companyId: number): void {
-    this.selectedCompanyId = Number(companyId || 0);
-    this.planRows = [];
-    this.assignedSessions = [];
-
-    if (!this.selectedCompanyId) {
-      return;
-    }
-
-    this.loadAssignedSessions(this.selectedCompanyId);
-  }
-
-  loadAssignedSessions(companyId: number): void {
+  loadSessions(): void {
     this.sessionLoading = true;
     this.planRows = [];
     this.assignedSessions = [];
 
-    this.cuisinePriceService.getAssignedSessionsByCompanyId(companyId).subscribe({
+    this.cuisinePriceService.getAllSessions().subscribe({
       next: (res: any) => {
         this.assignedSessions = (res?.data || res || []).map((x: any) => ({
           sessionId: Number(x.id ?? x.Id),
@@ -110,7 +71,7 @@ export class PriceMasterComponent implements OnInit {
   }
 
   buildPlanRows(): void {
-    const planTypes = ['Basic', 'Standard', 'Premium'];
+    const planTypes = ['Premium', 'Standard','Basic'];
 
     this.planRows = planTypes.map(plan => ({
       planType: plan,
@@ -124,7 +85,7 @@ export class PriceMasterComponent implements OnInit {
   }
 
   loadExistingPlanRates(): void {
-    this.cuisinePriceService.getCompanyPlanRates(this.selectedCompanyId).subscribe({
+    this.cuisinePriceService.getDefaultPlanRates().subscribe({
       next: (res: any) => {
         const data = res?.data || [];
 
@@ -164,65 +125,59 @@ export class PriceMasterComponent implements OnInit {
     return this.getPerDay(row) * 30;
   }
 
-  saveRates(): void {
-    if (!this.selectedCompanyId) {
-      Swal.fire('Validation', 'Please select company', 'warning');
-      return;
-    }
-
-    if (!this.planRows.length) {
-      Swal.fire('Validation', 'No sessions available for this company', 'warning');
-      return;
-    }
-
-    const invalidRow = this.planRows.find(row =>
-      !row.effectiveFrom || row.sessionRates.some(x => Number(x.rate) <= 0)
-    );
-
-    if (invalidRow) {
-      Swal.fire(
-        'Validation',
-        `Please enter valid rates for all sessions in ${invalidRow.planType}`,
-        'warning'
-      );
-      return;
-    }
-
-    this.saving = true;
-    const updatedBy = Number(localStorage.getItem('userId') || 1);
-
-    const requests = this.planRows.map(row =>
-      this.cuisinePriceService.saveCompanyPlanRates({
-        companyId: this.selectedCompanyId,
-        planType: row.planType,
-        effectiveFrom: row.effectiveFrom,
-        updatedBy,
-        sessionRates: row.sessionRates.map(x => ({
-          sessionId: x.sessionId,
-          rate: Number(x.rate)
-        }))
-      })
-    );
-
-    forkJoin(requests).subscribe({
-      next: () => {
-        this.saving = false;
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Plan rates saved successfully',
-          showConfirmButton: false,
-          timer: 1500
-        }).then(() => {
-          this.router.navigate(['/master/priceLists']);
-        });
-      },
-      error: (err: any) => {
-        this.saving = false;
-        Swal.fire('Error', err?.error?.message || 'Failed to save plan rates', 'error');
-      }
-    });
+ saveRates(): void {
+  if (!this.planRows.length) {
+    Swal.fire('Validation', 'No sessions available', 'warning');
+    return;
   }
+
+  const invalidRow = this.planRows.find(row =>
+    !row.effectiveFrom || row.sessionRates.some(x => Number(x.rate) <= 0)
+  );
+
+  if (invalidRow) {
+    Swal.fire(
+      'Validation',
+      `Please enter valid rates for all sessions in ${invalidRow.planType}`,
+      'warning'
+    );
+    return;
+  }
+
+  this.saving = true;
+  const updatedBy = Number(localStorage.getItem('userId') || 1);
+
+  const payload = {
+    updatedBy,
+    plans: this.planRows.map(row => ({
+      planType: row.planType,
+      effectiveFrom: row.effectiveFrom,
+      sessionRates: row.sessionRates.map(x => ({
+        sessionId: x.sessionId,
+        rate: Number(x.rate)
+      }))
+    }))
+  };
+
+  this.cuisinePriceService.saveDefaultPlanRatesBulk(payload).subscribe({
+    next: () => {
+      this.saving = false;
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Default plan rates saved successfully',
+        showConfirmButton: false,
+        timer: 1500
+      }).then(() => {
+        this.router.navigate(['/master/priceLists']);
+      });
+    },
+    error: (err: any) => {
+      this.saving = false;
+      Swal.fire('Error', err?.error?.message || 'Failed to save plan rates', 'error');
+    }
+  });
+}
 
   goBackToList(): void {
     this.router.navigate(['/master/priceLists']);

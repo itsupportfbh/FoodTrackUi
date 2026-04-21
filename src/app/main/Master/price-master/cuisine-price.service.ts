@@ -67,4 +67,15 @@ export class CuisinePriceService {
   saveCompanyPlanRates(payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/CuisinePrice/SaveCompanyPlanRates`, payload);
   }
+   getAllSessions() {
+  return this.http.get(`${this.apiUrl}/CuisinePrice/GetAllSessions`);
+}
+
+getDefaultPlanRates() {
+  return this.http.get(`${this.apiUrl}/CuisinePrice/GetDefaultPlanRates`);
+}
+
+saveDefaultPlanRatesBulk(payload: any) {
+  return this.http.post(`${this.apiUrl}/CuisinePrice/SaveDefaultPlanRatesBulk`, payload);
+}
 }
