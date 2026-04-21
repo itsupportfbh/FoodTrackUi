@@ -670,7 +670,14 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
       next: (res: any) => {
         this.emailSending = false;
         this.showEmailPopup = false;
-        Swal.fire('Success', res?.message || 'Report mail sent successfully', 'success');
+          Swal.fire({
+          title: 'Success',
+          text: res?.message || 'Report mail sent successfully',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+          allowOutsideClick: false
+        });
       },
       error: (err) => {
         this.emailSending = false;

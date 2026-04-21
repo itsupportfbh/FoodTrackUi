@@ -413,18 +413,38 @@ submitForApproval(): void {
   this.isProcessing = true;
 
   this.scannersettingsService.submitQrApproval(payload).subscribe({
-    next: (res: any) => {
-      this.isProcessing = false;
-      Swal.fire('Success', res?.message || 'QR request submitted for approval', 'success')
-        .then(() => {
-          this.router.navigate(['/scanner/listqr']);
-        });
-    },
-    error: (err: any) => {
-      this.isProcessing = false;
-      Swal.fire('Error', err?.error?.message || 'Failed to submit approval request', 'error');
-    }
-  });
+  next: (res: any) => {
+    this.isProcessing = false;
+
+    const message =
+      typeof res?.message === 'string'
+        ? res.message
+        : Array.isArray(res?.message)
+        ? res.message.map((x: any) => x?.message || x?.name || JSON.stringify(x)).join(', ')
+        : res?.message?.message || res?.message?.title || 'QR request submitted for approval';
+
+    Swal.fire({
+      title: 'Success',
+      text: message,
+      icon: 'success',
+      showConfirmButton: false,
+      timer: 1500,
+      allowOutsideClick: false
+    }).then(() => {
+      this.router.navigate(['/scanner/listqr']);
+    });
+  },
+  error: (err: any) => {
+    this.isProcessing = false;
+
+    Swal.fire({
+      title: 'Error',
+      text: err?.error?.message || 'Failed to submit approval request',
+      icon: 'error',
+      allowOutsideClick: false
+    });
+  }
+});
 }
 
   onSubmit(): Observable<any> {

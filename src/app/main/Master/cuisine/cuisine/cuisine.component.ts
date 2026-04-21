@@ -100,6 +100,8 @@ export class CuisineComponent implements OnInit {
           title: 'Success',
           text: res.message || 'Saved successfully',
           confirmButtonText: 'OK',
+          showConfirmButton: false,
+          timer: 1500,
           confirmButtonColor: '#7367F0'
         });
         this.loadCuisine();
@@ -146,6 +148,8 @@ deleteCuisine(item: any) {
         title: 'Deleted!',
         text: res.message || 'Cuisine deleted successfully',
         buttonsStyling: false,
+        showConfirmButton: false,
+        timer: 1500,
         customClass: {
           confirmButton: 'btn btn-success'
         },

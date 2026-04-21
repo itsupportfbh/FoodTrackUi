@@ -171,11 +171,14 @@ approveQr(row: any): void {
 
     this.scannerService.approveQrRequest(row.id, this.userId).subscribe({
       next: (res: any) => {
-        Swal.fire(
-          'Success',
-          res?.message || 'QR request approved successfully',
-          'success'
-        );
+       Swal.fire({
+        title: 'Success',
+        text: res?.message || 'QR request approved successfully',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500,
+        allowOutsideClick: false
+      });
         this.loadQrList();
       },
       error: (err: any) => {
@@ -214,7 +217,14 @@ rejectQr(row: any): void {
 
     this.scannerService.rejectQrRequest(row.id, payload).subscribe({
       next: (res: any) => {
-        Swal.fire('Success', res?.message || 'QR request rejected successfully', 'success');
+        Swal.fire({
+        title: 'Success',
+        text: res?.message || 'QR request rejected successfully',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500,
+        allowOutsideClick: false
+      });
         this.loadQrList();
       },
       error: (err: any) => {
@@ -281,7 +291,14 @@ rejectQr(row: any): void {
 
       window.URL.revokeObjectURL(url);
 
-      Swal.fire('Success', 'ZIP downloaded successfully', 'success');
+      Swal.fire({
+      title: 'Success',
+      text: 'ZIP downloaded successfully',
+      icon: 'success',
+      showConfirmButton: false,
+      timer: 1500,
+      allowOutsideClick: false
+    });
     },
     error: (err: any) => {
       console.error('ZIP DOWNLOAD ERROR:', err);

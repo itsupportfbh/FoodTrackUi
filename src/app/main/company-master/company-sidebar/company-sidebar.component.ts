@@ -367,9 +367,8 @@ export class CompanySidebarComponent implements OnInit, OnChanges {
           text: this.model.id
             ? 'Company updated successfully'
             : 'Company created successfully',
-          customClass: {
-            confirmButton: 'btn btn-primary'
-          },
+          showConfirmButton: false,
+          timer: 1500,
           buttonsStyling: false
         });
 

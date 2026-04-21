@@ -242,6 +242,8 @@ export class SessionComponent implements OnInit, AfterViewInit, AfterViewChecked
             title: 'Success',
             text: res.message,
             icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
             allowOutsideClick: false
           });
 
@@ -265,6 +267,8 @@ export class SessionComponent implements OnInit, AfterViewInit, AfterViewChecked
             title: 'Success',
             text: res.message,
             icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
             allowOutsideClick: false
           });
 
@@ -324,6 +328,8 @@ export class SessionComponent implements OnInit, AfterViewInit, AfterViewChecked
             icon: 'success',
             title: 'Deleted!',
             text: response.message,
+            showConfirmButton: false,
+            timer: 1500,
             allowOutsideClick: false
           });
         } else {

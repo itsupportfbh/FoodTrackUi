@@ -157,8 +157,8 @@ export class SitesettingsComponent implements OnInit, AfterViewInit {
           icon: 'success',
           title: 'Success',
           text: res?.message || res?.Message || 'Saved successfully',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#0e3a4c'
+          showConfirmButton: false,
+          timer: 1500,
         });
 
         this.getLatestSiteSetting();

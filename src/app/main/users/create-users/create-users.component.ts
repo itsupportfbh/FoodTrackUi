@@ -413,6 +413,8 @@ export class CreateUsersComponent implements OnInit, OnChanges {
           Swal.fire({
             icon: 'success',
             title: 'Success',
+            showConfirmButton: false,
+            timer: 1500,
             text: res?.message || (this.isEditMode ? 'User updated successfully' : 'User created successfully')
           });
 

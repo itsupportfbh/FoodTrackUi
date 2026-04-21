@@ -266,6 +266,8 @@ toggleUserStatus(row: any): void {
           Swal.fire({
             icon: 'success',
             title: 'Success',
+            showConfirmButton: false,
+            timer: 1500,
             text: res?.message || 'User marked as Inactive successfully'
           });
 
