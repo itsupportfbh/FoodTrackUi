@@ -45,7 +45,7 @@ public manualLanguages = [
   },
   {
     code: 'bn',
-    label: 'Bengali',
+    label: 'Bangladesh',
     file: 'assets/docs/QRServe_Bengali.pdf',
     name: 'QRServe_Bengali.pdf'
   },

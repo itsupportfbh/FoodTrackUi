@@ -8,8 +8,9 @@
           <div class="title-badge">Menu Management</div>
           <h2>Monthly Menu Upload & Preview</h2>
           <p>
-            Download the template, fill the Excel, upload it, and preview the selected
-            weekly menu session-wise and cuisine-wise format.
+            Download the template, fill the Excel, upload it, preview the selected
+            weekly menu session-wise and cuisine-wise format, and download the
+            previously uploaded menu Excel.
           </p>
         </div>
 
@@ -53,18 +54,30 @@
               </div>
             </div>
 
-            <div class="action-buttons">
-              <button class="btn btn-primary" (click)="downloadTemplate()">
-                <i class="fa fa-download"></i>
-                <span>Download Template</span>
-              </button>
+<div class="action-buttons single-line-actions">
+  <button class="btn btn-primary action-btn-inline" type="button" (click)="downloadTemplate()">
+    <i class="fa fa-download"></i>
+    <span>Blank Template</span>
+  </button>
 
-              <label class="btn btn-outline upload-btn">
-                <i class="fa fa-upload"></i>
-                <span>Upload Excel</span>
-                <input type="file" accept=".xlsx,.xls,.csv" (change)="onFileChange($event)" hidden />
-              </label>
-            </div>
+  <button
+    class="btn btn-secondary action-btn-inline"
+    type="button"
+    (click)="downloadPreviousTemplate()"
+    [disabled]="isDownloadingPreviousTemplate"
+  >
+    <i class="fa fa-file-excel"></i>
+    <span>
+      {{ isDownloadingPreviousTemplate ? 'Downloading...' : 'Previous Menu' }}
+    </span>
+  </button>
+
+  <label class="btn btn-outline upload-btn action-btn-inline upload-inline-btn">
+    <i class="fa fa-upload"></i>
+    <span>Upload Excel</span>
+    <input type="file" accept=".xlsx,.xls,.csv" (change)="onFileChange($event)" hidden />
+  </label>
+</div>
           </div>
         </div>
       </div>
@@ -222,69 +235,6 @@
         </div>
       </ng-container>
     </div>
-
-    <!-- ADMIN ONLY -->
-    <!-- <div class="card-box excel-card" *ngIf="isAdminRole">
-      <div class="section-header">
-        <div>
-          <h2>Excel Format Expected</h2>
-          <p>Use the following column structure while preparing the upload file.</p>
-        </div>
-      </div>
-
-      <div class="excel-format-box">
-        <table class="format-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>SessionName</th>
-              <th>CuisineName</th>
-              <th>SetName</th>
-              <th>Item1</th>
-              <th>Item2</th>
-              <th>Item3</th>
-              <th>Item4</th>
-              <th>Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>01/04/2026</td>
-              <td>Breakfast</td>
-              <td>Indian Food</td>
-              <td>Set A</td>
-              <td>Idli</td>
-              <td>Sambar</td>
-              <td>Chutney</td>
-              <td>Tea</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td>01/04/2026</td>
-              <td>Breakfast</td>
-              <td>Chinese Food</td>
-              <td>Set B</td>
-              <td>Noodles</td>
-              <td>Manchurian</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td>01/04/2026</td>
-              <td>Breakfast</td>
-              <td>Punjabi Food</td>
-              <td>Set C</td>
-              <td>Aloo Paratha</td>
-              <td>Curd</td>
-              <td>Pickle</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div> -->
 
   </div>
 </div>

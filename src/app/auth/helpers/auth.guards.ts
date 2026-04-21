@@ -61,7 +61,9 @@ export class AuthGuard implements CanActivate {
         cleanUrl.startsWith('/catering/reports') ||
         cleanUrl.startsWith('/users/users-list') ||
         cleanUrl.startsWith('/users/users-create') ||
-           cleanUrl.startsWith('/menu/menu')
+           cleanUrl.startsWith('/menu/menu') ||
+                cleanUrl.startsWith('/scanner/qrgenerate') ||
+                cleanUrl.startsWith('/scanner/listqr')
       );
     }
 
@@ -78,7 +80,9 @@ export class AuthGuard implements CanActivate {
         cleanUrl.startsWith('/catering/reports') ||
         cleanUrl.startsWith('/users/users-list') ||
         cleanUrl.startsWith('/users/users-create') ||
-           cleanUrl.startsWith('/menu/menu')
+        cleanUrl.startsWith('/menu/menu') ||
+        cleanUrl.startsWith('/scanner/qrgenerate') ||
+        cleanUrl.startsWith('/scanner/listqr')
       );
     }
     return false;

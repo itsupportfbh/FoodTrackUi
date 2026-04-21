@@ -48,6 +48,7 @@ export class MenuComponent implements OnInit {
   isLoadingCuisines = false;
   isSavingMenu = false;
   isLoadingMenu = false;
+  isDownloadingPreviousTemplate = false;
 
   currentWeekKey: string = '';
   currentWeekSessions: any = {};
@@ -383,6 +384,40 @@ export class MenuComponent implements OnInit {
     this.saveExcelFile(excelBuffer, `menu_upload_template_${monthName}_${this.selectedYear}`);
   }
 
+downloadPreviousTemplate(): void {
+  this.isDownloadingPreviousTemplate = true;
+
+  this.menuService.downloadPreviousMenuTemplate(this.selectedMonth, this.selectedYear).subscribe({
+    next: (response: Blob) => {
+      this.isDownloadingPreviousTemplate = false;
+
+      if (!response || response.size === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No File Found',
+          text: 'No previously uploaded menu Excel found for selected month and year.'
+        });
+        return;
+      }
+
+      const monthName = new Date(this.selectedYear, this.selectedMonth - 1, 1)
+        .toLocaleString('en-US', { month: 'short' });
+
+      const fileName = `previous_menu_${monthName}_${this.selectedYear}.xlsx`;
+
+      saveAs(response, fileName);
+    },
+    error: (error: any) => {
+      this.isDownloadingPreviousTemplate = false;
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'No File Found',
+        text: error?.error?.message || 'No previously uploaded menu Excel found for selected month and year.'
+      });
+    }
+  });
+}
   saveExcelFile(buffer: any, fileName: string): void {
     const data: Blob = new Blob(
       [buffer],
@@ -454,6 +489,7 @@ export class MenuComponent implements OnInit {
       menuMonth: this.selectedMonth,
       menuYear: this.selectedYear,
       createdBy: createdBy,
+      originalFileName: fileName,
       rows: allRows
     };
 
