@@ -1,7 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'environments/environment';
-
+import { Observable } from 'rxjs';
+export interface PlanRateRow {
+  planType: string;
+  breakfastSessionId: number;
+  lunchSessionId: number;
+  dinnerSessionId: number;
+  breakfastRate: number;
+  lunchRate: number;
+  dinnerRate: number;
+  effectiveFrom: string;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -50,4 +60,11 @@ export class CuisinePriceService {
     `${this.apiUrl}/CuisinePrice/GetAssignedSessionsByCompanyId/${companyId}`
   );
 }
+ getCompanyPlanRates(companyId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/CuisinePrice/GetCompanyPlanRates?companyId=${companyId}`);
+  }
+
+  saveCompanyPlanRates(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/CuisinePrice/SaveCompanyPlanRates`, payload);
+  }
 }

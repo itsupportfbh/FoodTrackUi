@@ -9,7 +9,6 @@
 
         <div class="title-wrap">
           <h4 class="mb-0">Price Master</h4>
-        
         </div>
       </div>
     </div>
@@ -42,46 +41,76 @@
 
       <div
         class="empty-box"
-        *ngIf="selectedCompanyId && !sessionLoading && sessionRateRows.length === 0">
+        *ngIf="selectedCompanyId && !sessionLoading && assignedSessions.length === 0">
         No session mapped for this company.
       </div>
 
-      <!-- Auto session rows -->
-     <div
-  class="session-rate-section"
-  *ngIf="selectedCompanyId && !sessionLoading && sessionRateRows.length > 0"
->
-  <div class="session-rate-header">
-    <div>Session</div>
-    <div>Rate (S$)</div>
-    <div>Effective From</div>
-  </div>
+      <div
+        class="plan-table-wrapper"
+        *ngIf="selectedCompanyId && !sessionLoading && assignedSessions.length > 0"
+      >
+        <div
+          class="plan-table-header"
+          [style.gridTemplateColumns]="'140px repeat(' + assignedSessions.length + ', 1fr) 140px 160px 150px'"
+        >
+          <div>Plan</div>
+          <div *ngFor="let session of assignedSessions">
+            {{ formatSessionName(session.sessionName) }}
+          </div>
+          <div>Per Day</div>
+          <div>Monthly Price</div>
+          <div>Effective From</div>
+        </div>
 
-  <div class="session-rate-row" *ngFor="let row of sessionRateRows; let i = index">
-    <div class="session-name-box">
-      {{ row.sessionName }}
-    </div>
+        <div
+          class="plan-table-row"
+          *ngFor="let row of planRows"
+          [style.gridTemplateColumns]="'140px repeat(' + assignedSessions.length + ', 1fr) 140px 160px 150px'"
+        >
+          <div class="plan-cell">
+            <div class="plan-badge" [ngClass]="row.planType.toLowerCase()">
+              {{ row.planType }}
+            </div>
+          </div>
 
-    <div>
-      <input
-        type="number"
-        class="form-control"
-        [(ngModel)]="row.rate"
-        placeholder="Enter Rate"
-      />
-    </div>
+          <div class="rate-cell" *ngFor="let session of row.sessionRates">
+            <div class="input-wrap currency">
+              <span>S$</span>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="session.rate"
+                placeholder="Enter rate"
+              />
+            </div>
+          </div>
 
-    <div>
-      <input
-        type="date"
-        class="form-control"
-        [(ngModel)]="row.effectiveFrom"
-      />
-    </div>
-  </div>
-</div>
+          <div class="value-box">
+            S$ {{ getPerDay(row) | number:'1.2-2' }}
+          </div>
 
-      <div class="action-row" *ngIf="selectedCompanyId && sessionRateRows.length > 0">
+          <div class="value-box monthly-box">
+            S$ {{ getMonthly(row) | number:'1.2-2' }}
+          </div>
+
+          <div>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="row.effectiveFrom"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="price-note"
+        *ngIf="selectedCompanyId && !sessionLoading && assignedSessions.length > 0"
+      >
+        * Monthly Price refers to 30 day of calendar period.
+      </div>
+
+      <div class="action-row" *ngIf="selectedCompanyId && assignedSessions.length > 0">
         <button
           type="button"
           class="btn btn-save"
