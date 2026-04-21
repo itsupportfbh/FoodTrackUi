@@ -118,7 +118,14 @@ export class ScannerComponent implements OnInit, OnDestroy {
       console.log('Validation successful:', response);
 
       if (response?.isAllowed === true) {
-        Swal.fire('Success', response.message, 'success');
+        Swal.fire({
+        title: 'Success',
+        text: response?.message,
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500,
+        allowOutsideClick: false
+      });
       } else {
         Swal.fire('Warning', response?.message || 'QR code is not valid for this request', 'warning');
       }
