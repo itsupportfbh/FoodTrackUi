@@ -502,10 +502,13 @@ downloadPreviousTemplate(): void {
         this.uploadInfo = `${fileName} uploaded successfully • ${allRows.length} menu rows saved`;
 
         Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Menu uploaded successfully'
-        });
+        icon: 'success',
+        title: 'Success',
+        text: 'Menu uploaded successfully',
+        showConfirmButton: false,
+        timer: 1500,
+        allowOutsideClick: false
+      });
 
         this.loadMenuFromDb();
       },

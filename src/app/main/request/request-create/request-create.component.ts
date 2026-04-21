@@ -507,7 +507,14 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
     this.requestService.saveRequest(payload).subscribe({
       next: (res: any) => {
-        Swal.fire('Success', res?.message || 'Request saved successfully', 'success').then(() => {
+        Swal.fire({
+        title: 'Success',
+        text: res?.message || 'Request saved successfully',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500,
+        allowOutsideClick: false
+      }).then(() => {
           this.router.navigate(['/catering/request']);
         });
       },

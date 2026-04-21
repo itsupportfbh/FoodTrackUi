@@ -535,6 +535,8 @@ export class RequestOverrideComponent implements OnInit, AfterViewInit, AfterVie
             icon: 'success',
             title: 'Saved Successfully',
             text: res?.message || 'Override saved successfully',
+            showConfirmButton: false,
+            timer: 1500,
             confirmButtonColor: '#7367f0'
           }).then(() => {
             this.router.navigate(['/requestoverride/Request-override-list'], {
