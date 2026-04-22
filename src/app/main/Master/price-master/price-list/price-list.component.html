@@ -5,11 +5,7 @@
         <div class="card price-list-card">
           <div class="master-header">
             <div class="master-header-left">
-              <!-- <div class="eyebrow">Price Configuration</div> -->
               <h3 class="master-title">Price Configuration</h3>
-              <!-- <p class="master-subtitle">
-                Common Basic / Standard / Premium pricing for all companies
-              </p> -->
             </div>
 
             <button
@@ -28,39 +24,12 @@
           </div>
 
           <ng-container *ngIf="!loading && summary">
-            <!-- <div class="master-summary">
-              <div class="summary-left">
-                <div class="summary-badge">{{ summary.title }}</div>
-                <div class="summary-meta">
-                  <div class="meta-chip">
-                    <span class="meta-label">Plans</span>
-                    <span class="meta-value">{{ summary.plansText }}</span>
-                  </div>
-
-                  <div class="meta-chip">
-                    <span class="meta-label">Sessions</span>
-                    <span class="meta-value">{{ summary.sessionsText }}</span>
-                  </div>
-
-                  <div class="meta-chip">
-                    <span class="meta-label">Effective From</span>
-                    <span class="meta-value">{{ summary.effectiveFromDisplay }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                class="icon-edit-btn"
-                (click)="editPrice()"
-                title="Edit Price"
-              >
-                <i data-feather="edit" style="width: 16px; height: 16px;"></i>
-              </button>
-            </div> -->
-
             <div class="plan-card-grid">
-              <div class="plan-card basic" *ngFor="let item of planCards" [ngClass]="item.planType.toLowerCase()">
+              <div
+                class="plan-card"
+                *ngFor="let item of planCards"
+                [ngClass]="item.planType.toLowerCase()"
+              >
                 <div class="plan-card-top">
                   <div class="plan-name">{{ item.planType }}</div>
                   <div class="plan-price">S$ {{ formatAmount(item.perDay) }}</div>
