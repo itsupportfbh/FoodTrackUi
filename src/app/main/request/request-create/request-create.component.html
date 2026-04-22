@@ -64,6 +64,67 @@
           />
         </div>
       </div>
+      <div class="plan-section-wrapper">
+  <div class="form-group plan-selection-group">
+    <label>Select Plan <span class="text-danger">*</span></label>
+
+    <div class="plan-radio-row">
+      <label class="plan-radio-option">
+        <input
+          type="radio"
+          name="planType"
+          value="Basic"
+          [(ngModel)]="model.planType"
+        />
+        <span>Basic</span>
+      </label>
+
+      <label class="plan-radio-option">
+        <input
+          type="radio"
+          name="planType"
+          value="Standard"
+          [(ngModel)]="model.planType"
+        />
+        <span>Standard</span>
+      </label>
+
+      <label class="plan-radio-option">
+        <input
+          type="radio"
+          name="planType"
+          value="Premium"
+          [(ngModel)]="model.planType"
+        />
+        <span>Premium</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="plan-rate-preview-card" *ngIf="planRateCards && planRateCards.length > 0">
+    <div class="plan-rate-preview-header">
+      <h6 class="mb-0">Plan Rate Details</h6>
+      <small class="text-muted">User can check plan before placing order</small>
+    </div>
+
+    <div class="plan-rate-grid">
+      <div
+        class="plan-rate-item"
+        *ngFor="let plan of planRateCards"
+        [class.active]="model.planType === plan.planType"
+      >
+        <div class="plan-rate-title" [ngClass]="plan.planType.toLowerCase()">
+          {{ plan.planType }}
+        </div>
+
+        <div class="plan-rate-line" *ngFor="let rate of plan.sessionRates">
+          <span class="session-name">{{ rate.sessionName }}</span>
+          <span class="session-rate">S$ {{ rate.rate | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
       <div class="accordion-wrapper">
         <div class="session-accordion" *ngFor="let group of sessionGroups; let gi = index">
