@@ -313,3 +313,126 @@
     width: 100%;
   }
 }
+.plan-selection-group {
+  margin-top: 8px;
+  margin-bottom: 18px;
+}
+
+.plan-radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-top: 8px;
+}
+
+.plan-radio-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #5b5877;
+  cursor: pointer;
+}
+
+.plan-radio-option input[type="radio"] {
+  accent-color: #6F3C2F;
+  width: 16px;
+  height: 16px;
+}
+
+.plan-rate-preview-card {
+  margin-top: 6px;
+  margin-bottom: 26px;
+  padding: 16px 18px;
+  border: 1px solid #ece8e4;
+  border-radius: 16px;
+  background: #fffaf7;
+}
+
+.plan-rate-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.plan-rate-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.plan-rate-item {
+  border: 1px solid #eadfd8;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 14px;
+  transition: all 0.2s ease;
+}
+
+.plan-rate-item.active {
+  border-color: #6F3C2F;
+  box-shadow: 0 0 0 2px rgba(111, 60, 47, 0.08);
+}
+
+.plan-rate-title {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.plan-rate-title.basic {
+  background: #d9eaf7;
+  color: #0d6aa8;
+}
+
+.plan-rate-title.standard {
+  background: #e8defa;
+  color: #6b2bd9;
+}
+
+.plan-rate-title.premium {
+  background: #f6e7b2;
+  color: #c27700;
+}
+
+.plan-rate-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px dashed #eee5df;
+}
+
+.plan-rate-line:last-child {
+  border-bottom: none;
+}
+
+.session-name {
+  color: #6c6a86;
+  font-weight: 500;
+}
+
+.session-rate {
+  color: #2f2d45;
+  font-weight: 700;
+}
+
+.accordion-wrapper {
+  margin-top: 6px;
+}
+
+@media (max-width: 991px) {
+  .plan-rate-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.plan-section-wrapper {
+  margin-bottom: 24px;
+}

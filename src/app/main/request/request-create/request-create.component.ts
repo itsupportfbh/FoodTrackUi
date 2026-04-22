@@ -38,12 +38,14 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     toDate: '',
     totalQty: 0,
     isActive: true,
+    planType: '',
     lines: []
   };
 
   sessionGroups: any[] = [];
   isDateOverlap = false;
   dateOverlapMessage = '';
+  planRateCards: any[] = [];
 
   constructor(
     private requestService: RequestService,
@@ -95,6 +97,8 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
         this.dinnerCutOffTime = data.dinnerCutOffTime || data.DinnerCutOffTime || '';
         this.lateDinnerCutOffTime = data.lateDinnerCutOffTime || data.LateDinnerCutOffTime || '';
 
+        this.loadPlanRateCards();
+
         if (!this.isEditMode && this.companies.length > 0) {
           this.model.companyId = Number(this.companies[0].id || 0);
           this.model.companyName = this.companies[0].name || '';
@@ -128,6 +132,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
           fromDate: this.toDateInput(row.fromDate),
           toDate: this.toDateInput(row.toDate),
           totalQty: Number(row.totalQty || 0),
+          planType: row.planType || '',
           isActive: row.isActive ?? true,
           lines: row.lines || []
         };
@@ -380,7 +385,6 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   isSessionCutOffCrossed(sessionId: number, sessionName?: string): boolean {
-    debugger
     if (!this.model?.fromDate) {
       return false;
     }
@@ -428,6 +432,10 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
 
     if (this.model.fromDate > this.model.toDate) {
       Swal.fire('Missing Information', 'From Date should not be greater than To Date', 'warning');
+      return;
+    }
+    if (!this.model.planType) {
+      Swal.fire('Missing Information', 'Please select a plan', 'warning');
       return;
     }
 
@@ -491,6 +499,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       FromDate: this.model.fromDate,
       ToDate: this.model.toDate,
       TotalQty: this.model.totalQty,
+      PlanType: this.model.planType,
       IsActive: this.model.isActive,
       UserId: this.userId,
       Lines: validLines
@@ -551,6 +560,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       fromDate: '',
       toDate: '',
       totalQty: 0,
+      planType: '',
       isActive: true,
       lines: []
     };
@@ -650,5 +660,30 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
         console.error(err);
       }
     });
+  }
+  loadPlanRateCards(): void {
+    this.requestService.getDefaultPlanRates().subscribe({
+      next: (res: any) => {
+        const data = res?.data || res || [];
+
+        this.planRateCards = (data || []).map((plan: any) => ({
+          planType: plan.planType,
+          effectiveFrom: plan.effectiveFrom,
+          sessionRates: (plan.sessionRates || []).map((rate: any) => ({
+            sessionId: Number(rate.sessionId || 0),
+            sessionName: rate.sessionName || this.getSessionName(rate.sessionId),
+            rate: Number(rate.rate || 0)
+          }))
+        }));
+      },
+      error: (err: any) => {
+        console.error(err);
+        this.planRateCards = [];
+      }
+    });
+  }
+  getSessionName(sessionId: number): string {
+    const session = this.sessions.find((x: any) => Number(x.id) === Number(sessionId));
+    return session ? session.name : '';
   }
 }
