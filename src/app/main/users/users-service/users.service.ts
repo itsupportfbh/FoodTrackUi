@@ -56,4 +56,13 @@ export class UsersService {
    getRoles(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(`${this.apiUrl}/GetRoles`);
   }
+   downloadUserTemplate(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/DownloadUserTemplate`, {
+      responseType: 'blob'
+    });
+  }
+
+  bulkUploadUsers(formData: FormData): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/BulkUploadUsers`, formData);
+  }
 }

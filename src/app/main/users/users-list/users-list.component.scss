@@ -2,7 +2,239 @@
 @import '@core/scss/base/pages/app-user.scss';
 @import '@core/scss/angular/libs/select.component.scss';
 
+.users-page {
+  .users-card {
+    border: 0;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(34, 41, 47, 0.08);
+    overflow: hidden;
+  }
 
+  .users-card-header {
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 1px solid #f1f1f1;
+    background: #fff;
+  }
+
+  .page-title-wrap {
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #6f3c2f;
+      margin: 0;
+    }
+
+    .page-subtitle {
+      margin-top: 0.25rem;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+  }
+
+  .users-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1rem 1.25rem;
+    background: #fff;
+  }
+
+  .toolbar-left,
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .entries-label,
+  .search-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4b4b4b;
+    font-weight: 500;
+  }
+
+  .entries-select {
+    width: 90px;
+    min-width: 90px;
+  }
+
+  .search-input {
+    width: 220px;
+    min-width: 220px;
+  }
+
+  .action-btn {
+    height: 38px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-weight: 500;
+    padding: 0.55rem 0.95rem;
+  }
+
+  .btn-icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .table-wrapper {
+    padding: 0 1rem 1rem;
+    background: #fff;
+  }
+
+  .users-datatable {
+    border-radius: 12px;
+    overflow: hidden;
+
+    .datatable-header {
+      border-top: 1px solid #f5f5f5;
+    }
+
+    .datatable-header-cell {
+      font-weight: 700;
+      color: #6f3c2f;
+      background: #faf7f5;
+      display: flex;
+      align-items: center;
+    }
+
+    .datatable-body-row {
+      border-bottom: 1px solid #f3f3f3;
+    }
+
+    .datatable-body-cell {
+      display: flex;
+      align-items: center;
+      color: #444;
+      font-size: 0.92rem;
+    }
+  }
+
+  .user-name-text,
+  .email-text,
+  .company-name-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .company-cell-wrap,
+  .company-text-wrap {
+    min-width: 0;
+  }
+
+  .status-badge {
+    font-size: 0.75rem;
+    padding: 0.45rem 0.7rem;
+  }
+
+  .action-group {
+    min-width: 80px;
+  }
+
+  .table-action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    transition: all 0.2s ease;
+  }
+
+  .table-action-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .table-toggle-icon {
+    font-size: 15px;
+  }
+
+  .tooltip-card {
+    max-width: 280px;
+  }
+
+  .tooltip-title {
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin-bottom: 2px;
+  }
+
+  .tooltip-value {
+    font-size: 0.78rem;
+    word-break: break-word;
+  }
+
+  .bulk-upload-backdrop {
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .bulk-upload-modal {
+    border-radius: 14px;
+    border: 0;
+    overflow: hidden;
+
+    .modal-header {
+      background: #fff;
+      border-bottom: 1px solid #f2f2f2;
+
+      .modal-title {
+        font-weight: 700;
+        color: #6f3c2f;
+      }
+    }
+
+    .modal-body {
+      background: #fff;
+      padding: 1.25rem;
+    }
+
+    .modal-footer {
+      background: #fff;
+      border-top: 1px solid #f2f2f2;
+    }
+  }
+
+  .template-note {
+    font-size: 0.88rem;
+    color: #6c757d;
+    background: #faf7f5;
+    border-radius: 8px;
+    padding: 0.7rem 0.85rem;
+  }
+
+  @media (max-width: 991.98px) {
+    .users-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+      min-width: 100%;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .toolbar-right {
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
 // .action-btn-group {
 //   gap: 8px;
 // }
