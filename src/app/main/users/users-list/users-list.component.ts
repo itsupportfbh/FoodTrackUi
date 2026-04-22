@@ -1,11 +1,11 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { CoreSidebarService } from '@core/components/core-sidebar/core-sidebar.service';
-import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
-import Swal from 'sweetalert2';
 import { HttpErrorResponse } from '@angular/common/http';
-import { UsersService } from '../users-service/users.service';
+import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
+import { CoreSidebarService } from '@core/components/core-sidebar/core-sidebar.service';
+import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import * as feather from 'feather-icons';
+import { UsersService } from '../users-service/users.service';
 
 @Component({
   selector: 'app-users-list',
@@ -20,62 +20,72 @@ export class UsersListComponent implements OnInit {
   public selectedOption: number | 'all' = 10;
   public pageLimit = 10;
   public showPagination = true;
-  public searchValue: string = '';
+  public searchValue = '';
 
   public rows: any[] = [];
   public tempRows: any[] = [];
-  public loading: boolean = false;
+  public loading = false;
 
-  public currentUserId: number = 0;
-  public currentRoleId: number = 0;
-  public currentCompanyId: number = 0;
+  public currentUserId = 0;
+  public currentRoleId = 0;
+  public currentCompanyId = 0;
 
   public selectedUserId: number | null = null;
+
+  // ✅ Bulk Upload
+  public showBulkUploadModal = false;
+  public selectedBulkFile: File | null = null;
+  public isUploading = false;
 
   constructor(
     private _coreSidebarService: CoreSidebarService,
     private _usersService: UsersService
   ) {}
 
+  // ================= INIT =================
   ngOnInit(): void {
     this.loadCurrentUser();
     this.getAllUsers();
   }
 
+  private refreshFeatherIcons(): void {
+    setTimeout(() => {
+      feather.replace();
+    }, 0);
+  }
+
+  // ================= USER SESSION =================
   loadCurrentUser(): void {
     const currentUserRaw = localStorage.getItem('currentUser');
 
     let currentUser: any = null;
-
     try {
       currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : null;
-    } catch (error) {
+    } catch {
       currentUser = null;
     }
 
     this.currentUserId = Number(
       localStorage.getItem('id') ||
       localStorage.getItem('userId') ||
-      localStorage.getItem('UserId') ||
       currentUser?.id ||
       0
     );
 
     this.currentRoleId = Number(
       localStorage.getItem('roleId') ||
-      localStorage.getItem('RoleId') ||
       currentUser?.roleId ||
       0
     );
 
     this.currentCompanyId = Number(
       localStorage.getItem('companyId') ||
-      localStorage.getItem('CompanyId') ||
       currentUser?.companyId ||
       0
     );
   }
 
+  // ================= GET USERS =================
   getAllUsers(): void {
     this.loading = true;
 
@@ -89,32 +99,22 @@ export class UsersListComponent implements OnInit {
 
           this.rows = data.map((item: any) => ({
             id: item.id,
-            fullName: item.userName || item.username || '',
-            username: item.userName || item.username || '',
+            fullName: item.userName || '',
+            username: item.userName || '',
             email: item.email || '',
-            companyId: item.companyId || 0,
             companyName: item.companyName || '-',
+            companyCode: item.companyCode || '-',
             roleName: item.roleName || '-',
-            roleId: item.roleId || 0,
             status: item.isActive ? 'Active' : 'Inactive',
-            isActive: item.isActive === true,
-            avatar: '',
-            createdBy: item.createdBy,
-            createdDate: item.createdDate,
-            updatedBy: item.updatedBy,
-            updatedDate: item.updatedDate
+            isActive: item.isActive === true
           }));
 
           this.tempRows = [...this.rows];
           this.updatePaging();
 
-          if (this.table) {
-            this.table.offset = 0;
-          }
+          if (this.table) this.table.offset = 0;
 
-          setTimeout(() => {
-            feather.replace();
-          }, 0);
+          this.refreshFeatherIcons();
         },
         error: (err: HttpErrorResponse) => {
           this.loading = false;
@@ -128,17 +128,15 @@ export class UsersListComponent implements OnInit {
       });
   }
 
+  // ================= PAGINATION =================
   onPageSizeChange(): void {
     this.updatePaging();
-
-    if (this.table) {
-      this.table.offset = 0;
-    }
+    if (this.table) this.table.offset = 0;
   }
 
   private updatePaging(): void {
     if (this.selectedOption === 'all') {
-      this.pageLimit = this.rows.length > 0 ? this.rows.length : 1;
+      this.pageLimit = this.rows.length || 1;
       this.showPagination = false;
     } else {
       this.pageLimit = Number(this.selectedOption) || 10;
@@ -146,56 +144,13 @@ export class UsersListComponent implements OnInit {
     }
   }
 
-  exportToExcel(): void {
-    const exportRows = (this.rows || []).map((item: any, index: number) => ({
-      'S.No': index + 1,
-      'User Name': item.fullName || '',
-      'Login Name': item.username || '',
-      'Email': item.email || '',
-      'Company': item.companyName || '',
-      'Role': item.roleName || '',
-      'Status': item.isActive ? 'Active' : 'Inactive',
-      'Created By': item.createdBy || '',
-      'Created Date': item.createdDate || '',
-      'Updated By': item.updatedBy || '',
-      'Updated Date': item.updatedDate || ''
-    }));
-
-    if (!exportRows.length) {
-      Swal.fire({
-        icon: 'info',
-        title: 'No Data',
-        text: 'There are no records to export'
-      });
-      return;
-    }
-
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportRows);
-    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'User List');
-
-    const fileName = `User_List_${this.formatDateForFileName(new Date())}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
-  }
-
-  private formatDateForFileName(date: Date): string {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    const hh = String(date.getHours()).padStart(2, '0');
-    const min = String(date.getMinutes()).padStart(2, '0');
-
-    return `${yyyy}${mm}${dd}_${hh}${min}`;
-  }
-
+  // ================= SEARCH =================
   filterUpdate(event: any): void {
     const val = (event.target.value || '').toLowerCase();
 
-    const temp = this.tempRows.filter((d: any) => {
+    this.rows = this.tempRows.filter((d: any) => {
       return (
         (d.fullName || '').toLowerCase().includes(val) ||
-        (d.username || '').toLowerCase().includes(val) ||
         (d.email || '').toLowerCase().includes(val) ||
         (d.companyName || '').toLowerCase().includes(val) ||
         (d.roleName || '').toLowerCase().includes(val) ||
@@ -203,19 +158,129 @@ export class UsersListComponent implements OnInit {
       );
     });
 
-    this.rows = temp;
     this.updatePaging();
 
-    if (this.table) {
-      this.table.offset = 0;
-    }
+    if (this.table) this.table.offset = 0;
   }
 
+  // ================= EXPORT =================
+  exportToExcel(): void {
+    const exportRows = this.rows.map((item: any, index: number) => ({
+      'S.No': index + 1,
+      'User Name': item.fullName,
+      'Email': item.email,
+      'Company': item.companyName,
+      'Role': item.roleName,
+      'Status': item.status
+    }));
+
+    if (!exportRows.length) {
+      Swal.fire('No Data', 'No records to export', 'info');
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(exportRows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+
+    XLSX.writeFile(workbook, 'User_List.xlsx');
+  }
+
+  // ================= DOWNLOAD TEMPLATE =================
+  downloadUserTemplate(): void {
+    this._usersService.downloadUserTemplate().subscribe({
+      next: (res: Blob) => {
+        const blob = new Blob([res], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'User_Template.xlsx';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => {
+        Swal.fire('Error', 'Template download failed', 'error');
+      }
+    });
+  }
+
+  // ================= BULK MODAL =================
+  openBulkUploadModal(): void {
+    this.selectedBulkFile = null;
+    this.showBulkUploadModal = true;
+  }
+
+  closeBulkUploadModal(): void {
+    this.selectedBulkFile = null;
+    this.showBulkUploadModal = false;
+  }
+
+  // ================= FILE SELECT =================
+  onBulkFileSelected(event: any): void {
+    const file = event?.target?.files?.[0];
+
+    if (!file) {
+      this.selectedBulkFile = null;
+      return;
+    }
+
+    const fileName = file.name.toLowerCase();
+    if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
+      Swal.fire('Invalid File', 'Upload Excel file only', 'warning');
+      this.selectedBulkFile = null;
+      return;
+    }
+
+    this.selectedBulkFile = file;
+  }
+
+  // ================= BULK UPLOAD =================
+  uploadBulkUsers(): void {
+    if (!this.currentCompanyId) {
+      Swal.fire('Error', 'Company not found from login', 'error');
+      return;
+    }
+
+    if (!this.selectedBulkFile) {
+      Swal.fire('Error', 'Please select file', 'warning');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', this.selectedBulkFile);
+    formData.append('updatedBy', String(this.currentUserId || 1));
+    formData.append('companyId', String(this.currentCompanyId));
+
+    this.isUploading = true;
+
+    this._usersService.bulkUploadUsers(formData).subscribe({
+      next: (res: any) => {
+        this.isUploading = false;
+
+        Swal.fire('Success', res?.message || 'Upload successful', 'success');
+
+        this.closeBulkUploadModal();
+        this.getAllUsers();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.isUploading = false;
+
+        Swal.fire(
+          'Error',
+          err?.error?.message || 'Upload failed',
+          'error'
+        );
+      }
+    });
+  }
+
+  // ================= SIDEBAR =================
   toggleSidebar(name: string): void {
     const sidebar = this._coreSidebarService.getSidebarRegistry(name);
-    if (sidebar) {
-      sidebar.toggleOpen();
-    }
+    if (sidebar) sidebar.toggleOpen();
   }
 
   openCreateSidebar(): void {
@@ -228,7 +293,7 @@ export class UsersListComponent implements OnInit {
   }
 
   editUser(row: any): void {
-    this.selectedUserId = row?.id || null;
+    this.selectedUserId = row.id;
     this.toggleSidebar('new-user-sidebar');
   }
 
@@ -237,62 +302,40 @@ export class UsersListComponent implements OnInit {
     this.getAllUsers();
   }
 
-toggleUserStatus(row: any): void {
-  if (!row.isActive) {
+  // ================= STATUS =================
+  toggleUserStatus(row: any): void {
+    if (!row.isActive) {
+      Swal.fire('Info', 'Already inactive', 'info');
+      return;
+    }
+
     Swal.fire({
-      icon: 'info',
-      title: 'Inactive User',
-      text: 'This user is already inactive. To activate, separate activate API is required.'
+      title: 'Deactivate?',
+      text: `Deactivate ${row.fullName}?`,
+      icon: 'question',
+      showCancelButton: true
+    }).then((res) => {
+      if (res.isConfirmed) {
+        this._usersService.deleteUser(row.id, this.currentUserId).subscribe({
+          next: () => {
+            Swal.fire('Success', 'User deactivated', 'success');
+            this.getAllUsers();
+          },
+          error: () => {
+            Swal.fire('Error', 'Failed', 'error');
+          }
+        });
+      }
     });
-    return;
   }
 
-  Swal.fire({
-    title: 'Deactivate User?',
-    text: `Do you want to mark ${row.fullName || 'this user'} as Inactive?`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, Deactivate',
-    cancelButtonText: 'Cancel',
-    customClass: {
-      confirmButton: 'btn btn-danger',
-      cancelButton: 'btn btn-outline-secondary ml-1'
-    },
-    buttonsStyling: false
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this._usersService.deleteUser(row.id, this.currentUserId || 1).subscribe({
-        next: (res: any) => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            showConfirmButton: false,
-            timer: 1500,
-            text: res?.message || 'User marked as Inactive successfully'
-          });
-
-          this.getAllUsers();
-        },
-        error: (err: HttpErrorResponse) => {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: err?.error?.message || 'Failed to update user status'
-          });
-        }
-      });
-    }
-  });
-}
-
+  // ================= UTILS =================
   getInitials(name: string): string {
-    if (!name) {
-      return '';
-    }
+    if (!name) return '';
 
     return name
       .split(' ')
-      .map((word: string) => word.charAt(0))
+      .map((x) => x[0])
       .join('')
       .substring(0, 2)
       .toUpperCase();
