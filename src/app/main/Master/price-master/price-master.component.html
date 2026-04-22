@@ -2,14 +2,16 @@
   <div class="card price-master-card">
     <div class="card-header">
       <div class="header-title-group">
-        <button type="button" class="btn btn-back" (click)="goBackToList()">
-          <i class="fas fa-arrow-left"></i>
-          <span>Back</span>
-        </button>
+        <div class="header-left">
+          <button type="button" class="btn btn-back" (click)="goBackToList()">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+          </button>
 
-        <div class="title-wrap">
-          <h4 class="mb-0">Default Price Master</h4>
-          <small class="text-muted">Same price will apply for all companies</small>
+          <div class="title-wrap">
+            <h4 class="mb-0">Default Price Master</h4>
+            <div class="sub-text">Same price will apply for all companies</div>
+          </div>
         </div>
       </div>
     </div>
@@ -19,22 +21,24 @@
         Loading sessions...
       </div>
 
-      <div class="empty-box" *ngIf="!sessionLoading && assignedSessions.length === 0">
+      <div class="empty-box" *ngIf="!sessionLoading && displaySessions.length === 0">
         No active sessions available.
       </div>
 
       <div
         class="plan-table-wrapper"
-        *ngIf="!sessionLoading && assignedSessions.length > 0"
+        *ngIf="!sessionLoading && displaySessions.length > 0"
       >
         <div
           class="plan-table-header"
-          [style.gridTemplateColumns]="'140px repeat(' + assignedSessions.length + ', 1fr) 140px 160px 150px'"
+          [style.gridTemplateColumns]="'190px repeat(' + displaySessions.length + ', minmax(170px, 1fr)) 170px 190px 210px'"
         >
           <div>Plan</div>
-          <div *ngFor="let session of assignedSessions">
+
+          <div *ngFor="let session of displaySessions; trackBy: trackBySession">
             {{ formatSessionName(session.sessionName) }}
           </div>
+
           <div>Per Day</div>
           <div>Monthly Price</div>
           <div>Effective From</div>
@@ -42,8 +46,8 @@
 
         <div
           class="plan-table-row"
-          *ngFor="let row of planRows"
-          [style.gridTemplateColumns]="'140px repeat(' + assignedSessions.length + ', 1fr) 140px 160px 150px'"
+          *ngFor="let row of planRows; trackBy: trackByPlan"
+          [style.gridTemplateColumns]="'190px repeat(' + displaySessions.length + ', minmax(170px, 1fr)) 170px 190px 210px'"
         >
           <div class="plan-cell">
             <div class="plan-badge" [ngClass]="row.planType.toLowerCase()">
@@ -51,46 +55,52 @@
             </div>
           </div>
 
-          <div class="rate-cell" *ngFor="let session of row.sessionRates">
+          <div
+            class="rate-cell"
+            *ngFor="let session of row.sessionRates; trackBy: trackBySession"
+          >
             <div class="input-wrap currency">
               <span>S$</span>
               <input
                 type="number"
-                class="form-control"
+                class="form-control rate-input"
                 [(ngModel)]="session.rate"
-                placeholder="Enter rate"
+                placeholder="Enter price"
+                min="0"
+                step="0.01"
               />
             </div>
           </div>
 
-          <div class="value-box">
-            S$ {{ getPerDay(row) | number:'1.2-2' }}
+          <div class="value-box per-day-box">
+            <span class="currency-text">S$ {{ getPerDay(row) | number:'1.2-2' }}</span>
           </div>
 
           <div class="value-box monthly-box">
-            S$ {{ getMonthly(row) | number:'1.2-2' }}
+            <span class="currency-text">S$ {{ getMonthly(row) | number:'1.2-2' }}</span>
           </div>
 
-          <div>
+          <div class="date-cell">
             <input
               type="date"
-              class="form-control"
+              class="form-control date-input"
               [(ngModel)]="row.effectiveFrom"
             />
           </div>
         </div>
       </div>
 
-      <div class="price-note" *ngIf="!sessionLoading && assignedSessions.length > 0">
+      <div class="price-note" *ngIf="!sessionLoading && displaySessions.length > 0">
         * These Basic / Standard / Premium rates are common for all companies.
       </div>
 
-      <div class="action-row" *ngIf="assignedSessions.length > 0">
+      <div class="action-row" *ngIf="displaySessions.length > 0">
         <button
           type="button"
           class="btn btn-save"
           [disabled]="saving"
-          (click)="saveRates()">
+          (click)="saveRates()"
+        >
           {{ saving ? 'Saving...' : 'Save Rate' }}
         </button>
       </div>

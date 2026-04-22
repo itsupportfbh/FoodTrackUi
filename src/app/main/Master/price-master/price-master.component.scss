@@ -1,17 +1,18 @@
 @import "~@ng-select/ng-select/themes/default.theme.css";
 
 .price-master-page {
- // padding: 1.25rem;
+  padding: 0.75rem;
 
   .price-master-card {
     border: 0;
-    border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+    border-radius: 22px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
     overflow: hidden;
+    background: #ffffff;
   }
 
   .card-header {
-    background: linear-gradient(135deg, #6f3c2f 0%, #8b5a4a 100%);
+    background: linear-gradient(135deg, #7d4a3a 0%, #955d49 100%);
     border-bottom: 0;
     padding: 1rem 1.25rem;
   }
@@ -19,55 +20,67 @@
   .header-title-group {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
   }
 
   .title-wrap {
+    display: flex;
+    flex-direction: column;
+
     h4 {
-      color: #fff;
-      font-size: 1.2rem;
+      color: #ffffff;
+      font-size: 1.35rem;
       font-weight: 700;
+      line-height: 1.1;
       margin: 0;
     }
 
-    .sub-text {
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 0.9rem;
-      margin-top: 0.25rem;
+    .sub-text,
+    small,
+    .text-muted {
+      color: rgba(255, 255, 255, 0.85) !important;
+      font-size: 0.82rem;
+      font-weight: 400;
+      margin-top: 0.2rem;
     }
   }
 
   .btn-back {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    background: #fff;
+    gap: 0.55rem;
+    background: #ffffff;
     color: #6f3c2f;
     border: 0;
-    border-radius: 10px;
-    padding: 0.55rem 1rem;
-    font-weight: 600;
+    border-radius: 14px;
+    padding: 0.7rem 1.1rem;
+    font-weight: 700;
+    font-size: 0.92rem;
+    box-shadow: none;
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover,
+    &:focus {
+      background: #fff7f4;
+      color: #6f3c2f;
+    }
   }
 
   .card-body {
-    padding: 1.5rem;
-  }
-
-  .company-row {
-    margin-bottom: 1.25rem;
-  }
-
-  .company-field {
-    max-width: 420px;
-  }
-
-  .form-label {
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.45rem;
-    display: inline-block;
+    padding: 1rem 1rem 1.2rem;
+    background: #fcfcfd;
   }
 
   .loading-box,
@@ -76,145 +89,229 @@
     border: 1px dashed #d1d5db;
     color: #6b7280;
     padding: 1rem;
-    border-radius: 14px;
+    border-radius: 16px;
     text-align: center;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .plan-table-wrapper {
-    margin-top: 1rem;
+    margin-top: 0.2rem;
     border: 1px solid #e5e7eb;
-    border-radius: 16px;
+    border-radius: 18px;
     overflow: hidden;
+    background: #ffffff;
+    width: 100%;
   }
 
   .plan-table-header,
   .plan-table-row {
-    display: grid;
-    grid-template-columns: 1.1fr 1fr 1fr 1fr 1fr 1.2fr 1.1fr;
+    display: grid !important;
+    width: 100%;
     gap: 0;
     align-items: stretch;
+    grid-template-columns: 150px repeat(3, 1fr) 120px 140px 150px !important;
   }
 
   .plan-table-header {
-    background: #f5f7fb;
+    background: #f4f5f8;
     border-bottom: 1px solid #e5e7eb;
 
     > div {
-      padding: 0.95rem 0.85rem;
+      padding: 0.9rem 0.6rem;
       font-weight: 700;
-      color: #374151;
+      color: #31415b;
       font-size: 0.92rem;
+      text-align: center;
+      border-right: 1px solid #eceff3;
+      word-break: break-word;
+
+      &:first-child {
+        text-align: left;
+        padding-left: 1rem;
+      }
+
+      &:last-child {
+        border-right: 0;
+      }
     }
   }
 
   .plan-table-row {
-    border-bottom: 1px solid #eef2f7;
+    border-bottom: 1px solid #edf1f5;
+    min-height: 92px;
 
     &:last-child {
       border-bottom: 0;
     }
 
     > div {
-      padding: 0.45rem;
+      padding: 0.5rem 0.45rem;
       display: flex;
       align-items: center;
+      justify-content: center;
+      border-right: 1px solid #eef2f6;
+      min-width: 0;
+
+      &:last-child {
+        border-right: 0;
+      }
     }
   }
 
+  .plan-cell {
+    justify-content: flex-start !important;
+    padding-left: 0.8rem !important;
+  }
+
   .plan-badge {
-    min-width: 95px;
-    justify-content: center;
-    text-align: center;
-    padding: 0.55rem 0.9rem;
+    min-width: 112px;
+    width: 100%;
+    max-width: 128px;
+    padding: 0.85rem 0.9rem;
     border-radius: 999px;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
+    text-align: center;
+    line-height: 1;
 
     &.basic {
-      background: #e0f2fe;
-      color: #0369a1;
+      background: #dcecf8;
+      color: #0c6aa6;
     }
 
     &.standard {
-      background: #ede9fe;
-      color: #6d28d9;
+      background: #ebe6fb;
+      color: #6236e6;
     }
 
     &.premium {
-      background: #fef3c7;
-      color: #b45309;
+      background: #f8e7b8;
+      color: #c56c06;
     }
+  }
+
+  .rate-cell,
+  .date-cell {
+    width: 100%;
   }
 
   .input-wrap {
     position: relative;
     width: 100%;
+    max-width: 100%;
 
     &.currency span {
       position: absolute;
-      left: 12px;
+      left: 16px;
       top: 50%;
       transform: translateY(-50%);
       color: #6b7280;
-      font-weight: 600;
-      font-size: 0.9rem;
+      font-weight: 700;
+      font-size: 1rem;
       z-index: 2;
+      pointer-events: none;
     }
 
     .form-control {
-      height: 42px;
-      border-radius: 10px;
-      border: 1px solid #d1d5db;
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid #cfd6de;
       box-shadow: none;
+      background: #fff;
+      color: #334155;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+      border-color: #7d4a3a;
+      box-shadow: 0 0 0 0.12rem rgba(125, 74, 58, 0.12);
     }
 
     &.currency .form-control {
-      padding-left: 42px;
+      padding-left: 52px;
+      padding-right: 12px;
     }
   }
 
-  .value-box {
-    font-weight: 700;
-    color: #111827;
-    background: #fafafa;
+  .rate-input,
+  .input-wrap .form-control[type="number"],
+  .rate-cell .form-control {
+    height: 64px !important;
+    font-size: 1.1rem !important;
+    border-radius: 20px !important;
+  }
 
-    &.monthly {
-      color: #6f3c2f;
-    }
+  .date-input,
+  .date-cell .form-control[type="date"] {
+    height: 56px !important;
+    font-size: 0.95rem !important;
+    border-radius: 16px !important;
+    border: 1px solid #cfd6de !important;
+    box-shadow: none !important;
+    font-weight: 600;
+    color: #49566a;
+    width: 100%;
+  }
+
+  .value-box {
+    background: #ffffff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #111827;
+    justify-content: flex-start !important;
+    padding-left: 0.75rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .currency-text {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0f172a;
+    white-space: nowrap;
+  }
+
+  .monthly-box .currency-text {
+    color: #0b1b36;
   }
 
   .price-note {
     margin-top: 0.9rem;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     color: #6b7280;
     font-style: italic;
+    padding-left: 0.1rem;
   }
 
   .action-row {
     display: flex;
     justify-content: flex-end;
-    margin-top: 1.5rem;
+    margin-top: 1.3rem;
   }
 
   .btn-save {
-    background: #6f3c2f;
-    color: #fff;
+    background: #7d4a3a;
+    color: #ffffff;
     border: 0;
-    border-radius: 12px;
-    padding: 0.7rem 1.4rem;
+    border-radius: 16px;
+    padding: 0.8rem 2rem;
     font-weight: 700;
-    min-width: 140px;
+    font-size: 1rem;
+    min-width: 180px;
+    box-shadow: 0 8px 18px rgba(125, 74, 58, 0.16);
 
     &:hover,
     &:focus {
-      background: #5f3328;
-      color: #fff;
+      background: #683b2d;
+      color: #ffffff;
     }
 
     &:disabled {
       opacity: 0.7;
       cursor: not-allowed;
+      box-shadow: none;
     }
   }
 
@@ -224,14 +321,118 @@
     border: 1px solid #d1d5db !important;
   }
 
-  @media (max-width: 1200px) {
-    .plan-table-wrapper {
-      overflow-x: auto;
+  /* remove horizontal scroll */
+  .plan-table-wrapper,
+  .card-body,
+  .price-master-card {
+    overflow-x: hidden !important;
+  }
+
+  /* laptop fit */
+  @media (max-width: 1366px) {
+    .plan-table-header,
+    .plan-table-row {
+      grid-template-columns: 135px repeat(3, 1fr) 110px 125px 135px !important;
+    }
+
+    .plan-table-header > div {
+      font-size: 0.88rem;
+      padding: 0.8rem 0.45rem;
+    }
+
+    .plan-table-row > div {
+      padding: 0.45rem 0.35rem;
+    }
+
+    .plan-badge {
+      min-width: 102px;
+      max-width: 118px;
+      font-size: 0.84rem;
+      padding: 0.8rem 0.75rem;
+    }
+
+    .rate-input,
+    .input-wrap .form-control[type="number"],
+    .rate-cell .form-control {
+      height: 58px !important;
+      font-size: 1rem !important;
+    }
+
+    .date-input,
+    .date-cell .form-control[type="date"] {
+      height: 52px !important;
+      font-size: 0.88rem !important;
+    }
+
+    .value-box,
+    .currency-text {
+      font-size: 0.9rem !important;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .card-header {
+      padding: 0.9rem 1rem;
+    }
+
+    .card-body {
+      padding: 0.9rem;
+    }
+
+    .title-wrap h4 {
+      font-size: 1.2rem;
+    }
+
+    .btn-back {
+      padding: 0.65rem 0.95rem;
+      font-size: 0.88rem;
     }
 
     .plan-table-header,
     .plan-table-row {
-      min-width: 1100px;
+      grid-template-columns: 120px repeat(3, 1fr) 95px 110px 120px !important;
+    }
+
+    .plan-table-header > div {
+      font-size: 0.82rem;
+      padding: 0.7rem 0.35rem;
+    }
+
+    .plan-badge {
+      min-width: 90px;
+      max-width: 104px;
+      font-size: 0.8rem;
+      padding: 0.72rem 0.55rem;
+    }
+
+    .rate-input,
+    .input-wrap .form-control[type="number"],
+    .rate-cell .form-control {
+      height: 52px !important;
+      font-size: 0.95rem !important;
+      padding-left: 46px !important;
+    }
+
+    .input-wrap.currency span {
+      left: 14px;
+      font-size: 0.92rem;
+    }
+
+    .date-input,
+    .date-cell .form-control[type="date"] {
+      height: 48px !important;
+      font-size: 0.82rem !important;
+    }
+
+    .value-box,
+    .currency-text {
+      font-size: 0.82rem !important;
+    }
+
+    .btn-save {
+      min-width: 160px;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.92rem;
     }
   }
 }
