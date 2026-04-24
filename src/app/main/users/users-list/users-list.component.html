@@ -3,7 +3,6 @@
     <div class="content-body">
       <section class="users-list-wrapper">
         <div class="card users-card">
-          <!-- Header -->
           <div class="card-header users-card-header">
             <div class="page-title-wrap">
               <h4 class="card-title mb-0">Users</h4>
@@ -13,15 +12,17 @@
             </div>
           </div>
 
-          <!-- Toolbar -->
           <div class="users-toolbar-new">
             <div class="toolbar-top-row">
-              <!-- Left -->
               <div class="toolbar-left-wrap">
                 <label class="entries-label-new mb-0">
                   <span>Show</span>
-                  <select class="form-control entries-select-new" [(ngModel)]="selectedOption" name="selectedOption"
-                    (change)="onPageSizeChange()">
+                  <select
+                    class="form-control entries-select-new"
+                    [(ngModel)]="selectedOption"
+                    name="selectedOption"
+                    (change)="onPageSizeChange()"
+                  >
                     <option [ngValue]="10">10</option>
                     <option [ngValue]="25">25</option>
                     <option [ngValue]="50">50</option>
@@ -32,21 +33,29 @@
                 </label>
               </div>
 
-              <!-- Right -->
               <div class="toolbar-right-wrap">
                 <div class="toolbar-search-wrap">
-                  <input [(ngModel)]="searchValue" name="searchValue" type="search"
-                    class="form-control search-input-new" placeholder="Search users..." (keyup)="filterUpdate($event)"
-                    (search)="filterUpdate($event)" />
+                  <input
+                    [(ngModel)]="searchValue"
+                    name="searchValue"
+                    type="search"
+                    class="form-control search-input-new"
+                    placeholder="Search users..."
+                    (keyup)="filterUpdate($event)"
+                    (search)="filterUpdate($event)"
+                  />
                 </div>
 
-                <button class="btn btn-primary action-btn add-user-btn" rippleEffect type="button"
-                  (click)="openCreateSidebar()">
+                <button
+                  class="btn btn-primary action-btn add-user-btn"
+                  rippleEffect
+                  type="button"
+                  (click)="openCreateSidebar()"
+                >
                   <i data-feather="plus" class="btn-icon"></i>
                   <span class="btn-text">Add User</span>
                 </button>
 
-                <!-- Three Dot Only -->
                 <div ngbDropdown class="action-dropdown">
                   <button type="button" class="three-dot-only-btn" ngbDropdownToggle>
                     <i data-feather="more-vertical" class="three-dot-only-icon"></i>
@@ -54,14 +63,22 @@
 
                   <div ngbDropdownMenu class="dropdown-menu-right action-dropdown-menu">
                     <div class="dropdown-action-list">
-                      <button type="button" class="dropdown-action-item" (click)="downloadUserTemplate()"
-                        title="Download Template">
+                      <button
+                        type="button"
+                        class="dropdown-action-item"
+                        (click)="downloadUserTemplate()"
+                        title="Download Template"
+                      >
                         <i data-feather="download" class="dropdown-action-icon"></i>
                         <span class="dropdown-action-text">Download Template</span>
                       </button>
 
-                      <button type="button" class="dropdown-action-item" (click)="openBulkUploadModal()"
-                        title="Bulk Upload">
+                      <button
+                        type="button"
+                        class="dropdown-action-item"
+                        (click)="openBulkUploadModal()"
+                        title="Bulk Upload"
+                      >
                         <i data-feather="upload" class="dropdown-action-icon"></i>
                         <span class="dropdown-action-text">Bulk Upload</span>
                       </button>
@@ -72,16 +89,28 @@
             </div>
           </div>
 
-          <!-- Table -->
           <div class="table-wrapper">
-            <ngx-datatable #table [rows]="rows" [rowHeight]="56" class="bootstrap core-bootstrap users-datatable"
-              [limit]="pageLimit" [columnMode]="ColumnMode.force" [headerHeight]="52"
-              [footerHeight]="showPagination ? 50 : 0" [scrollbarH]="false" [externalPaging]="false">
+            <ngx-datatable
+              #table
+              [rows]="rows"
+              [rowHeight]="56"
+              class="bootstrap core-bootstrap users-datatable"
+              [limit]="pageLimit"
+              [columnMode]="ColumnMode.force"
+              [headerHeight]="52"
+              [footerHeight]="showPagination ? 50 : 0"
+              [scrollbarH]="true"
+              [externalPaging]="false"
+            >
               <ngx-datatable-column name="User" prop="fullName" [width]="180">
                 <ng-template ngx-datatable-cell-template let-value="value">
-                  <span class="contact-person-text user-name-text"
-                    [ngbTooltip]="value && value.length > 15 ? fullNameTooltip : null" container="body" placement="top"
-                    tooltipClass="modern-grid-tooltip">
+                  <span
+                    class="contact-person-text user-name-text"
+                    [ngbTooltip]="value && value.length > 15 ? fullNameTooltip : null"
+                    container="body"
+                    placement="top"
+                    tooltipClass="modern-grid-tooltip"
+                  >
                     {{ value?.length > 15 ? (value | slice: 0 : 15) + '...' : value }}
                   </span>
 
@@ -96,8 +125,13 @@
 
               <ngx-datatable-column name="Email" prop="email" [width]="230">
                 <ng-template ngx-datatable-cell-template let-value="value">
-                  <span class="email-text" [ngbTooltip]="value && value.length > 22 ? emailTooltip : null"
-                    container="body" placement="top" tooltipClass="modern-grid-tooltip">
+                  <span
+                    class="email-text"
+                    [ngbTooltip]="value && value.length > 22 ? emailTooltip : null"
+                    container="body"
+                    placement="top"
+                    tooltipClass="modern-grid-tooltip"
+                  >
                     {{ value?.length > 22 ? (value | slice: 0 : 22) + '...' : value }}
                   </span>
 
@@ -113,23 +147,30 @@
               <ngx-datatable-column name="Company Name" prop="companyName" [width]="230">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   <div class="d-flex align-items-center company-cell-wrap">
-                    <div class="avatar mr-1 ml-0" [ngClass]="{
+                    <div
+                      class="avatar mr-1 ml-0"
+                      [ngClass]="{
                         'bg-light-success': row.isActive,
                         'bg-light-secondary': !row.isActive
-                      }">
+                      }"
+                    >
                       <div class="avatar-content">
                         {{ getInitials(row.companyName) }}
                       </div>
                     </div>
 
                     <div class="cell-line-height company-text-wrap">
-                      <span class="font-weight-bold d-block company-name-text"
+                      <span
+                        class="font-weight-bold d-block company-name-text"
                         [ngbTooltip]="row.companyName && row.companyName.length > 18 ? companyTooltip : null"
-                        container="body" placement="top" tooltipClass="modern-grid-tooltip">
+                        container="body"
+                        placement="top"
+                        tooltipClass="modern-grid-tooltip"
+                      >
                         {{
-                        row.companyName?.length > 18
-                        ? (row.companyName | slice: 0 : 18) + '...'
-                        : row.companyName
+                          row.companyName?.length > 18
+                            ? (row.companyName | slice: 0 : 18) + '...'
+                            : row.companyName
                         }}
                       </span>
 
@@ -150,12 +191,23 @@
 
               <ngx-datatable-column name="Role" prop="roleName" [width]="140"></ngx-datatable-column>
 
+              <ngx-datatable-column name="Plan Type" prop="planType" [width]="140">
+                <ng-template ngx-datatable-cell-template let-value="value">
+                  <span class="badge badge-pill badge-light-primary">
+                    {{ value || '-' }}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
               <ngx-datatable-column name="Status" prop="status" [width]="110">
                 <ng-template let-status="value" ngx-datatable-cell-template>
-                  <div class="badge badge-pill status-badge" [ngClass]="{
+                  <div
+                    class="badge badge-pill status-badge"
+                    [ngClass]="{
                       'badge-light-success': status == 'Active',
                       'badge-light-secondary': status == 'Inactive'
-                    }">
+                    }"
+                  >
                     {{ status }}
                   </div>
                 </ng-template>
@@ -164,18 +216,26 @@
               <ngx-datatable-column name="Actions" [width]="130" [sortable]="false">
                 <ng-template ngx-datatable-cell-template let-row="row">
                   <div class="d-flex align-items-center justify-content-center action-group">
-                    <button type="button"
+                    <button
+                      type="button"
                       class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center table-action-btn"
-                      (click)="editUser(row)" title="Edit">
+                      (click)="editUser(row)"
+                      title="Edit"
+                    >
                       <i data-feather="edit" class="table-action-icon"></i>
                     </button>
 
-                    <button type="button"
+                    <button
+                      type="button"
                       class="btn p-0 d-flex align-items-center justify-content-center ml-1 table-action-btn"
                       [ngClass]="row.isActive ? 'btn-outline-success' : 'btn-outline-danger'"
-                      (click)="toggleUserStatus(row)" [title]="row.isActive ? 'Set Inactive' : 'Set Active'">
-                      <i class="table-toggle-icon"
-                        [ngClass]="row.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"></i>
+                      (click)="toggleUserStatus(row)"
+                      [title]="row.isActive ? 'Set Inactive' : 'Set Active'"
+                    >
+                      <i
+                        class="table-toggle-icon"
+                        [ngClass]="row.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"
+                      ></i>
                     </button>
                   </div>
                 </ng-template>
@@ -186,15 +246,24 @@
       </section>
     </div>
 
-    <!-- Create / Edit Sidebar -->
-    <core-sidebar class="modal modal-slide-in sidebar-todo-modal fade" name="new-user-sidebar"
-      overlayClass="modal-backdrop">
-      <app-create-users [editUserId]="selectedUserId" (userSaved)="onUserSaved()"></app-create-users>
+    <core-sidebar
+      class="modal modal-slide-in sidebar-todo-modal fade"
+      name="new-user-sidebar"
+      overlayClass="modal-backdrop"
+    >
+      <app-create-users
+        [editUserId]="selectedUserId"
+        (userSaved)="onUserSaved()"
+      ></app-create-users>
     </core-sidebar>
 
-    <!-- Bulk Upload Modal -->
-    <div class="modal fade show bulk-upload-backdrop" tabindex="-1" role="dialog" *ngIf="showBulkUploadModal"
-      style="display: block;">
+    <div
+      class="modal fade show bulk-upload-backdrop"
+      tabindex="-1"
+      role="dialog"
+      *ngIf="showBulkUploadModal"
+      style="display: block;"
+    >
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content bulk-upload-modal">
           <div class="modal-header">
@@ -207,17 +276,30 @@
           <div class="modal-body">
             <div class="form-group">
               <label class="form-label">Upload Excel File</label>
-              <input type="file" class="form-control" accept=".xlsx,.xls" (change)="onBulkFileSelected($event)" />
+              <input
+                type="file"
+                class="form-control"
+                accept=".xlsx,.xls"
+                (change)="onBulkFileSelected($event)"
+              />
             </div>
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" [disabled]="!selectedBulkFile || isUploading"
-              (click)="uploadBulkUsers()">
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="!selectedBulkFile || isUploading"
+              (click)="uploadBulkUsers()"
+            >
               {{ isUploading ? 'Uploading...' : 'Upload' }}
             </button>
 
-            <button type="button" class="btn btn-outline-secondary" (click)="closeBulkUploadModal()">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="closeBulkUploadModal()"
+            >
               Cancel
             </button>
           </div>

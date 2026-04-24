@@ -32,7 +32,6 @@ export class UsersListComponent implements OnInit {
 
   public selectedUserId: number | null = null;
 
-  // ✅ Bulk Upload
   public showBulkUploadModal = false;
   public selectedBulkFile: File | null = null;
   public isUploading = false;
@@ -42,7 +41,6 @@ export class UsersListComponent implements OnInit {
     private _usersService: UsersService
   ) {}
 
-  // ================= INIT =================
   ngOnInit(): void {
     this.loadCurrentUser();
     this.getAllUsers();
@@ -54,11 +52,11 @@ export class UsersListComponent implements OnInit {
     }, 0);
   }
 
-  // ================= USER SESSION =================
   loadCurrentUser(): void {
     const currentUserRaw = localStorage.getItem('currentUser');
 
     let currentUser: any = null;
+
     try {
       currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : null;
     } catch {
@@ -67,25 +65,24 @@ export class UsersListComponent implements OnInit {
 
     this.currentUserId = Number(
       localStorage.getItem('id') ||
-      localStorage.getItem('userId') ||
-      currentUser?.id ||
-      0
+        localStorage.getItem('userId') ||
+        currentUser?.id ||
+        0
     );
 
     this.currentRoleId = Number(
       localStorage.getItem('roleId') ||
-      currentUser?.roleId ||
-      0
+        currentUser?.roleId ||
+        0
     );
 
     this.currentCompanyId = Number(
       localStorage.getItem('companyId') ||
-      currentUser?.companyId ||
-      0
+        currentUser?.companyId ||
+        0
     );
   }
 
-  // ================= GET USERS =================
   getAllUsers(): void {
     this.loading = true;
 
@@ -105,6 +102,7 @@ export class UsersListComponent implements OnInit {
             companyName: item.companyName || '-',
             companyCode: item.companyCode || '-',
             roleName: item.roleName || '-',
+            planType: item.planType || '-',
             status: item.isActive ? 'Active' : 'Inactive',
             isActive: item.isActive === true
           }));
@@ -112,7 +110,9 @@ export class UsersListComponent implements OnInit {
           this.tempRows = [...this.rows];
           this.updatePaging();
 
-          if (this.table) this.table.offset = 0;
+          if (this.table) {
+            this.table.offset = 0;
+          }
 
           this.refreshFeatherIcons();
         },
@@ -128,10 +128,12 @@ export class UsersListComponent implements OnInit {
       });
   }
 
-  // ================= PAGINATION =================
   onPageSizeChange(): void {
     this.updatePaging();
-    if (this.table) this.table.offset = 0;
+
+    if (this.table) {
+      this.table.offset = 0;
+    }
   }
 
   private updatePaging(): void {
@@ -144,7 +146,6 @@ export class UsersListComponent implements OnInit {
     }
   }
 
-  // ================= SEARCH =================
   filterUpdate(event: any): void {
     const val = (event.target.value || '').toLowerCase();
 
@@ -153,25 +154,30 @@ export class UsersListComponent implements OnInit {
         (d.fullName || '').toLowerCase().includes(val) ||
         (d.email || '').toLowerCase().includes(val) ||
         (d.companyName || '').toLowerCase().includes(val) ||
+        (d.companyCode || '').toLowerCase().includes(val) ||
         (d.roleName || '').toLowerCase().includes(val) ||
+        (d.planType || '').toLowerCase().includes(val) ||
         (d.status || '').toLowerCase().includes(val)
       );
     });
 
     this.updatePaging();
 
-    if (this.table) this.table.offset = 0;
+    if (this.table) {
+      this.table.offset = 0;
+    }
   }
 
-  // ================= EXPORT =================
   exportToExcel(): void {
     const exportRows = this.rows.map((item: any, index: number) => ({
       'S.No': index + 1,
       'User Name': item.fullName,
-      'Email': item.email,
-      'Company': item.companyName,
-      'Role': item.roleName,
-      'Status': item.status
+      Email: item.email,
+      Company: item.companyName,
+      'Company Code': item.companyCode,
+      Role: item.roleName,
+      'Plan Type': item.planType,
+      Status: item.status
     }));
 
     if (!exportRows.length) {
@@ -181,12 +187,11 @@ export class UsersListComponent implements OnInit {
 
     const worksheet = XLSX.utils.json_to_sheet(exportRows);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
 
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
     XLSX.writeFile(workbook, 'User_List.xlsx');
   }
 
-  // ================= DOWNLOAD TEMPLATE =================
   downloadUserTemplate(): void {
     this._usersService.downloadUserTemplate().subscribe({
       next: (res: Blob) => {
@@ -196,9 +201,11 @@ export class UsersListComponent implements OnInit {
 
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
+
         a.href = url;
         a.download = 'User_Template.xlsx';
         a.click();
+
         window.URL.revokeObjectURL(url);
       },
       error: () => {
@@ -207,7 +214,6 @@ export class UsersListComponent implements OnInit {
     });
   }
 
-  // ================= BULK MODAL =================
   openBulkUploadModal(): void {
     this.selectedBulkFile = null;
     this.showBulkUploadModal = true;
@@ -218,7 +224,6 @@ export class UsersListComponent implements OnInit {
     this.showBulkUploadModal = false;
   }
 
-  // ================= FILE SELECT =================
   onBulkFileSelected(event: any): void {
     const file = event?.target?.files?.[0];
 
@@ -228,6 +233,7 @@ export class UsersListComponent implements OnInit {
     }
 
     const fileName = file.name.toLowerCase();
+
     if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
       Swal.fire('Invalid File', 'Upload Excel file only', 'warning');
       this.selectedBulkFile = null;
@@ -237,7 +243,6 @@ export class UsersListComponent implements OnInit {
     this.selectedBulkFile = file;
   }
 
-  // ================= BULK UPLOAD =================
   uploadBulkUsers(): void {
     if (!this.currentCompanyId) {
       Swal.fire('Error', 'Company not found from login', 'error');
@@ -250,6 +255,7 @@ export class UsersListComponent implements OnInit {
     }
 
     const formData = new FormData();
+
     formData.append('file', this.selectedBulkFile);
     formData.append('updatedBy', String(this.currentUserId || 1));
     formData.append('companyId', String(this.currentCompanyId));
@@ -260,7 +266,13 @@ export class UsersListComponent implements OnInit {
       next: (res: any) => {
         this.isUploading = false;
 
-        Swal.fire('Success', res?.message || 'Upload successful', 'success');
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: res?.message || 'Upload successful',
+          showConfirmButton: false,
+          timer: 1500
+        });
 
         this.closeBulkUploadModal();
         this.getAllUsers();
@@ -277,10 +289,12 @@ export class UsersListComponent implements OnInit {
     });
   }
 
-  // ================= SIDEBAR =================
   toggleSidebar(name: string): void {
     const sidebar = this._coreSidebarService.getSidebarRegistry(name);
-    if (sidebar) sidebar.toggleOpen();
+
+    if (sidebar) {
+      sidebar.toggleOpen();
+    }
   }
 
   openCreateSidebar(): void {
@@ -302,7 +316,6 @@ export class UsersListComponent implements OnInit {
     this.getAllUsers();
   }
 
-  // ================= STATUS =================
   toggleUserStatus(row: any): void {
     if (!row.isActive) {
       Swal.fire('Info', 'Already inactive', 'info');
@@ -318,7 +331,14 @@ export class UsersListComponent implements OnInit {
       if (res.isConfirmed) {
         this._usersService.deleteUser(row.id, this.currentUserId).subscribe({
           next: () => {
-            Swal.fire('Success', 'User deactivated', 'success');
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: 'User deactivated',
+              showConfirmButton: false,
+              timer: 1500
+            });
+
             this.getAllUsers();
           },
           error: () => {
@@ -329,9 +349,10 @@ export class UsersListComponent implements OnInit {
     });
   }
 
-  // ================= UTILS =================
   getInitials(name: string): string {
-    if (!name) return '';
+    if (!name) {
+      return '';
+    }
 
     return name
       .split(' ')
