@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'environments/environment';
@@ -15,9 +15,10 @@ export interface UserMasterPayload {
   roleId?: number | null;
   username: string;
   email: string;
-  password:string;
+  password: string;
+  planType: string;
   isActive: boolean;
-  isDelete:boolean;
+  isDelete: boolean;
   createdBy?: number | null;
   updatedBy?: number | null;
 }
@@ -30,11 +31,12 @@ export class UsersService {
 
   constructor(private http: HttpClient) {}
 
- getAllUsers(userId: number, roleId: number, companyId: number): Observable<ApiResponse<any[]>> {
-  return this.http.get<ApiResponse<any[]>>(
-    `${this.apiUrl}/GetAllUserMaster?userId=${userId}&roleId=${roleId}&companyId=${companyId}`
-  );
-}
+  getAllUsers(userId: number, roleId: number, companyId: number): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(
+      `${this.apiUrl}/GetAllUserMaster?userId=${userId}&roleId=${roleId}&companyId=${companyId}`
+    );
+  }
+
   getUserById(id: number): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(`${this.apiUrl}/GetUserMasterById?id=${id}`);
   }
@@ -53,10 +55,11 @@ export class UsersService {
     );
   }
 
-   getRoles(): Observable<ApiResponse<any>> {
+  getRoles(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(`${this.apiUrl}/GetRoles`);
   }
-   downloadUserTemplate(): Observable<Blob> {
+
+  downloadUserTemplate(): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/DownloadUserTemplate`, {
       responseType: 'blob'
     });
