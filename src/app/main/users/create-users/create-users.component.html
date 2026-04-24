@@ -27,8 +27,6 @@
           </div>
 
           <ng-container *ngIf="!isLoadingUser">
-
-            <!-- Super Admin company dropdown -->
             <div class="form-group" *ngIf="isSuperAdmin">
               <label class="form-label" for="companyId">Company</label>
 
@@ -61,7 +59,6 @@
               </span>
             </div>
 
-            <!-- Admin / non super admin company readonly -->
             <div class="form-group" *ngIf="!isSuperAdmin">
               <label class="form-label" for="companyName">Company</label>
               <textarea
@@ -74,7 +71,6 @@
               ></textarea>
             </div>
 
-            <!-- Username -->
             <div class="form-group">
               <label class="form-label" for="basic-icon-default-uname">Username</label>
               <input
@@ -96,7 +92,6 @@
               </span>
             </div>
 
-            <!-- Email -->
             <div class="form-group">
               <label class="form-label" for="basic-icon-default-email">Email</label>
               <input
@@ -122,7 +117,36 @@
               </span>
             </div>
 
-            <!-- Role : only for SuperAdmin -->
+            <div class="form-group">
+              <label class="form-label" for="planType">Plan Type</label>
+
+              <ng-select
+                id="planType"
+                [items]="planTypeList"
+                bindLabel="planType"
+                bindValue="planType"
+                [searchable]="true"
+                [clearable]="false"
+                [closeOnSelect]="true"
+                placeholder="Select Plan Type"
+                name="planType"
+                [(ngModel)]="planType"
+                #FPlanTypeRef="ngModel"
+                [class.is-invalid]="newUserForm.submitted && FPlanTypeRef.invalid"
+                required
+              >
+                <ng-template ng-option-tmp let-item="item">
+                  {{ item.planType }}
+                </ng-template>
+              </ng-select>
+
+              <span *ngIf="newUserForm.submitted && FPlanTypeRef.invalid" class="invalid-form">
+                <small class="form-text text-danger">
+                  Plan Type is required!
+                </small>
+              </span>
+            </div>
+
             <div class="form-group" *ngIf="isSuperAdmin">
               <label class="form-label" for="roleId">Role</label>
 
@@ -138,7 +162,6 @@
                 name="roleId"
                 [(ngModel)]="roleId"
                 #FRoleRef="ngModel"
-                [disabled]="isEditMode && !isSuperAdmin"
                 [class.is-invalid]="newUserForm.submitted && FRoleRef.invalid"
                 required
                 (change)="onRoleChange()"
@@ -155,7 +178,6 @@
               </span>
             </div>
 
-            <!-- Password -->
             <div *ngIf="!isEditMode" class="form-group">
               <label class="form-label" for="basic-icon-default-password">Password</label>
               <input
@@ -181,9 +203,10 @@
               </span>
             </div>
 
-            <!-- Confirm Password -->
             <div *ngIf="!isEditMode" class="form-group">
-              <label class="form-label" for="basic-icon-default-confirm-password">Confirm Password</label>
+              <label class="form-label" for="basic-icon-default-confirm-password">
+                Confirm Password
+              </label>
               <input
                 type="password"
                 id="basic-icon-default-confirm-password"
@@ -202,14 +225,16 @@
                 </small>
               </span>
 
-              <span *ngIf="newUserForm.submitted && !FConfirmPasswordRef.invalid && passwordMismatch" class="invalid-form">
+              <span
+                *ngIf="newUserForm.submitted && !FConfirmPasswordRef.invalid && passwordMismatch"
+                class="invalid-form"
+              >
                 <small class="form-text text-danger">
                   Password and Confirm Password must match!
                 </small>
               </span>
             </div>
 
-            <!-- Is Active -->
             <div class="form-group mb-2">
               <label class="form-label d-block">Is Active</label>
               <div class="custom-control custom-switch custom-switch-primary">
@@ -226,7 +251,6 @@
               </div>
             </div>
 
-            <!-- Buttons -->
             <button
               type="submit"
               class="btn btn-primary mr-1"

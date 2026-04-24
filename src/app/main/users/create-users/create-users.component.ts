@@ -30,17 +30,23 @@ export class CreateUsersComponent implements OnInit, OnChanges {
   public isActive: boolean = true;
   public isDelete: boolean = false;
 
-  // logged in user context
   public loginUserId: number = 0;
   public loginRoleId: number = 0;
   public loginCompanyId: number | null = null;
   public loginCompanyName: string = '';
 
-  // form values
   public roleId: number | null = null;
   public companyId: number | null = null;
   public selectedCompanyId: number | null = null;
   public companyName: string = '';
+
+  public planType: string | null = null;
+
+  public planTypeList: Array<any> = [
+    { planType: 'Basic' },
+    { planType: 'Standard' },
+    { planType: 'Premium' }
+  ];
 
   public isSuperAdmin: boolean = false;
   public isSubmitting: boolean = false;
@@ -113,9 +119,6 @@ export class CreateUsersComponent implements OnInit, OnChanges {
   }
 
   loadCompanyList(): void {
-    // IMPORTANT:
-    // admin ku kooda company list load aaganum
-    // appo than companyId vachi companyName bind panna mudiyum
     this._companyService.getCompanies().subscribe({
       next: (res: any) => {
         this.companyList = (res?.data || []).map((x: any) => ({
@@ -132,15 +135,9 @@ export class CreateUsersComponent implements OnInit, OnChanges {
   }
 
   loadRoles(): void {
-    // Admin ku role field kaata vendam, internally role = 4
     if (!this.isSuperAdmin) {
       this.roleId = 4;
       this.roleList = [{ id: 4, roleName: 'User' }];
-      return;
-    }
-
-    if (!this._usersService.getRoles) {
-      this.setRoleListFallback();
       return;
     }
 
@@ -186,6 +183,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
       if (!this.isEditMode) {
         this.roleId = null;
       }
+
       return;
     }
 
@@ -202,6 +200,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
     this.confirmPassword = '';
     this.isActive = true;
     this.isDelete = false;
+    this.planType = null;
 
     if (this.isSuperAdmin) {
       this.roleId = null;
@@ -209,7 +208,6 @@ export class CreateUsersComponent implements OnInit, OnChanges {
       this.selectedCompanyId = null;
       this.companyName = '';
     } else {
-      // Admin create -> role fixed = 4
       this.roleId = 4;
       this.companyId = this.loginCompanyId;
       this.selectedCompanyId = this.loginCompanyId;
@@ -228,6 +226,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
         this.isLoadingUser = false;
 
         const user = res?.data;
+
         if (!user) {
           Swal.fire({
             icon: 'error',
@@ -245,6 +244,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
         this.password = '';
         this.confirmPassword = '';
         this.isActive = user.isActive === true;
+        this.planType = user.planType || null;
 
         if (this.isSuperAdmin) {
           this.roleId = user.roleId || null;
@@ -253,7 +253,6 @@ export class CreateUsersComponent implements OnInit, OnChanges {
           this.companyName = user.companyName || '';
           this.filterRolesForLoggedInUser();
         } else {
-          // Admin edit -> company localstorage / companylist la irunthu
           this.roleId = 4;
           this.companyId = this.loginCompanyId || user.companyId || null;
           this.selectedCompanyId = this.loginCompanyId || user.companyId || null;
@@ -265,6 +264,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
       },
       error: (err: HttpErrorResponse) => {
         this.isLoadingUser = false;
+
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -282,7 +282,6 @@ export class CreateUsersComponent implements OnInit, OnChanges {
       return;
     }
 
-    // Admin ku first priority localstorage companyName
     if (!this.isSuperAdmin && this.loginCompanyName) {
       this.companyName = this.loginCompanyName;
       this.companyId = this.loginCompanyId;
@@ -299,10 +298,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
     );
 
     if (matchedCompany) {
-      this.companyName =
-        matchedCompany.companyName ||
-        matchedCompany.name ||
-        '';
+      this.companyName = matchedCompany.companyName || matchedCompany.name || '';
 
       if (!this.isSuperAdmin) {
         this.companyId = Number(matchedCompany.id);
@@ -313,6 +309,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
 
   toggleSidebar(name: string): void {
     const sidebar = this._coreSidebarService.getSidebarRegistry(name);
+
     if (sidebar) {
       sidebar.toggleOpen();
     }
@@ -342,6 +339,15 @@ export class CreateUsersComponent implements OnInit, OnChanges {
         icon: 'warning',
         title: 'Missing Fields',
         text: 'Please fill all required fields'
+      });
+      return;
+    }
+
+    if (!this.planType) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Missing Fields',
+        text: 'Plan Type is required'
       });
       return;
     }
@@ -393,6 +399,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
       username: this.username ? this.username.trim() : '',
       email: this.email ? this.email.trim() : '',
       password: this.password ? this.password.trim() : '',
+      planType: this.planType,
       isActive: this.isActive,
       isDelete: this.isDelete,
       createdBy: this.loginUserId || 1,
@@ -432,6 +439,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
       },
       error: (err: HttpErrorResponse) => {
         this.isSubmitting = false;
+
         Swal.fire({
           icon: 'error',
           title: 'Error',
