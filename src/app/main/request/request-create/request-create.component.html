@@ -66,40 +66,20 @@
       </div>
       <div class="plan-section-wrapper">
   <div class="form-group plan-selection-group">
-    <label>Select Plan <span class="text-danger">*</span></label>
+  <label>Select Plan <span class="text-danger">*</span></label>
 
-    <div class="plan-radio-row">
-      <label class="plan-radio-option">
-        <input
-          type="radio"
-          name="planType"
-          value="Basic"
-          [(ngModel)]="model.planType"
-        />
-        <span>Basic</span>
-      </label>
-
-      <label class="plan-radio-option">
-        <input
-          type="radio"
-          name="planType"
-          value="Standard"
-          [(ngModel)]="model.planType"
-        />
-        <span>Standard</span>
-      </label>
-
-      <label class="plan-radio-option">
-        <input
-          type="radio"
-          name="planType"
-          value="Premium"
-          [(ngModel)]="model.planType"
-        />
-        <span>Premium</span>
-      </label>
-    </div>
+  <div class="plan-checkbox-row">
+    <label class="plan-checkbox-option" *ngFor="let plan of plans">
+      <input
+        type="checkbox"
+        [value]="plan"
+        (change)="onPlanToggle(plan, $event)"
+        [checked]="selectedPlans.includes(plan)"
+      />
+      <span>{{ plan }}</span>
+    </label>
   </div>
+</div>
 
   <div class="plan-rate-preview-card" *ngIf="planRateCards && planRateCards.length > 0">
     <div class="plan-rate-preview-header">
@@ -111,7 +91,7 @@
       <div
         class="plan-rate-item"
         *ngFor="let plan of planRateCards"
-        [class.active]="model.planType === plan.planType"
+        [class.active]="selectedPlans.includes(plan.planType)"
       >
         <div class="plan-rate-title" [ngClass]="plan.planType.toLowerCase()">
           {{ plan.planType }}
@@ -121,132 +101,91 @@
           <span class="session-name">{{ rate.sessionName }}</span>
           <span class="session-rate">S$ {{ rate.rate | number:'1.2-2' }}</span>
         </div>
+        <div class="plan-rate-line total-line">
+          <span>Per Day</span>
+          <span>S$ {{ getPreviewPerDay(plan) | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="plan-rate-line total-line">
+          <span>Monthly Price</span>
+          <span>S$ {{ getPreviewMonthly(plan) | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="plan-rate-line total-line">
+          <span>Effective From</span>
+          <span>{{ toDisplayDate(plan.effectiveFrom) }}</span>
+        </div>
       </div>
     </div>
   </div>
 </div>
-
-      <div class="accordion-wrapper">
-        <div class="session-accordion" *ngFor="let group of sessionGroups; let gi = index">
-          <button
-            type="button"
-            class="accordion-header"
-            (click)="toggleAccordion(group)"
-          >
-            <div class="accordion-title-wrap">
-              <span class="accordion-title">{{ group.sessionName }}</span>
-              <span class="accordion-count">{{ group.lines?.length || 0 }} cuisines</span>
-            </div>
-
-            <span class="accordion-icon" [class.open]="group.isOpen">
-              <i data-feather="chevron-down"></i>
-            </span>
-          </button>
-
-          <div class="accordion-body" *ngIf="group.isOpen">
-            <div class="mb-1" *ngIf="isSessionCutOffCrossed(group.sessionId, group.sessionName)">
-              <small class="text-danger">
-                {{ getSessionCutOffMessage(group.sessionId, group.sessionName) }}
-              </small>
-            </div>
-
-            <div class="table-responsive create-table-wrap">
-              <table class="table create-line-table mb-0">
-                <thead>
-                  <tr>
-                    <th class="cuisine-col">Cuisine</th>
-                    <th class="location-col">Location</th>
-                    <th class="qty-col">Qty</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <ng-container *ngFor="let line of group.lines; let li = index">
-                    <ng-container *ngFor="let detail of line.details; let di = index">
-                      <tr>
-                        <td>
-                          <div class="cuisine-cell">
-                            <input
-                              type="text"
-                              class="form-control form-control-sm create-input readonly-input"
-                              [ngModel]="line.cuisineName"
-                              [name]="'cuisineName_' + gi + '_' + li + '_' + di"
-                              readonly
-                            />
-
-                            <button
-                              *ngIf="di === 0"
-                              type="button"
-                              class="btn btn-sm btn-outline-primary add-location-btn"
-                              (click)="addLocationRow(line)"
-                              [disabled]="isSessionCutOffCrossed(group.sessionName)"
-                            >
-                              + Add
-                            </button>
-                          </div>
-                        </td>
-
-                        <td>
-                          <ng-select
-                            class="table-ng-select"
-                            [items]="locations"
-                            bindLabel="name"
-                            [(ngModel)]="detail.locationObj"
-                            [name]="'locationId_' + gi + '_' + li + '_' + di"
-                            (change)="onDetailLocationChange(detail)"
-                            [clearable]="true"
-                            [searchable]="true"
-                            appendTo="body"
-                            [placeholder]="detail.locationObj ? '' : 'Select Location'"
-                            [disabled]="isSessionCutOffCrossed(group.sessionName)">
-                          </ng-select>
-                        </td>
-
-                        <td>
-                          <div class="qty-cell">
-                            <input
-                              type="number"
-                              min="0"
-                              class="form-control form-control-sm create-input"
-                              [(ngModel)]="detail.qty"
-                              [name]="'qty_' + gi + '_' + li + '_' + di"
-                              (input)="onLineChange()"
-                              placeholder="Enter qty"
-                              [disabled]="isSessionCutOffCrossed(group.sessionName)"
-                            />
-
-                            <button
-                              *ngIf="line.details.length > 1"
-                              type="button"
-                              class="btn btn-sm btn-outline-danger remove-location-btn"
-                              (click)="removeLocationRow(line, di)"
-                              [disabled]="isSessionCutOffCrossed(group.sessionName)"
-                            >
-                              <i data-feather="trash-2"></i>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    </ng-container>
-                  </ng-container>
-
-                  <tr>
-                    <td colspan="3">
-                      <small class="text-muted">
-                        Note : You can select the same cuisine for multiple locations using Add button
-                      </small>
-                    </td>
-                  </tr>
-
-                  <tr *ngIf="!group.lines || group.lines.length === 0">
-                    <td colspan="3" class="text-center text-muted py-2">No cuisines available</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+<div class="plan-warning-box" *ngIf="isPlanQtyMismatch">
+  <i data-feather="alert-triangle"></i>
+  <span>{{ planMismatchMessage }}</span>
+</div>
+    <div class="accordion-wrapper">
+  <div class="session-accordion" *ngFor="let group of planGroups; let gi = index">
+    <button
+      type="button"
+      class="accordion-header"
+      (click)="toggleAccordion(group)"
+    >
+      <div class="accordion-title-wrap">
+        <span class="accordion-title">{{ group.planType }}</span>
+        <span class="accordion-count">{{ group.lines.length }} cuisines</span>
       </div>
+
+      <span class="accordion-icon" [class.open]="group.isOpen">
+        <i data-feather="chevron-down"></i>
+      </span>
+    </button>
+
+    <div class="accordion-body" *ngIf="group.isOpen">
+      <div class="table-responsive create-table-wrap">
+        <table class="table create-line-table mb-0">
+          <thead>
+            <tr>
+              <th class="cuisine-col">Cuisine</th>
+              <th class="qty-col">Qty</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let line of group.lines; let li = index">
+              <td>
+                <input
+                  type="text"
+                  class="form-control form-control-sm create-input readonly-input"
+                  [ngModel]="line.cuisineName"
+                  [name]="'cuisine_' + gi + '_' + li"
+                  readonly
+                />
+              </td>
+
+              <td>
+                <input
+                  type="number"
+                  min="0"
+                  class="form-control form-control-sm create-input"
+                  [(ngModel)]="line.qty"
+                  [name]="'qty_' + gi + '_' + li"
+                  (input)="onLineChange()"
+                  placeholder="Enter qty"
+                />
+              </td>
+            </tr>
+
+            <tr *ngIf="!group.lines || group.lines.length === 0">
+              <td colspan="2" class="text-center text-muted py-2">
+                No cuisines available
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
       <div class="form-actions">
         <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()">

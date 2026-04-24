@@ -400,7 +400,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
           details = [];
         }
 
-        const groupedDetails = this.groupBySession(details);
+        const groupedDetails = this.groupByPlan(details);
 
         let html = `
           <div class="req-details-popup">
@@ -418,7 +418,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
                 <div class="req-info-value">${row.companyName || '-'}</div>
               </div>
               <div class="req-info-box">
-                <div class="req-info-label">Sessions</div>
+                <div class="req-info-label">Plans</div>
                 <div class="req-info-value">${Object.keys(groupedDetails).length}</div>
               </div>
             </div>
@@ -460,7 +460,6 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
                     <thead>
                       <tr>
                         <th style="width: 45%;">Cuisine</th>
-                        <th style="width: 35%;">Location</th>
                         <th style="width: 20%; text-align:center;">Qty</th>
                       </tr>
                     </thead>
@@ -474,9 +473,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
                   <td>
                     <div class="req-cell-main">${item.cuisineName || item.cuisine || '-'}</div>
                   </td>
-                  <td>
-                    <div class="req-cell-main">${item.locationName || item.location || '-'}</div>
-                  </td>
+                
                   <td style="text-align:center;">
                     <span class="req-qty-pill">${qty}</span>
                   </td>
@@ -518,22 +515,22 @@ export class RequestListComponent implements OnInit, AfterViewInit, AfterViewChe
     });
   }
 
-  private groupBySession(items: any[]): { [key: string]: any[] } {
-    if (!Array.isArray(items)) {
-      return {};
+ private groupByPlan(items: any[]): { [key: string]: any[] } {
+  if (!Array.isArray(items)) {
+    return {};
+  }
+
+  return items.reduce((acc: any, curr: any) => {
+    const key = curr.planType || curr.PlanType || 'Others';
+
+    if (!acc[key]) {
+      acc[key] = [];
     }
 
-    return items.reduce((acc: any, curr: any) => {
-      const key = curr.sessionName || curr.session || 'Others';
-
-      if (!acc[key]) {
-        acc[key] = [];
-      }
-
-      acc[key].push(curr);
-      return acc;
-    }, {});
-  }
+    acc[key].push(curr);
+    return acc;
+  }, {});
+}
 
   private displayDate(value: any): string {
     const dt = this.parseDateOnly(value);

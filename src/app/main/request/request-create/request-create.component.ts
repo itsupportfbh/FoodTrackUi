@@ -38,7 +38,6 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     toDate: '',
     totalQty: 0,
     isActive: true,
-    planType: '',
     lines: []
   };
 
@@ -46,6 +45,14 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   isDateOverlap = false;
   dateOverlapMessage = '';
   planRateCards: any[] = [];
+
+  plans: string[] = ['Basic', 'Standard', 'Premium'];
+  selectedPlans: string[] = [];
+  planGroups: any[] = [];
+
+  planUserCounts: any[] = [];
+  isPlanQtyMismatch = false;
+  planMismatchMessage = '';
 
   constructor(
     private requestService: RequestService,
@@ -102,12 +109,14 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
         if (!this.isEditMode && this.companies.length > 0) {
           this.model.companyId = Number(this.companies[0].id || 0);
           this.model.companyName = this.companies[0].name || '';
+
+          this.loadPlanUserCounts();
         }
 
         if (this.isEditMode) {
           this.loadById();
         } else {
-          this.buildSessionGroups();
+          this.buildPlanGroups();
         }
       },
       error: (err) => {
@@ -143,8 +152,9 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
           const company = this.companies.find((x: any) => Number(x.id) === Number(this.model.companyId));
           this.model.companyName = company ? company.name : '';
         }
+        this.loadPlanUserCounts();
 
-        this.buildSessionGroups();
+        this.buildPlanGroups();
         this.patchExistingLinesToGroups();
         this.calculateTotalQty();
 
@@ -157,66 +167,52 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     });
   }
 
-  buildSessionGroups(): void {
-    this.sessionGroups = this.sessions.map((session: any, index: number) => {
-      const lines = this.cuisines.map((cuisine: any) => ({
-        sessionId: Number(session.id || 0),
-        sessionName: session.name || '',
-        cuisineId: Number(cuisine.id || 0),
-        cuisineName: cuisine.name || '',
-        details: [
-          {
-            id: 0,
-            locationId: null,
-            locationObj: null,
-            qty: 0
-          }
-        ]
-      }));
+  buildPlanGroups(): void {
+  this.planGroups = this.selectedPlans.map((plan: string, index: number) => {
+    const lines = this.cuisines.map((cuisine: any) => ({
+      id: 0,
+      planType: plan,
+      cuisineId: Number(cuisine.id || 0),
+      cuisineName: cuisine.name || '',
+      qty: 0
+    }));
 
-      return {
-        sessionId: Number(session.id || 0),
-        sessionName: session.name || '',
-        isOpen: this.isEditMode ? true : index === 0,
-        lines
-      };
-    });
-  }
+    return {
+      planType: plan,
+      isOpen: index === 0,
+      lines
+    };
+  });
+}
 
   patchExistingLinesToGroups(): void {
-    const existingLines = this.model.lines || [];
+  const existingLines = this.model.lines || [];
 
-    if (!existingLines.length) {
-      return;
-    }
+  if (!existingLines.length) return;
 
-    this.sessionGroups.forEach((group: any) => {
-      group.lines.forEach((line: any) => {
-        const matches = existingLines.filter((x: any) =>
-          Number(x.sessionId) === Number(line.sessionId) &&
+  // set selected plans first
+  this.selectedPlans = existingLines
+  .map((x: any) => x.planType)
+  .filter((plan: string, index: number, arr: string[]) =>
+    plan && arr.indexOf(plan) === index
+  );
+
+  this.buildPlanGroups();
+
+  this.planGroups.forEach(group => {
+    group.lines.forEach(line => {
+      const match = existingLines.find(
+        (x: any) =>
+          x.planType === group.planType &&
           Number(x.cuisineId) === Number(line.cuisineId)
-        );
+      );
 
-        if (matches.length > 0) {
-          line.details = matches.map((existing: any) => {
-            const locationId = Number(existing.locationId || 0) || null;
-            const selectedLocation = this.locations.find(
-              (loc: any) => Number(loc.id) === Number(locationId)
-            );
-
-            return {
-              id: Number(existing.id || 0),
-              locationId,
-              locationObj: selectedLocation || null,
-              qty: Number(existing.qty || 0)
-            };
-          });
-        }
-      });
+      if (match) {
+        line.qty = Number(match.qty || 0);
+      }
     });
-
-    this.syncLinesFromGroups();
-  }
+  });
+}
 
   toggleAccordion(group: any): void {
     group.isOpen = !group.isOpen;
@@ -248,38 +244,26 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   onLineChange(): void {
     this.syncLinesFromGroups();
     this.calculateTotalQty();
+    this.validatePlanQty();
   }
 
-  syncLinesFromGroups(): void {
-    this.model.lines = this.sessionGroups
-      .reduce((acc: any[], group: any) => acc.concat(group.lines || []), [])
-      .reduce((acc: any[], line: any) => {
-        const detailRows = (line.details || []).map((detail: any) => ({
-          id: detail.id || 0,
-          sessionId: line.sessionId,
-          sessionName: line.sessionName,
-          cuisineId: line.cuisineId,
-          cuisineName: line.cuisineName,
-          locationId: detail.locationId,
-          locationObj: detail.locationObj,
-          qty: Number(detail.qty) || 0
-        }));
-
-        return acc.concat(detailRows);
-      }, [])
-      .filter((row: any) => Number(row.locationId) > 0 || Number(row.qty) > 0);
-  }
+ syncLinesFromGroups(): void {
+  this.model.lines = this.planGroups
+    .reduce((acc: any[], group: any) => acc.concat(group.lines || []), [])
+    .filter((x: any) => Number(x.qty) > 0)
+    .map((x: any) => ({
+      Id: x.id || 0,
+      PlanType: x.planType,
+      CuisineId: x.cuisineId,
+      Qty: Number(x.qty) || 0
+    }));
+}
 
   calculateTotalQty(): void {
-    const allDetails = this.sessionGroups
-      .reduce((acc: any[], group: any) => acc.concat(group.lines || []), [])
-      .reduce((acc: any[], line: any) => acc.concat(line.details || []), []);
-
-    this.model.totalQty = allDetails.reduce(
-      (sum: number, detail: any) => sum + (Number(detail.qty) || 0),
-      0
-    );
-  }
+  this.model.totalQty = this.planGroups
+    .reduce((acc: any[], group: any) => acc.concat(group.lines || []), [])
+    .reduce((sum: number, line: any) => sum + (Number(line.qty) || 0), 0);
+}
 
   private getSessionCutOffTime(sessionId: number, sessionName?: string): string {
     const id = Number(sessionId || 0);
@@ -424,99 +408,75 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   saveRequest(): void {
-    debugger
-    if (!this.model.companyId || !this.model.fromDate || !this.model.toDate) {
-      Swal.fire('Missing Information', 'Please fill header details', 'warning');
-      return;
+  if (!this.model.companyId || !this.model.fromDate || !this.model.toDate) {
+    Swal.fire('Missing Information', 'Please fill header details', 'warning');
+    return;
+  }
+
+  if (this.model.fromDate > this.model.toDate) {
+    Swal.fire('Missing Information', 'From Date should not be greater than To Date', 'warning');
+    return;
+  }
+  if (!this.selectedPlans.length) {
+  Swal.fire('Missing', 'Please select at least one plan', 'warning');
+  return;
+}
+
+  this.syncLinesFromGroups();
+  this.calculateTotalQty();
+
+  const validLines = this.model.lines || [];
+
+  if (!validLines.length) {
+    Swal.fire(
+      'Missing Information',
+      'Please enter qty for at least one cuisine',
+      'warning'
+    );
+    return;
+  }
+
+  if (this.isDateOverlap) {
+    Swal.fire(
+      'Warning',
+      'Order already exists for the selected date range.',
+      'warning'
+    );
+    return;
+  }
+
+  const payload = {
+    Id: this.model.id || 0,
+    CompanyId: this.model.companyId,
+    FromDate: this.model.fromDate,
+    ToDate: this.model.toDate,
+    TotalQty: this.model.totalQty,
+    IsActive: this.model.isActive,
+    UserId: this.userId,
+    Lines: validLines
+  };
+  this.validatePlanQty();
+
+if (this.isPlanQtyMismatch) {
+  Swal.fire({
+    icon: 'warning',
+    title: 'Qty Mismatch',
+    text: this.planMismatchMessage,
+    confirmButtonText: 'Go to Users Page',
+    showCancelButton: true,
+    cancelButtonText: 'Stay Here'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.router.navigate(['/users/users-list']);
     }
+  });
 
-    if (this.model.fromDate > this.model.toDate) {
-      Swal.fire('Missing Information', 'From Date should not be greater than To Date', 'warning');
-      return;
-    }
-    if (!this.model.planType) {
-      Swal.fire('Missing Information', 'Please select a plan', 'warning');
-      return;
-    }
+  return;
+}
 
-    this.syncLinesFromGroups();
-    this.calculateTotalQty();
-
-    if (this.hasDuplicateLocations()) {
-      Swal.fire(
-        'Missing Information',
-        'Same cuisine cannot have duplicate locations in the same session',
-        'warning'
-      );
-      return;
-    }
-
-    const blockedSessions: string[] = [];
-
-    for (const group of this.sessionGroups) {
-      const hasQty = (group.lines || []).some((line: any) =>
-        (line.details || []).some((d: any) => Number(d.locationId) > 0 && Number(d.qty) > 0)
-      );
-
-      if (hasQty && this.isSessionCutOffCrossed(group.sessionId, group.sessionName)) {
-        blockedSessions.push(group.sessionName || `Session ${group.sessionId}`);
-      }
-    }
-
-    if (blockedSessions.length > 0) {
-      Swal.fire(
-        'Warning',
-        `${blockedSessions.join(', ')} cut off time crossed. You cannot place order for these sessions.`,
-        'warning'
-      );
-      return;
-    }
-
-    const validLines = this.sessionGroups
-      .reduce((acc: any[], group: any) => acc.concat(group.lines || []), [])
-      .reduce((acc: any[], line: any) => {
-        const validDetails = (line.details || [])
-          .filter((d: any) => d.locationId && Number(d.qty) > 0)
-          .map((d: any) => ({
-            Id: d.id || 0,
-            SessionId: line.sessionId,
-            CuisineId: line.cuisineId,
-            LocationId: d.locationId,
-            Qty: Number(d.qty) || 0
-          }));
-
-        return acc.concat(validDetails);
-      }, []);
-
-    if (!validLines.length) {
-      Swal.fire('Missing Information', 'Please select location and qty for at least one row', 'warning');
-      return;
-    }
-
-    const payload = {
-      Id: this.model.id || 0,
-      CompanyId: this.model.companyId,
-      FromDate: this.model.fromDate,
-      ToDate: this.model.toDate,
-      TotalQty: this.model.totalQty,
-      PlanType: this.model.planType,
-      IsActive: this.model.isActive,
-      UserId: this.userId,
-      Lines: validLines
-    };
-
-    if (this.isDateOverlap) {
-      Swal.fire(
-        'Warning',
-        'Order already exists for the selected date range.',
-        'warning'
-      );
-      return;
-    }
-
-    this.requestService.saveRequest(payload).subscribe({
-      next: (res: any) => {
-        Swal.fire({
+  this.requestService.saveRequest(payload).subscribe({
+    next: (res: any) => {
+      Swal.fire({
         title: 'Success',
         text: res?.message || 'Request saved successfully',
         icon: 'success',
@@ -524,15 +484,19 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
         timer: 1500,
         allowOutsideClick: false
       }).then(() => {
-          this.router.navigate(['/catering/request']);
-        });
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', err?.error?.message || 'Save failed', 'error');
-      }
-    });
-  }
+        this.router.navigate(['/catering/request']);
+      });
+    },
+    error: (err) => {
+      console.error(err);
+      Swal.fire(
+        'Error',
+        err?.error?.message || err?.error || 'Save failed',
+        'error'
+      );
+    }
+  });
+}
 
   private hasDuplicateLocations(): boolean {
     for (const group of this.sessionGroups) {
@@ -560,12 +524,11 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
       fromDate: '',
       toDate: '',
       totalQty: 0,
-      planType: '',
       isActive: true,
       lines: []
     };
 
-    this.buildSessionGroups();
+    this.buildPlanGroups();
   }
 
   goBack(): void {
@@ -662,28 +625,141 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     });
   }
   loadPlanRateCards(): void {
-    this.requestService.getDefaultPlanRates().subscribe({
-      next: (res: any) => {
-        const data = res?.data || res || [];
+  this.requestService.getDefaultPlanRates().subscribe({
+    next: (res: any) => {
+      const data = res?.data || res || [];
 
-        this.planRateCards = (data || []).map((plan: any) => ({
-          planType: plan.planType,
-          effectiveFrom: plan.effectiveFrom,
-          sessionRates: (plan.sessionRates || []).map((rate: any) => ({
+      this.planRateCards = (data || []).map((plan: any) => ({
+        planType: plan.planType,
+        effectiveFrom: plan.effectiveFrom,
+        sessionRates: (plan.sessionRates || [])
+          .filter((rate: any) => {
+            const name = rate.sessionName || this.getSessionName(rate.sessionId);
+            return !this.isLateLunch(name) && !this.isLateDinner(name);
+          })
+          .map((rate: any) => ({
             sessionId: Number(rate.sessionId || 0),
             sessionName: rate.sessionName || this.getSessionName(rate.sessionId),
             rate: Number(rate.rate || 0)
           }))
-        }));
-      },
-      error: (err: any) => {
-        console.error(err);
-        this.planRateCards = [];
-      }
-    });
-  }
+      }));
+    },
+    error: (err: any) => {
+      console.error(err);
+      this.planRateCards = [];
+    }
+  });
+}
+  normalizeText(value: string): string {
+  return (value || '').toLowerCase().replace(/[\s_-]/g, '').trim();
+}
+
+isLateLunch(name: string): boolean {
+  return this.normalizeText(name) === 'latelunch';
+}
+
+isLateDinner(name: string): boolean {
+  return this.normalizeText(name) === 'latedinner';
+}
+
+getPreviewPerDay(plan: any): number {
+  return (plan.sessionRates || []).reduce(
+    (sum: number, x: any) => sum + Number(x.rate || 0),
+    0
+  );
+}
+
+getPreviewMonthly(plan: any): number {
+  return this.getPreviewPerDay(plan) * 30;
+}
+
+toDisplayDate(value: any): string {
+  if (!value) return '-';
+
+  const d = new Date(value);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+
+  return `${dd}-${mm}-${yyyy}`;
+}
   getSessionName(sessionId: number): string {
     const session = this.sessions.find((x: any) => Number(x.id) === Number(sessionId));
     return session ? session.name : '';
   }
+onPlanToggle(plan: string, event: any): void {
+  if (event.target.checked) {
+    this.selectedPlans.push(plan);
+  } else {
+    this.selectedPlans = this.selectedPlans.filter(p => p !== plan);
+  }
+
+  const existing = this.planGroups;
+  this.buildPlanGroups();
+
+  // restore old qty
+  this.planGroups.forEach(group => {
+    const oldGroup = existing.find(g => g.planType === group.planType);
+    if (oldGroup) {
+      group.lines.forEach(line => {
+        const oldLine = oldGroup.lines.find((l: any) => l.cuisineId === line.cuisineId);
+        if (oldLine) {
+          line.qty = oldLine.qty;
+        }
+      });
+    }
+  });
+}
+loadPlanUserCounts(): void {
+  if (!this.model.companyId) return;
+
+  this.requestService.getPlanUserCounts(this.model.companyId).subscribe({
+    next: (res: any) => {
+      this.planUserCounts = res?.data || [];
+      this.validatePlanQty();
+    },
+    error: () => {
+      this.planUserCounts = [];
+    }
+  });
+}
+getAvailableUsers(planType: string): number {
+  const row = this.planUserCounts.find(
+    x => String(x.planType || x.PlanType || '').toLowerCase() === planType.toLowerCase()
+  );
+
+  return Number(row?.userCount || row?.UserCount || 0);
+}
+
+getPlanTotalQty(planType: string): number {
+  const group = this.planGroups.find(x => x.planType === planType);
+
+  if (!group) return 0;
+
+  return group.lines.reduce(
+    (sum: number, line: any) => sum + (Number(line.qty) || 0),
+    0
+  );
+}
+
+validatePlanQty(): void {
+  this.isPlanQtyMismatch = false;
+  this.planMismatchMessage = '';
+
+  const messages: string[] = [];
+
+  this.selectedPlans.forEach(plan => {
+    const availableUsers = this.getAvailableUsers(plan);
+    const enteredQty = this.getPlanTotalQty(plan);
+
+    if (enteredQty > 0 && enteredQty !== availableUsers) {
+      messages.push(
+        `${plan} plan has ${availableUsers} active user(s). You entered ${enteredQty}.`
+      );
+    }
+  });
+
+  this.isPlanQtyMismatch = messages.length > 0;
+  this.planMismatchMessage = messages.join(' | ');
+}
 }
