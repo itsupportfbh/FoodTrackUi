@@ -54,4 +54,9 @@ getLatestSiteSetting(): Observable<any> {
 getDefaultPlanRates(): Observable<any> {
   return this.http.get<any>(`${environment.apiUrl}/CuisinePrice/GetDefaultPlanRates`);
 }
+getPlanUserCounts(companyId: number): Observable<any> {
+  return this.http.get<any>(
+    `${this.baseUrl}/GetPlanUserCounts?companyId=${companyId}`
+  );
+}
 }

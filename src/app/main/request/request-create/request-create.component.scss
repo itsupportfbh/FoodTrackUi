@@ -436,3 +436,46 @@
 .plan-section-wrapper {
   margin-bottom: 24px;
 }
+.plan-checkbox-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.plan-checkbox-option {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 0 !important;
+  font-size: 15px;
+  font-weight: 600;
+  color: #5b5877;
+  cursor: pointer;
+}
+
+.plan-checkbox-option input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: #6F3C2F;
+  cursor: pointer;
+}
+.plan-warning-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #ff9f43;
+  background: #fff8ed;
+  color: #9f4f00;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin: 14px 0;
+}
+
+.plan-warning-box svg {
+  width: 18px;
+  height: 18px;
+}
