@@ -57,6 +57,8 @@ export class CreateUsersComponent implements OnInit, OnChanges {
   public companyList: Array<any> = [];
   public roleList: Array<any> = [];
   public allRoleList: Array<any> = [];
+  public cuisineId: number | null = null;
+  public cuisineList: Array<any> = [];
 
   constructor(
     private _coreSidebarService: CoreSidebarService,
@@ -69,6 +71,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
     this.prepareCreateDefaults();
     this.loadCompanyList();
     this.loadRoles();
+    this.loadCuisineList();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -82,6 +85,21 @@ export class CreateUsersComponent implements OnInit, OnChanges {
       }
     }
   }
+  loadCuisineList(): void {
+  this._usersService.getCuisines().subscribe({
+    next: (res: any) => {
+      this.cuisineList = (res?.data || res || [])
+        .filter((x: any) => x.isActive === true || x.isActive === 1)
+        .map((x: any) => ({
+          id: Number(x.id),
+          cuisineName: x.cuisineName || x.name || ''
+        }));
+    },
+    error: () => {
+      this.cuisineList = [];
+    }
+  });
+}
 
   get passwordMismatch(): boolean {
     if (this.isEditMode && !this.password && !this.confirmPassword) {
@@ -201,6 +219,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
     this.isActive = true;
     this.isDelete = false;
     this.planType = null;
+    this.cuisineId = null;
 
     if (this.isSuperAdmin) {
       this.roleId = null;
@@ -245,6 +264,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
         this.confirmPassword = '';
         this.isActive = user.isActive === true;
         this.planType = user.planType || null;
+        this.cuisineId = user.cuisineId || null;
 
         if (this.isSuperAdmin) {
           this.roleId = user.roleId || null;
@@ -351,7 +371,14 @@ export class CreateUsersComponent implements OnInit, OnChanges {
       });
       return;
     }
-
+    if (!this.cuisineId) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Missing Fields',
+        text: 'Cuisine is required'
+      });
+      return;
+    }
     if (this.passwordMismatch) {
       Swal.fire({
         icon: 'warning',
@@ -398,8 +425,9 @@ export class CreateUsersComponent implements OnInit, OnChanges {
       roleId: finalRoleId,
       username: this.username ? this.username.trim() : '',
       email: this.email ? this.email.trim() : '',
-      password1: this.password ? this.password.trim() : '',
+      password: this.password ? this.password.trim() : '',
       planType: this.planType,
+      cuisineId: this.cuisineId,
       isActive: this.isActive,
       isDelete: this.isDelete,
       createdBy: this.loginUserId || 1,
