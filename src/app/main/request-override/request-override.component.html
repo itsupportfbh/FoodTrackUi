@@ -8,7 +8,7 @@
 
         <div class="header-text">
           <h2 class="title">Order Override</h2>
-          <p class="sub-title">Plan wise override entry</p>
+          <p class="sub-title">Plan-wise cuisine override entry</p>
         </div>
       </div>
 
@@ -27,26 +27,6 @@
               type="text"
               class="form-control-custom readonly-input"
               [value]="model.header.requestNo || ''"
-              readonly
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Plan Type</label>
-            <input
-              type="text"
-              class="form-control-custom readonly-input"
-              [value]="model.header.planType || ''"
-              readonly
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Available Users</label>
-            <input
-              type="text"
-              class="form-control-custom readonly-input"
-              [value]="availableUsers"
               readonly
             />
           </div>
@@ -91,105 +71,102 @@
             />
           </div>
         </div>
+
+      <div class="plan-selection-card">
+  <div class="plan-selection-head">
+    <h5>Plan Type</h5>
+    <small>Selected plan accordion will open automatically</small>
+  </div>
+
+  <div class="plan-checkbox-row">
+    <label
+      class="plan-checkbox-option"
+      *ngFor="let plan of plans"
+      [class.checked]="selectedPlans.includes(plan)"
+      [class.basic]="plan === 'Basic'"
+      [class.standard]="plan === 'Standard'"
+      [class.premium]="plan === 'Premium'"
+    >
+      <input
+        type="checkbox"
+        [checked]="selectedPlans.includes(plan)"
+        (change)="onPlanToggle(plan, $event)"
+      />
+
+      <span class="plan-check-icon">
+        <i data-feather="check"></i>
+      </span>
+
+      <span class="plan-name">{{ plan }}</span>
+    </label>
+  </div>
+</div>
       </div>
 
-      <div class="plan-selector-wrapper">
-        <label class="section-label">Plan Type</label>
-
-       <div class="plan-check-row">
-  <label
-    class="plan-check-card"
-    *ngFor="let plan of planGroups"
-    [class.active]="plan.isSelected"
-    (click)="selectPlan(plan)"
-  >
-    <input type="checkbox" [checked]="plan.isSelected" readonly />
-    <span class="check-box"></span>
-    <span class="plan-name">{{ plan.planType }}</span>
-  </label>
-</div>
-      </div>
-
-     <div class="qty-summary-row">
-  <div class="qty-summary-card">
-    <span class="summary-label">Available Users</span>
-    <strong>{{ getTotalAvailableUsers() }}</strong>
-  </div>
-
-  <div class="qty-summary-card">
-    <span class="summary-label">Entered Qty</span>
-    <strong>{{ getTotalOverrideQty() }}</strong>
-  </div>
-
-  <div class="qty-summary-card" [class.valid]="isQtyMatched()" [class.invalid]="!isQtyMatched()">
-    <span class="summary-label">Status</span>
-    <strong>{{ isQtyMatched() ? 'Matched' : 'Mismatch' }}</strong>
-  </div>
-</div>
-
-  <div class="warning-box" *ngIf="!isQtyMatched()">
-  <i data-feather="alert-triangle"></i>
-  <span>
-    <ng-container *ngFor="let plan of getMismatchPlans(); let last = last">
-      {{ plan.planType }} plan has {{ plan.availableUsers }} active user(s).
-      You entered {{ getPlanQty(plan) }}.
-      <span *ngIf="!last"> | </span>
-    </ng-container>
-  </span>
-</div>
-
-   <div
-  class="plan-content-card"
-  *ngFor="let plan of planGroups"
+      <div class="accordion-wrapper" *ngIf="planGroups.length > 0; else noDataTpl">
+       <div
+  class="session-accordion"
+  *ngFor="let group of getVisiblePlanGroups(); let gi = index"
 >
-  <div class="plan-content-header">
-    <div>
-      <h5>{{ plan.planType }} Plan</h5>
-      <p>Available users: {{ plan.availableUsers }}</p>
-    </div>
+          <button
+            type="button"
+            class="accordion-header"
+            (click)="toggleAccordion(group)"
+          >
+            <div class="accordion-title-wrap">
+              <span class="accordion-title">{{ group.planType }}</span>
+              <span class="accordion-count">{{ group.lines.length }} cuisines</span>
+            </div>
 
-    <div class="total-pill">
-      Total Qty: {{ getPlanQty(plan) }}
-    </div>
-  </div>
+            <span class="accordion-icon" [class.open]="group.isOpen">
+              <i data-feather="chevron-down"></i>
+            </span>
+          </button>
 
-  <div class="create-table-wrap">
-    <table class="table create-line-table">
-      <thead>
-        <tr>
-          <th>Cuisine</th>
-          <th>Qty</th>
-        </tr>
-      </thead>
+          <div class="accordion-body" *ngIf="group.isOpen">
+            <div class="create-table-wrap">
+              <table class="table create-line-table">
+                <thead>
+                  <tr>
+                    <th>Cuisine</th>
+                    <th>Existing Qty</th>
+                    <th>Override Qty</th>
+                  </tr>
+                </thead>
 
-      <tbody>
-        <tr *ngFor="let row of plan.lines; let i = index">
-          <td>
-            <div class="cell-text strong">{{ row.cuisineName }}</div>
-          </td>
+                <tbody>
+                  <tr *ngFor="let row of group.lines; let li = index">
+                    <td>
+                      <div class="cell-text strong">{{ row.cuisineName }}</div>
+                    </td>
 
-          <td>
-            <input
-              type="number"
-              class="form-control qty-input"
-              [(ngModel)]="row.overrideQty"
-              [name]="'overrideQty_' + plan.planType + '_' + i"
-              min="0"
-              placeholder="0"
-              (ngModelChange)="onOverrideQtyChange(row, $event)"
-            />
-          </td>
-        </tr>
+                    <td>
+                      <span class="qty-pill readonly">{{ row.baseQty }}</span>
+                    </td>
 
-        <tr *ngIf="!plan.lines?.length">
-          <td colspan="2" class="empty-inline">
-            No cuisine found for {{ plan.planType }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+                    <td>
+                      <input
+                        type="number"
+                        min="0"
+                        class="form-control qty-input"
+                        [(ngModel)]="row.overrideQty"
+                        [name]="'overrideQty_' + gi + '_' + li"
+                        [disabled]="!selectedPlans.includes(group.planType)"
+                        (ngModelChange)="onOverrideQtyChange(row, $event)"
+                        placeholder="0"
+                      />
+                    </td>
+                  </tr>
+
+                  <tr *ngIf="!group.lines?.length">
+                    <td colspan="3" class="empty-inline">No cuisines found</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <ng-template #noDataTpl>
         <div class="empty-row-card">
@@ -198,15 +175,6 @@
       </ng-template>
 
       <div class="form-actions">
-        <button
-          type="button"
-          class="btn btn-light btn-reset"
-          (click)="resetOverride()"
-          [disabled]="saving"
-        >
-          Reset
-        </button>
-
         <button
           type="button"
           class="btn btn-primary btn-save"

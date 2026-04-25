@@ -398,7 +398,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
       roleId: finalRoleId,
       username: this.username ? this.username.trim() : '',
       email: this.email ? this.email.trim() : '',
-      password: this.password ? this.password.trim() : '',
+      password1: this.password ? this.password.trim() : '',
       planType: this.planType,
       isActive: this.isActive,
       isDelete: this.isDelete,

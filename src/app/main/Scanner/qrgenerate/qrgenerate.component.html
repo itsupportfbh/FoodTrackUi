@@ -19,29 +19,17 @@
             <div class="row qr-form-row">
               <div class="col-lg-4 col-md-6 col-12">
                 <label class="qr-label">Request / Pending Segment</label>
-              <select
-  class="form-control qr-input"
-  name="requestSelection"
-  [(ngModel)]="selectedRequestItem"
-  (ngModelChange)="onRequestChange()"
->
-  <option [ngValue]="null">Select Request</option>
-  <option *ngFor="let item of requestList" [ngValue]="item">
-    {{ item.displayText }}
-  </option>
-</select>
-              </div>
-
-              <div class="col-lg-4 col-md-6 col-12">
-                <label class="qr-label">Company Email</label>
-                <input
-                  type="email"
-                  name="Email"
+                <select
                   class="form-control qr-input"
-                  [(ngModel)]="qrRequest.companyEmail"
-                  placeholder="Enter Company Email"
-                  readonly
+                  name="requestSelection"
+                  [(ngModel)]="selectedRequestItem"
+                  (ngModelChange)="onRequestChange()"
                 >
+                  <option [ngValue]="null">Select Request</option>
+                  <option *ngFor="let item of requestList" [ngValue]="item">
+                    {{ item.displayText }}
+                  </option>
+                </select>
               </div>
 
               <div class="col-lg-4 col-md-6 col-12">
@@ -51,7 +39,17 @@
                   name="noofQR"
                   class="form-control qr-input"
                   [(ngModel)]="qrRequest.TotalQty"
-                  placeholder="Enter number of QR"
+                  readonly
+                >
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-12">
+                <label class="qr-label">Plan Type</label>
+                <input
+                  type="text"
+                  class="form-control qr-input"
+                  [(ngModel)]="qrRequest.planType"
+                  name="planType"
                   readonly
                 >
               </div>
@@ -63,7 +61,6 @@
                   name="qrValidFrom"
                   class="form-control qr-input"
                   [ngModel]="qrRequest.qrValidFrom | date:'dd-MM-yyyy'"
-                  placeholder="dd-mm-yyyy"
                   readonly
                 >
               </div>
@@ -75,7 +72,6 @@
                   name="qrValidTill"
                   class="form-control qr-input"
                   [ngModel]="qrRequest.qrValidTill | date:'dd-MM-yyyy'"
-                  placeholder="dd-mm-yyyy"
                   readonly
                 >
               </div>
@@ -89,22 +85,45 @@
                   readonly
                 >
               </div>
+
+              <div class="col-12">
+                <label class="qr-label">
+                  User Emails to Send QR
+                  <span *ngIf="targetUsers.length > 0">
+                    ({{ targetUsers.length }} / {{ qrRequest.noofQR || qrRequest.TotalQty }})
+                  </span>
+                </label>
+
+                <div class="email-preview-box" *ngIf="!targetUsersLoading && targetUsers.length > 0">
+                  <span class="email-chip" *ngFor="let user of targetUsers">
+                    {{ user.email }}
+                  </span>
+                </div>
+
+                <div class="email-empty-box" *ngIf="!targetUsersLoading && selectedRequestItem && targetUsers.length === 0">
+                  No matching {{ qrRequest.planType }} user emails found.
+                </div>
+
+                <div class="email-empty-box" *ngIf="targetUsersLoading">
+                  Loading user emails...
+                </div>
+              </div>
             </div>
 
             <div class="qr-btn-group">
-             <button
-  type="button"
-  class="btn btn-primary qr-action-btn"
-  (click)="submitForApproval()"
-  [disabled]="isProcessing || !selectedRequestItem"
->
-  <span *ngIf="!isProcessing">
-    <i data-feather="send" class="mr-50"></i>
-    <span>Send for Approval</span>
-  </span>
+              <button
+                type="button"
+                class="btn btn-primary qr-action-btn"
+                (click)="submitForApproval()"
+                [disabled]="isProcessing || !selectedRequestItem"
+              >
+                <span *ngIf="!isProcessing">
+                  <i data-feather="send" class="mr-50"></i>
+                  <span>Send for Approval</span>
+                </span>
 
-  <span *ngIf="isProcessing">Processing...</span>
-</button>
+                <span *ngIf="isProcessing">Processing...</span>
+              </button>
             </div>
           </fieldset>
         </div>
