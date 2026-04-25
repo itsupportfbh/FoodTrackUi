@@ -1,12 +1,11 @@
 <div class="meal-request-page">
   <div class="meal-request-card">
     <div class="card-body">
-      <div class="icon-wrap">
-        <i data-feather="coffee"></i>
+   <div class="logo-wrap">
+        <img src="assets/images/logo/cspllogo.png" alt="CSPL Logo" />
       </div>
-
       <div class="title-section">
-        <div class="welcome-badge">NORMAL USER</div>
+        <!-- <div class="welcome-badge">NORMAL USER</div> -->
         <h1>Start Meal Request</h1>
         <p>Choose your date range and location.</p>
       </div>
@@ -42,7 +41,7 @@
             >
               <option [ngValue]="null">Select Location</option>
               <option *ngFor="let item of locations" [ngValue]="item.id">
-                {{ item.name }}
+                {{ item.locationName }}
               </option>
             </select>
           </div>
