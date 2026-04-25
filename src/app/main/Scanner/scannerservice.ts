@@ -29,7 +29,7 @@ export class ScannerService {
   }
 
   getallQR(data: any): Observable<any> {
-    let params = new HttpParams()
+    const params = new HttpParams()
       .set('userId', data.userId?.toString() || '0')
       .set('companyId', data.companyId?.toString() || '0')
       .set('isAdmin', data.isAdmin ? 'true' : 'false');
@@ -39,7 +39,7 @@ export class ScannerService {
 
   getQrImageDetailsByRequestId(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/GetQrDetailsByRequestId`, {
-      params: { requestId: id }
+      params: { requestId: String(id) }
     });
   }
 
@@ -69,13 +69,19 @@ export class ScannerService {
   rejectQrRequest(id: number, payload: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/reject-qr-request/${id}`, payload);
   }
-  getQrTargetUsers(companyId: number, planType: string, count: number): Observable<any> {
-  return this.http.get<any>(`${this.apiUrl}/GetQrTargetUsers`, {
-    params: {
-      companyId: String(companyId),
-      planType: planType || '',
-      count: String(count || 0)
-    }
-  });
-}
+
+  getQrTargetUsers(
+    companyId: number,
+    planType: string,
+    cuisineId: number,
+    count: number
+  ): Observable<any> {
+    const params = new HttpParams()
+      .set('companyId', String(companyId || 0))
+      .set('planType', planType || '')
+      .set('cuisineId', String(cuisineId || 0))
+      .set('count', String(count || 0));
+
+    return this.http.get<any>(`${this.apiUrl}/GetQrTargetUsers`, { params });
+  }
 }

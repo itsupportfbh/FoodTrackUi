@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { LocationService } from '../../location/location.service';
 
 interface LocationOption {
   id: number;
@@ -14,17 +15,20 @@ export class MealRequestComponent implements OnInit {
   fromDate = '';
   toDate = '';
   locationId: number | null = null;
+  locations: any;
 
-  locations: LocationOption[] = [
-    { id: 1, name: 'Main Cafeteria' },
-    { id: 2, name: 'Level 1 Pantry' },
-    { id: 3, name: 'Level 2 Dining Hall' },
-    { id: 4, name: 'Outdoor Counter' }
-  ];
+  // locations: LocationOption[] = [
+  //   { id: 1, name: 'Main Cafeteria' },
+  //   { id: 2, name: 'Level 1 Pantry' },
+  //   { id: 3, name: 'Level 2 Dining Hall' },
+  //   { id: 4, name: 'Outdoor Counter' }
+  // ];
 
-  constructor() {}
+  constructor(private _locationService : LocationService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.loadLocation();
+  }
 
   onSubmit(): void {
     const payload = {
@@ -40,5 +44,12 @@ export class MealRequestComponent implements OnInit {
     this.fromDate = '';
     this.toDate = '';
     this.locationId = null;
+  }
+
+
+  loadLocation(){
+    this._locationService.getLocation().subscribe((res:any)=>{
+      this.locations = res.data;
+    })
   }
 }

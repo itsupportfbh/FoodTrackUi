@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2';
 import * as feather from 'feather-icons';
 import JSZip from 'jszip';
@@ -7,6 +7,12 @@ import { saveAs } from 'file-saver';
 import { ScannerService } from '../scannerservice';
 import { Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+
+export interface CuisineDropdownItem {
+  cuisineId: number;
+  cuisineName: string;
+  qty: number;
+}
 
 export interface RequestDropdownItem {
   requestId: number;
@@ -20,6 +26,11 @@ export interface RequestDropdownItem {
   tillDate: string;
   sourceType?: string;
   planType?: string;
+
+  cuisineId?: number;
+  cuisineName?: string;
+  cuisines?: CuisineDropdownItem[];
+
   displayText?: string;
 }
 
@@ -28,6 +39,7 @@ export interface QrTargetUser {
   username: string;
   email: string;
   planType: string;
+  cuisineId?: number;
 }
 
 export interface QrCodeRequestModel {
@@ -43,6 +55,9 @@ export interface QrCodeRequestModel {
   qrValidFrom: string;
   qrValidTill: string;
   planType: string;
+  cuisineId: number;
+  cuisineName?: string;
+  cuisines?: CuisineDropdownItem[];
   isActive: boolean;
   createdDate?: string;
   updatedDate?: string;
@@ -79,6 +94,9 @@ export interface SaveQrCodeRequestModel {
   qrValidFrom: string;
   qrValidTill: string;
   planType: string;
+  cuisineId: number;
+  cuisineName?: string;
+  cuisines?: CuisineDropdownItem[];
   isActive: boolean;
   createdDate?: string;
   updatedDate?: string;
@@ -104,6 +122,8 @@ interface GeneratedQrItem {
   qrValidFrom: string;
   qrValidTill: string;
   planType: string;
+  cuisineId?: number;
+  cuisineName?: string;
 }
 
 @Component({
@@ -155,16 +175,18 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
   private initializeForm(): void {
     this.qrForm = this.fb.group({
       id: [0],
-      companyId: [0, Validators.required],
-      companyName: ['', Validators.required],
+      companyId: [0],
+      companyName: [''],
       companyEmail: [''],
-      requestId: [null, Validators.required],
-      overrideId: [0],
+      requestId: [null],
+      overrideId: [null],
       requestNo: [''],
-      noofQR: [0, Validators.required],
-      qrValidFrom: ['', Validators.required],
-      qrValidTill: ['', Validators.required],
-      planType: ['', Validators.required],
+      noofQR: [0],
+      qrValidFrom: [''],
+      qrValidTill: [''],
+      planType: [''],
+      cuisineId: [0],
+      cuisineName: [''],
       serialNo: [null],
       uniqueCode: [''],
       isUsed: [false],
@@ -192,6 +214,9 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
       qrValidFrom: '',
       qrValidTill: '',
       planType: '',
+      cuisineId: 0,
+      cuisineName: '',
+      cuisines: [],
       isActive: true,
       createdDate: now,
       updatedDate: now,
@@ -226,150 +251,16 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
     this.qrImages.removeAt(index);
   }
 
-  loadRequestDropdown(): void {
-    this.scannersettingsService.getRequestDropdown().subscribe({
-      next: (res: any) => {
-        this.requestList = (res?.data || res || []) as RequestDropdownItem[];
-        this.selectedRequestItem = null;
-        this.qrRequest = this.getEmptyModel();
-        this.targetUsers = [];
-        this.targetUserEmailsText = '';
-        this.targetUsersLoading = false;
+  private getValue(obj: any, keys: string[]): any {
+    if (!obj) return null;
 
-        this.qrForm.patchValue({
-          requestId: null,
-          overrideId: null,
-          companyId: 0,
-          companyName: '',
-          companyEmail: '',
-          requestNo: '',
-          noofQR: 0,
-          qrValidFrom: '',
-          qrValidTill: '',
-          planType: ''
-        });
-      },
-      error: () => {
-        Swal.fire('Error', 'Failed to load request dropdown', 'error');
+    for (const key of keys) {
+      if (obj[key] !== undefined && obj[key] !== null) {
+        return obj[key];
       }
-    });
-  }
-
-  onRequestChange(): void {
-    this.targetUsers = [];
-    this.targetUserEmailsText = '';
-    this.targetUsersLoading = false;
-
-    if (!this.selectedRequestItem) {
-      this.qrRequest = this.getEmptyModel();
-
-      this.qrForm.patchValue({
-        requestId: null,
-        overrideId: null,
-        companyId: 0,
-        companyName: '',
-        companyEmail: '',
-        requestNo: '',
-        noofQR: 0,
-        qrValidFrom: '',
-        qrValidTill: '',
-        planType: ''
-      });
-
-      return;
     }
 
-    const selected = this.selectedRequestItem;
-
-    this.qrRequest.requestId = Number(selected.requestId || 0);
-    this.qrRequest.overrideId =
-      selected.overrideId && Number(selected.overrideId) > 0
-        ? Number(selected.overrideId)
-        : null;
-
-    this.qrRequest.companyId = Number(selected.companyId || 0);
-    this.qrRequest.companyName = selected.companyName || '';
-    this.qrRequest.companyEmail = selected.companyEmail || '';
-    this.qrRequest.requestNo = selected.requestNo || '';
-    this.qrRequest.TotalQty = Number(selected.qty || 0);
-    this.qrRequest.noofQR = Number(selected.qty || 0);
-    this.qrRequest.qrValidFrom = selected.fromDate || '';
-    this.qrRequest.qrValidTill = selected.tillDate || '';
-    this.qrRequest.planType = selected.planType || '';
-
-    this.qrForm.patchValue({
-      requestId: this.qrRequest.requestId,
-      overrideId: this.qrRequest.overrideId,
-      companyId: this.qrRequest.companyId,
-      companyName: this.qrRequest.companyName,
-      companyEmail: this.qrRequest.companyEmail,
-      requestNo: this.qrRequest.requestNo,
-      noofQR: this.qrRequest.noofQR,
-      qrValidFrom: this.qrRequest.qrValidFrom,
-      qrValidTill: this.qrRequest.qrValidTill,
-      planType: this.qrRequest.planType
-    });
-
-    this.loadTargetUsers();
-  }
-
-  loadTargetUsers(): void {
-    this.targetUsers = [];
-    this.targetUserEmailsText = '';
-
-    const companyId = Number(this.qrRequest.companyId || 0);
-    const planType = String(this.qrRequest.planType || '').trim();
-    const count = Number(this.qrRequest.noofQR || this.qrRequest.TotalQty || 0);
-
-    if (companyId <= 0 || !planType || count <= 0) {
-      return;
-    }
-
-    this.targetUsersLoading = true;
-
-    this.scannersettingsService.getQrTargetUsers(companyId, planType, count).subscribe({
-      next: (res: any) => {
-        const list = (res?.data || res || []) as QrTargetUser[];
-        this.targetUsers = list;
-        this.targetUserEmailsText = list.map(x => x.email).join(', ');
-        this.targetUsersLoading = false;
-      },
-      error: () => {
-        this.targetUsers = [];
-        this.targetUserEmailsText = '';
-        this.targetUsersLoading = false;
-        Swal.fire('Error', 'Failed to load target user emails', 'error');
-      }
-    });
-  }
-
-  private isFormValid(): boolean {
-    const companyId = Number(this.qrRequest.companyId || 0);
-    const requestId = Number(this.qrRequest.requestId || 0);
-    const companyName = String(this.qrRequest.companyName || '').trim();
-    const noofQR = Number(this.qrRequest.noofQR ?? this.qrRequest.TotalQty ?? 0);
-    const qrValidFrom = this.qrRequest.qrValidFrom;
-    const qrValidTill = this.qrRequest.qrValidTill;
-    const planType = String(this.qrRequest.planType || '').trim();
-
-    return (
-      companyId > 0 &&
-      requestId > 0 &&
-      companyName.length > 0 &&
-      noofQR > 0 &&
-      !!qrValidFrom &&
-      !!qrValidTill &&
-      !!planType
-    );
-  }
-
-  private toIsoDate(value: any): string | null {
-    if (!value) return null;
-
-    const date = new Date(value);
-    if (isNaN(date.getTime())) return null;
-
-    return date.toISOString();
+    return null;
   }
 
   private normalizeOverrideId(value: any): number | null {
@@ -381,6 +272,256 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
     return isNaN(num) ? null : num;
   }
 
+  private normalizeCuisines(item: any): CuisineDropdownItem[] {
+    const raw = this.getValue(item, ['cuisines', 'Cuisines']);
+
+    if (Array.isArray(raw) && raw.length > 0) {
+      return raw.map((x: any) => ({
+        cuisineId: Number(this.getValue(x, ['cuisineId', 'CuisineId', 'cuisineID', 'CuisineID']) || 0),
+        cuisineName: this.getValue(x, ['cuisineName', 'CuisineName']) || '',
+        qty: Number(this.getValue(x, ['qty', 'Qty']) || 0)
+      })).filter(x => x.cuisineId > 0);
+    }
+
+    const cuisineId = Number(this.getValue(item, ['cuisineId', 'CuisineId', 'cuisineID', 'CuisineID']) || 0);
+    const cuisineName = this.getValue(item, ['cuisineName', 'CuisineName']) || '';
+
+    if (cuisineId > 0) {
+      return [{
+        cuisineId,
+        cuisineName,
+        qty: Number(this.getValue(item, ['qty', 'Qty', 'totalQty', 'TotalQty']) || 0)
+      }];
+    }
+
+    return [];
+  }
+
+  loadRequestDropdown(): void {
+    this.scannersettingsService.getRequestDropdown().subscribe({
+      next: (res: any) => {
+        const rawList = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.data)
+            ? res.data
+            : [];
+
+        this.requestList = rawList.map((x: any) => {
+          const cuisines = this.normalizeCuisines(x);
+          const firstCuisine = cuisines.length > 0 ? cuisines[0] : null;
+
+          return {
+            ...x,
+            requestId: Number(this.getValue(x, ['requestId', 'RequestId']) || 0),
+            overrideId: this.normalizeOverrideId(this.getValue(x, ['overrideId', 'OverrideId'])),
+            requestNo: this.getValue(x, ['requestNo', 'RequestNo']) || '',
+            companyId: Number(this.getValue(x, ['companyId', 'CompanyId']) || 0),
+            companyName: this.getValue(x, ['companyName', 'CompanyName']) || '',
+            companyEmail: this.getValue(x, ['companyEmail', 'CompanyEmail']) || '',
+            qty: Number(this.getValue(x, ['qty', 'Qty', 'totalQty', 'TotalQty']) || 0),
+            fromDate: this.getValue(x, ['fromDate', 'FromDate']) || '',
+            tillDate: this.getValue(x, ['tillDate', 'TillDate', 'toDate', 'ToDate']) || '',
+            sourceType: this.getValue(x, ['sourceType', 'SourceType']) || '',
+            planType: this.getValue(x, ['planType', 'PlanType']) || '',
+            cuisineId: Number(
+              this.getValue(x, ['cuisineId', 'CuisineId', 'cuisineID', 'CuisineID']) ||
+              firstCuisine?.cuisineId ||
+              0
+            ),
+            cuisineName:
+              this.getValue(x, ['cuisineName', 'CuisineName']) ||
+              firstCuisine?.cuisineName ||
+              '',
+            cuisines,
+            displayText: this.getValue(x, ['displayText', 'DisplayText']) || ''
+          };
+        });
+
+        this.clearSelectedOnly();
+      },
+      error: () => {
+        Swal.fire('Error', 'Failed to load request dropdown', 'error');
+      }
+    });
+  }
+
+  private clearSelectedOnly(): void {
+    this.selectedRequestItem = null;
+    this.qrRequest = this.getEmptyModel();
+    this.targetUsers = [];
+    this.targetUserEmailsText = '';
+    this.targetUsersLoading = false;
+
+    this.qrForm.patchValue({
+      requestId: null,
+      overrideId: null,
+      companyId: 0,
+      companyName: '',
+      companyEmail: '',
+      requestNo: '',
+      noofQR: 0,
+      qrValidFrom: '',
+      qrValidTill: '',
+      planType: '',
+      cuisineId: 0,
+      cuisineName: ''
+    });
+  }
+
+  onRequestChange(): void {
+    this.targetUsers = [];
+    this.targetUserEmailsText = '';
+    this.targetUsersLoading = false;
+
+    if (!this.selectedRequestItem) {
+      this.clearSelectedOnly();
+      return;
+    }
+
+    const selected: any = this.selectedRequestItem;
+    const cuisines = this.normalizeCuisines(selected);
+    const firstCuisine = cuisines.length > 0 ? cuisines[0] : null;
+
+    this.qrRequest.requestId = Number(this.getValue(selected, ['requestId', 'RequestId']) || 0);
+    this.qrRequest.overrideId = this.normalizeOverrideId(this.getValue(selected, ['overrideId', 'OverrideId']));
+    this.qrRequest.companyId = Number(this.getValue(selected, ['companyId', 'CompanyId']) || 0);
+    this.qrRequest.companyName = this.getValue(selected, ['companyName', 'CompanyName']) || '';
+    this.qrRequest.companyEmail = this.getValue(selected, ['companyEmail', 'CompanyEmail']) || '';
+    this.qrRequest.requestNo = this.getValue(selected, ['requestNo', 'RequestNo']) || '';
+    this.qrRequest.TotalQty = Number(this.getValue(selected, ['qty', 'Qty', 'totalQty', 'TotalQty']) || 0);
+    this.qrRequest.noofQR = Number(this.getValue(selected, ['qty', 'Qty', 'totalQty', 'TotalQty']) || 0);
+    this.qrRequest.qrValidFrom = this.getValue(selected, ['fromDate', 'FromDate']) || '';
+    this.qrRequest.qrValidTill = this.getValue(selected, ['tillDate', 'TillDate', 'toDate', 'ToDate']) || '';
+    this.qrRequest.planType = this.getValue(selected, ['planType', 'PlanType']) || '';
+
+    this.qrRequest.cuisineId = Number(
+      this.getValue(selected, ['cuisineId', 'CuisineId', 'cuisineID', 'CuisineID']) ||
+      firstCuisine?.cuisineId ||
+      0
+    );
+
+    this.qrRequest.cuisineName =
+      this.getValue(selected, ['cuisineName', 'CuisineName']) ||
+      firstCuisine?.cuisineName ||
+      '';
+
+    this.qrRequest.cuisines = cuisines;
+
+    this.qrForm.patchValue({
+      requestId: this.qrRequest.requestId,
+      overrideId: this.qrRequest.overrideId,
+      companyId: this.qrRequest.companyId,
+      companyName: this.qrRequest.companyName,
+      companyEmail: this.qrRequest.companyEmail,
+      requestNo: this.qrRequest.requestNo,
+      noofQR: this.qrRequest.noofQR,
+      qrValidFrom: this.qrRequest.qrValidFrom,
+      qrValidTill: this.qrRequest.qrValidTill,
+      planType: this.qrRequest.planType,
+      cuisineId: this.qrRequest.cuisineId,
+      cuisineName: this.qrRequest.cuisineName
+    });
+
+    console.log('Selected pending item:', selected);
+    console.log('Selected cuisines:', cuisines);
+    console.log('QR request mapped:', this.qrRequest);
+
+    this.loadTargetUsers();
+  }
+
+  loadTargetUsers(): void {
+    this.targetUsers = [];
+    this.targetUserEmailsText = '';
+
+    const companyId = Number(this.qrRequest.companyId || 0);
+    const planType = String(this.qrRequest.planType || '').trim();
+    const cuisineId = Number(this.qrRequest.cuisineId || 0);
+    const count = Number(this.qrRequest.noofQR || this.qrRequest.TotalQty || 0);
+
+    console.log('Target user params:', {
+      companyId,
+      planType,
+      cuisineId,
+      count
+    });
+
+    if (companyId <= 0 || !planType || cuisineId <= 0 || count <= 0) {
+      return;
+    }
+
+    this.targetUsersLoading = true;
+
+    this.scannersettingsService
+      .getQrTargetUsers(companyId, planType, cuisineId, count)
+      .subscribe({
+        next: (res: any) => {
+          const list =
+            Array.isArray(res) ? res :
+            Array.isArray(res?.data) ? res.data :
+            Array.isArray(res?.data?.users) ? res.data.users :
+            Array.isArray(res?.users) ? res.users :
+            [];
+
+          this.targetUsers = list;
+          this.targetUserEmailsText = list.map((x: any) => x.email).join(', ');
+          this.targetUsersLoading = false;
+        },
+        error: () => {
+          this.targetUsers = [];
+          this.targetUserEmailsText = '';
+          this.targetUsersLoading = false;
+          Swal.fire('Error', 'Failed to load target user emails', 'error');
+        }
+      });
+  }
+
+  private isFormValid(): boolean {
+    const companyId = Number(this.qrRequest.companyId || 0);
+    const requestId = Number(this.qrRequest.requestId || 0);
+    const companyName = String(this.qrRequest.companyName || '').trim();
+    const noofQR = Number(this.qrRequest.noofQR || this.qrRequest.TotalQty || 0);
+    const qrValidFrom = String(this.qrRequest.qrValidFrom || '').trim();
+    const qrValidTill = String(this.qrRequest.qrValidTill || '').trim();
+    const planType = String(this.qrRequest.planType || '').trim();
+    const cuisineId = Number(this.qrRequest.cuisineId || 0);
+
+    if (companyId <= 0) return false;
+    if (requestId <= 0) return false;
+    if (!companyName) return false;
+    if (noofQR <= 0) return false;
+    if (!qrValidFrom) return false;
+    if (!qrValidTill) return false;
+    if (!planType) return false;
+    if (cuisineId <= 0) return false;
+
+    return true;
+  }
+
+  private getInvalidMessage(): string {
+    if (Number(this.qrRequest.companyId || 0) <= 0) return 'Company is missing.';
+    if (Number(this.qrRequest.requestId || 0) <= 0) return 'Request is missing.';
+    if (!String(this.qrRequest.companyName || '').trim()) return 'Company name is missing.';
+    if (Number(this.qrRequest.noofQR || this.qrRequest.TotalQty || 0) <= 0) return 'QR quantity is missing.';
+    if (!String(this.qrRequest.qrValidFrom || '').trim()) return 'QR Valid From is missing.';
+    if (!String(this.qrRequest.qrValidTill || '').trim()) return 'QR Valid Till is missing.';
+    if (!String(this.qrRequest.planType || '').trim()) return 'Plan type is missing.';
+
+    if (Number(this.qrRequest.cuisineId || 0) <= 0) {
+      return 'Cuisine is missing in pending dropdown. Please add CuisineId in GetRequestIdDropdown API response.';
+    }
+
+    return 'Please fill all required fields.';
+  }
+
+  private toIsoDate(value: any): string | null {
+    if (!value) return null;
+
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return null;
+
+    return date.toISOString();
+  }
+
   private syncFormFromRequest(firstQr: GeneratedQrItem | null): void {
     this.qrForm.patchValue({
       id: this.qrRequest.id || 0,
@@ -390,10 +531,12 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
       requestId: this.qrRequest.requestId ?? null,
       overrideId: this.qrRequest.overrideId ?? null,
       requestNo: this.qrRequest.requestNo || '',
-      noofQR: Number(this.qrRequest.noofQR ?? this.qrRequest.TotalQty ?? 0),
+      noofQR: Number(this.qrRequest.noofQR || this.qrRequest.TotalQty || 0),
       qrValidFrom: this.qrRequest.qrValidFrom || '',
       qrValidTill: this.qrRequest.qrValidTill || '',
       planType: this.qrRequest.planType || '',
+      cuisineId: Number(this.qrRequest.cuisineId || 0),
+      cuisineName: this.qrRequest.cuisineName || '',
       serialNo: firstQr?.serialNo ?? null,
       uniqueCode: firstQr?.uniqueCode ?? '',
       isUsed: firstQr?.isUsed ?? false,
@@ -405,27 +548,16 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
   }
 
   submitForApproval(): void {
-    if (this.isProcessing) {
-      return;
-    }
+    if (this.isProcessing) return;
 
     if (!this.selectedRequestItem) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please select a pending segment',
-        icon: 'warning',
-        confirmButtonText: 'OK'
-      });
+      Swal.fire('Warning', 'Please select a pending segment.', 'warning');
       return;
     }
 
     if (!this.isFormValid()) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill all required fields',
-        icon: 'warning',
-        confirmButtonText: 'OK'
-      });
+      console.log('Form invalid values:', this.qrRequest);
+      Swal.fire('Warning', this.getInvalidMessage(), 'warning');
       return;
     }
 
@@ -433,12 +565,7 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
     const till = new Date(this.qrRequest.qrValidTill);
 
     if (!isNaN(from.getTime()) && !isNaN(till.getTime()) && till < from) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Valid Till must be greater than or equal to Valid From',
-        icon: 'warning',
-        confirmButtonText: 'OK'
-      });
+      Swal.fire('Warning', 'Valid Till must be greater than or equal to Valid From.', 'warning');
       return;
     }
 
@@ -464,11 +591,16 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
       noofQR: requiredCount,
       totalQty: requiredCount,
       planType: this.qrRequest.planType || '',
+      cuisineId: Number(this.qrRequest.cuisineId || 0),
+      cuisineName: this.qrRequest.cuisineName || '',
+      cuisines: this.qrRequest.cuisines || [],
       createdDate: new Date().toISOString(),
       updatedDate: new Date().toISOString(),
       createdBy: userId,
       updatedBy: userId
     };
+
+    console.log('Submit approval payload:', payload);
 
     this.isProcessing = true;
 
@@ -516,7 +648,7 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
         const message =
           errorObj?.message ||
           errorObj?.Message ||
-          'Failed to submit approval request';
+          'Failed to submit approval request.';
 
         const data = errorObj?.data || errorObj?.Data;
         const messageType = errorObj?.messageType || errorObj?.MessageType || 'error';
@@ -542,36 +674,24 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
     const firstQr = this.generatedQrList?.length ? this.generatedQrList[0] : null;
     this.syncFormFromRequest(firstQr);
 
-    if (this.qrForm.invalid) {
-      this.qrForm.markAllAsTouched();
-      Swal.fire('Missing Information', 'Please fill all required fields', 'warning');
+    if (!this.isFormValid()) {
+      Swal.fire('Missing Information', this.getInvalidMessage(), 'warning');
       return throwError(() => new Error('Form is invalid'));
     }
 
     if (!this.generatedQrList || this.generatedQrList.length === 0) {
-      Swal.fire('Validation', 'Please generate QR before saving', 'warning');
+      Swal.fire('Validation', 'Please generate QR before saving.', 'warning');
       return throwError(() => new Error('Please generate QR before saving'));
     }
 
     const formValue = this.qrForm.getRawValue();
     const now = new Date().toISOString();
-
     const totalQty = Number(formValue.noofQR || this.qrRequest.TotalQty || 0);
-    if (totalQty <= 0) {
-      Swal.fire('Warning', 'Invalid QR quantity', 'warning');
-      return throwError(() => new Error('Invalid QR quantity'));
-    }
-
     const fromDate = formValue.qrValidFrom;
     const tillDate = formValue.qrValidTill;
 
-    if (!fromDate || !tillDate) {
-      Swal.fire('Warning', 'QR valid dates are invalid', 'warning');
-      return throwError(() => new Error('QR valid dates are invalid'));
-    }
-
     if (new Date(fromDate).getTime() > new Date(tillDate).getTime()) {
-      Swal.fire('Warning', 'QR Valid Till must be greater than or equal to QR Valid From', 'warning');
+      Swal.fire('Warning', 'QR Valid Till must be greater than or equal to QR Valid From.', 'warning');
       return throwError(() => new Error('QR valid date range is invalid'));
     }
 
@@ -611,6 +731,9 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
       qrValidFrom: fromDate,
       qrValidTill: tillDate,
       planType: this.qrRequest.planType || '',
+      cuisineId: Number(this.qrRequest.cuisineId || 0),
+      cuisineName: this.qrRequest.cuisineName || '',
+      cuisines: this.qrRequest.cuisines || [],
       isActive: formValue.isActive ?? true,
       createdDate: createdDate,
       updatedDate: now,
@@ -629,6 +752,9 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
       companyName: this.qrRequest.companyName,
       requestId: this.qrRequest.requestId,
       planType: this.qrRequest.planType,
+      cuisineId: Number(this.qrRequest.cuisineId || 0),
+      cuisineName: this.qrRequest.cuisineName || '',
+      cuisines: this.qrRequest.cuisines || [],
       qrItems: this.generatedQrList.map((qr: GeneratedQrItem) => ({
         uniqueCode: qr.uniqueCode || '',
         qrText: qr.qrText || '',
@@ -641,7 +767,7 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
 
   async downloadAllQrs(): Promise<void> {
     if (!this.generatedQrList || this.generatedQrList.length === 0) {
-      Swal.fire('Warning', 'No QR images available', 'warning');
+      Swal.fire('Warning', 'No QR images available.', 'warning');
       return;
     }
 
@@ -657,19 +783,15 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
       });
 
       const zipBlob = await zip.generateAsync({ type: 'blob' });
-      const requestNo = this.qrRequest.requestId || 'QR';
+      const requestNo = this.qrRequest.requestNo || this.qrRequest.requestId || 'QR';
       saveAs(zipBlob, `CSPL-QRCodes-${requestNo}.zip`);
     } catch {
-      Swal.fire('Error', 'Failed to download ZIP file', 'error');
+      Swal.fire('Error', 'Failed to download ZIP file.', 'error');
     }
   }
 
   clearForm(): void {
-    this.selectedRequestItem = null;
-    this.qrRequest = this.getEmptyModel();
-    this.targetUsers = [];
-    this.targetUserEmailsText = '';
-    this.targetUsersLoading = false;
+    this.clearSelectedOnly();
 
     this.generatedQrList = [];
     this.backendQrText = '';
@@ -683,12 +805,14 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
       companyName: '',
       companyEmail: '',
       requestId: null,
-      overrideId: 0,
+      overrideId: null,
       requestNo: '',
       noofQR: 0,
       qrValidFrom: '',
       qrValidTill: '',
       planType: '',
+      cuisineId: 0,
+      cuisineName: '',
       serialNo: null,
       uniqueCode: '',
       isUsed: false,
