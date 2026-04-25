@@ -15,8 +15,9 @@ export interface UserMasterPayload {
   roleId?: number | null;
   username: string;
   email: string;
-  password1: string;
+  password: string;
   planType: string;
+  cuisineId:number;
   isActive: boolean;
   isDelete: boolean;
   createdBy?: number | null;
@@ -68,4 +69,8 @@ export class UsersService {
   bulkUploadUsers(formData: FormData): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/BulkUploadUsers`, formData);
   }
+
+  getCuisines(): Observable<any> {
+  return this.http.get<any>(`${environment.apiUrl}/Cuisine/GetCuisines`);
+}
 }

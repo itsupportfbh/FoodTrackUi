@@ -146,6 +146,35 @@
                 </small>
               </span>
             </div>
+            <div class="form-group">
+              <label class="form-label" for="cuisineId">Cuisine</label>
+
+              <ng-select
+                id="cuisineId"
+                [items]="cuisineList"
+                bindLabel="cuisineName"
+                bindValue="id"
+                [searchable]="true"
+                [clearable]="true"
+                [closeOnSelect]="true"
+                placeholder="Select Cuisine"
+                name="cuisineId"
+                [(ngModel)]="cuisineId"
+                #FCuisineRef="ngModel"
+                [class.is-invalid]="newUserForm.submitted && FCuisineRef.invalid"
+                required
+              >
+                <ng-template ng-option-tmp let-item="item">
+                  {{ item.cuisineName }}
+                </ng-template>
+              </ng-select>
+
+              <span *ngIf="newUserForm.submitted && FCuisineRef.invalid" class="invalid-form">
+                <small class="form-text text-danger">
+                  Cuisine is required!
+                </small>
+              </span>
+            </div>
 
             <div class="form-group" *ngIf="isSuperAdmin">
               <label class="form-label" for="roleId">Role</label>
