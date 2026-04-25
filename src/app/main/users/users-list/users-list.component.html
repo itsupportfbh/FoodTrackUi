@@ -257,54 +257,88 @@
       ></app-create-users>
     </core-sidebar>
 
-    <div
-      class="modal fade show bulk-upload-backdrop"
-      tabindex="-1"
-      role="dialog"
-      *ngIf="showBulkUploadModal"
-      style="display: block;"
-    >
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content bulk-upload-modal">
-          <div class="modal-header">
-            <h5 class="modal-title">Bulk Upload Users</h5>
-            <button type="button" class="close" (click)="closeBulkUploadModal()">
-              <span>&times;</span>
-            </button>
-          </div>
+<div
+  class="modal fade show bulk-upload-backdrop"
+  tabindex="-1"
+  role="dialog"
+  *ngIf="showBulkUploadModal"
+  style="display: block;"
+>
+  <div class="modal-dialog modal-dialog-centered bulk-upload-dialog" role="document">
+    <div class="modal-content bulk-upload-modal">
+      <div class="bulk-upload-header">
+        <div class="bulk-icon-box">
+          <i data-feather="upload-cloud"></i>
+        </div>
 
-          <div class="modal-body">
-            <div class="form-group">
-              <label class="form-label">Upload Excel File</label>
-              <input
-                type="file"
-                class="form-control"
-                accept=".xlsx,.xls"
-                (change)="onBulkFileSelected($event)"
-              />
+        <div class="bulk-title-wrap">
+          <h5 class="modal-title mb-0">Bulk Upload Users</h5>
+          <p class="bulk-subtitle mb-0">Upload Excel file to create users in bulk</p>
+        </div>
+
+        <button type="button" class="bulk-close-btn" (click)="closeBulkUploadModal()">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body bulk-upload-body">
+        <label class="bulk-file-label">Excel File</label>
+
+        <div class="bulk-file-box">
+          <div class="bulk-file-left">
+            <div class="file-mini-icon">
+              <i data-feather="file-text"></i>
+            </div>
+
+            <div class="file-info">
+              <span class="file-title">
+                {{ selectedBulkFile?.name || 'Choose Excel file' }}
+              </span>
+              <small class="file-hint">Allowed formats: .xlsx, .xls</small>
             </div>
           </div>
 
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-primary"
-              [disabled]="!selectedBulkFile || isUploading"
-              (click)="uploadBulkUsers()"
-            >
-              {{ isUploading ? 'Uploading...' : 'Upload' }}
-            </button>
+          <label class="choose-file-btn mb-0">
+            Browse
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              hidden
+              (change)="onBulkFileSelected($event)"
+            />
+          </label>
+        </div>
 
-            <button
-              type="button"
-              class="btn btn-outline-secondary"
-              (click)="closeBulkUploadModal()"
-            >
-              Cancel
-            </button>
-          </div>
+        <div class="bulk-note">
+          <i data-feather="info"></i>
+          <span>Please use the downloaded template format before uploading.</span>
         </div>
       </div>
+
+      <div class="modal-footer bulk-upload-footer">
+        <button
+          type="button"
+          class="btn bulk-cancel-btn"
+          (click)="closeBulkUploadModal()"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="btn bulk-upload-btn"
+          [disabled]="!selectedBulkFile || isUploading"
+          (click)="uploadBulkUsers()"
+        >
+          <span
+            *ngIf="isUploading"
+            class="spinner-border spinner-border-sm mr-50"
+          ></span>
+          {{ isUploading ? 'Uploading...' : 'Upload Users' }}
+        </button>
+      </div>
     </div>
+  </div>
+</div>
   </div>
 </div>

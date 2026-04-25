@@ -1,0 +1,63 @@
+<div class="meal-request-page">
+  <div class="meal-request-card">
+    <div class="card-body">
+      <div class="icon-wrap">
+        <i data-feather="coffee"></i>
+      </div>
+
+      <div class="title-section">
+        <div class="welcome-badge">NORMAL USER</div>
+        <h1>Start Meal Request</h1>
+        <p>Choose your date range and location.</p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>From Date</label>
+            <input
+              type="date"
+              class="form-control custom-control"
+              name="fromDate"
+              [(ngModel)]="fromDate"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>To Date</label>
+            <input
+              type="date"
+              class="form-control custom-control"
+              name="toDate"
+              [(ngModel)]="toDate"
+            />
+          </div>
+
+          <div class="form-group full">
+            <label>Location</label>
+            <select
+              class="form-control custom-control"
+              name="locationId"
+              [(ngModel)]="locationId"
+            >
+              <option [ngValue]="null">Select Location</option>
+              <option *ngFor="let item of locations" [ngValue]="item.id">
+                {{ item.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button type="button" class="btn btn-cancel" (click)="onCancel()">
+            Cancel
+          </button>
+
+          <button type="submit" class="btn btn-submit">
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
