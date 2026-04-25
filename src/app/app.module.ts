@@ -56,6 +56,12 @@ const appRoutes: Routes = [
     loadChildren: () =>
       import('./main/menu/menu.module').then(m => m.MenuModule)
   },
+      {
+    path: 'meal',
+    canActivate: [AuthGuard],
+    loadChildren: () =>
+      import('./main/Master/meal-request/meal-request.module').then(m => m.MealRequestModule)
+  },
   {
     path: 'requestoverride',
     canActivate: [AuthGuard],

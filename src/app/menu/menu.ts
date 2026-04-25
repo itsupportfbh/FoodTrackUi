@@ -127,5 +127,13 @@ export const menu: CoreMenu[] = [
     type: 'item',
     icon: 'user-plus',
     url: 'menu/menu'
+  },
+      {
+    id: 'meal',
+    title: 'Meal',
+    translate: 'MENU.SAMPLE',
+    type: 'item',
+    icon: 'user-plus',
+    url: 'meal/meal-request'
   }
 ];

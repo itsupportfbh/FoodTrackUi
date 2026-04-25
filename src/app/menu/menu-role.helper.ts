@@ -23,7 +23,8 @@ export class MenuRoleHelper {
           'Reports',
           'qrgenerateList',
           'users',
-          'menu'
+          'menu',
+           'meal'
 
         ]);
 
@@ -41,7 +42,8 @@ export class MenuRoleHelper {
           'Reports',
           'qrgenerateList',
           'users',
-          'menu'
+          'menu',
+          'meal'
 
         ]);
 

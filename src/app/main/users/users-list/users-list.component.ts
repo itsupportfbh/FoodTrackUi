@@ -217,6 +217,9 @@ export class UsersListComponent implements OnInit {
   openBulkUploadModal(): void {
     this.selectedBulkFile = null;
     this.showBulkUploadModal = true;
+      setTimeout(() => {
+    feather.replace();
+  }, 0);
   }
 
   closeBulkUploadModal(): void {
