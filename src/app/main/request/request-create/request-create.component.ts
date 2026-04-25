@@ -50,9 +50,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   selectedPlans: string[] = [];
   planGroups: any[] = [];
 
-  planUserCounts: any[] = [];
-  isPlanQtyMismatch = false;
-  planMismatchMessage = '';
+  
 
   constructor(
     private requestService: RequestService,
@@ -110,7 +108,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
           this.model.companyId = Number(this.companies[0].id || 0);
           this.model.companyName = this.companies[0].name || '';
 
-          this.loadPlanUserCounts();
+        
         }
 
         if (this.isEditMode) {
@@ -152,7 +150,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
           const company = this.companies.find((x: any) => Number(x.id) === Number(this.model.companyId));
           this.model.companyName = company ? company.name : '';
         }
-        this.loadPlanUserCounts();
+        
 
         this.buildPlanGroups();
         this.patchExistingLinesToGroups();
@@ -244,7 +242,6 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   onLineChange(): void {
     this.syncLinesFromGroups();
     this.calculateTotalQty();
-    this.validatePlanQty();
   }
 
  syncLinesFromGroups(): void {
@@ -455,24 +452,7 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
     UserId: this.userId,
     Lines: validLines
   };
-  this.validatePlanQty();
-
-if (this.isPlanQtyMismatch) {
-  Swal.fire({
-    icon: 'warning',
-    title: 'Qty Mismatch',
-    text: this.planMismatchMessage,
-    confirmButtonText: 'Go to Users Page',
-    showCancelButton: true,
-    cancelButtonText: 'Stay Here'
-  }).then(result => {
-    if (result.isConfirmed) {
-      this.router.navigate(['/users/users-list']);
-    }
-  });
-
-  return;
-}
+ 
 
   this.requestService.saveRequest(payload).subscribe({
     next: (res: any) => {
@@ -710,56 +690,5 @@ onPlanToggle(plan: string, event: any): void {
     }
   });
 }
-loadPlanUserCounts(): void {
-  if (!this.model.companyId) return;
 
-  this.requestService.getPlanUserCounts(this.model.companyId).subscribe({
-    next: (res: any) => {
-      this.planUserCounts = res?.data || [];
-      this.validatePlanQty();
-    },
-    error: () => {
-      this.planUserCounts = [];
-    }
-  });
-}
-getAvailableUsers(planType: string): number {
-  const row = this.planUserCounts.find(
-    x => String(x.planType || x.PlanType || '').toLowerCase() === planType.toLowerCase()
-  );
-
-  return Number(row?.userCount || row?.UserCount || 0);
-}
-
-getPlanTotalQty(planType: string): number {
-  const group = this.planGroups.find(x => x.planType === planType);
-
-  if (!group) return 0;
-
-  return group.lines.reduce(
-    (sum: number, line: any) => sum + (Number(line.qty) || 0),
-    0
-  );
-}
-
-validatePlanQty(): void {
-  this.isPlanQtyMismatch = false;
-  this.planMismatchMessage = '';
-
-  const messages: string[] = [];
-
-  this.selectedPlans.forEach(plan => {
-    const availableUsers = this.getAvailableUsers(plan);
-    const enteredQty = this.getPlanTotalQty(plan);
-
-    if (enteredQty > 0 && enteredQty !== availableUsers) {
-      messages.push(
-        `${plan} plan has ${availableUsers} active user(s). You entered ${enteredQty}.`
-      );
-    }
-  });
-
-  this.isPlanQtyMismatch = messages.length > 0;
-  this.planMismatchMessage = messages.join(' | ');
-}
 }
