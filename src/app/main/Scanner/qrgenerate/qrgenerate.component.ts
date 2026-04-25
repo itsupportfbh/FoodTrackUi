@@ -429,51 +429,47 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
     this.loadTargetUsers();
   }
 
-  loadTargetUsers(): void {
-    this.targetUsers = [];
-    this.targetUserEmailsText = '';
+loadTargetUsers(): void {
+  this.targetUsers = [];
+  this.targetUserEmailsText = '';
 
-    const companyId = Number(this.qrRequest.companyId || 0);
-    const planType = String(this.qrRequest.planType || '').trim();
-    const cuisineId = Number(this.qrRequest.cuisineId || 0);
-    const count = Number(this.qrRequest.noofQR || this.qrRequest.TotalQty || 0);
+  const companyId = Number(this.qrRequest.companyId || 0);
+  const planType = String(this.qrRequest.planType || '').trim();
+  const count = Number(this.qrRequest.noofQR || this.qrRequest.TotalQty || 0);
 
-    console.log('Target user params:', {
-      companyId,
-      planType,
-      cuisineId,
-      count
-    });
+  const cuisineIds = (this.qrRequest.cuisines || [])
+    .map(x => Number(x.cuisineId || 0))
+    .filter(x => x > 0);
 
-    if (companyId <= 0 || !planType || cuisineId <= 0 || count <= 0) {
-      return;
-    }
-
-    this.targetUsersLoading = true;
-
-    this.scannersettingsService
-      .getQrTargetUsers(companyId, planType, cuisineId, count)
-      .subscribe({
-        next: (res: any) => {
-          const list =
-            Array.isArray(res) ? res :
-            Array.isArray(res?.data) ? res.data :
-            Array.isArray(res?.data?.users) ? res.data.users :
-            Array.isArray(res?.users) ? res.users :
-            [];
-
-          this.targetUsers = list;
-          this.targetUserEmailsText = list.map((x: any) => x.email).join(', ');
-          this.targetUsersLoading = false;
-        },
-        error: () => {
-          this.targetUsers = [];
-          this.targetUserEmailsText = '';
-          this.targetUsersLoading = false;
-          Swal.fire('Error', 'Failed to load target user emails', 'error');
-        }
-      });
+  if (companyId <= 0 || !planType || cuisineIds.length === 0 || count <= 0) {
+    return;
   }
+
+  this.targetUsersLoading = true;
+
+  this.scannersettingsService
+    .getQrTargetUsers(companyId, planType, cuisineIds, count)
+    .subscribe({
+      next: (res: any) => {
+        const list =
+          Array.isArray(res) ? res :
+          Array.isArray(res?.data) ? res.data :
+          Array.isArray(res?.data?.users) ? res.data.users :
+          Array.isArray(res?.users) ? res.users :
+          [];
+
+        this.targetUsers = list;
+        this.targetUserEmailsText = list.map((x: any) => x.email).join(', ');
+        this.targetUsersLoading = false;
+      },
+      error: () => {
+        this.targetUsers = [];
+        this.targetUserEmailsText = '';
+        this.targetUsersLoading = false;
+        Swal.fire('Error', 'Failed to load target user emails', 'error');
+      }
+    });
+}
 
   private isFormValid(): boolean {
     const companyId = Number(this.qrRequest.companyId || 0);
@@ -547,128 +543,148 @@ export class QRgenerateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  submitForApproval(): void {
-    if (this.isProcessing) return;
-
-    if (!this.selectedRequestItem) {
-      Swal.fire('Warning', 'Please select a pending segment.', 'warning');
-      return;
-    }
-
-    if (!this.isFormValid()) {
-      console.log('Form invalid values:', this.qrRequest);
-      Swal.fire('Warning', this.getInvalidMessage(), 'warning');
-      return;
-    }
-
-    const from = new Date(this.qrRequest.qrValidFrom);
-    const till = new Date(this.qrRequest.qrValidTill);
-
-    if (!isNaN(from.getTime()) && !isNaN(till.getTime()) && till < from) {
-      Swal.fire('Warning', 'Valid Till must be greater than or equal to Valid From.', 'warning');
-      return;
-    }
-
-    const requiredCount = Number(this.qrRequest.noofQR || this.qrRequest.TotalQty || 0);
-
-    if (this.targetUsers.length < requiredCount) {
-      Swal.fire({
-        title: 'Warning',
-        text: `Only ${this.targetUsers.length} ${this.qrRequest.planType} user email(s) available, but ${requiredCount} QR code(s) required.`,
-        icon: 'warning',
-        confirmButtonText: 'OK'
-      });
-      return;
-    }
-
-    const userId = Number(localStorage.getItem('userId') || 1);
-
-    const payload = {
-      ...this.qrRequest,
-      id: 0,
-      requestId: Number(this.qrRequest.requestId || 0),
-      overrideId: this.normalizeOverrideId(this.qrRequest.overrideId),
-      noofQR: requiredCount,
-      totalQty: requiredCount,
-      planType: this.qrRequest.planType || '',
-      cuisineId: Number(this.qrRequest.cuisineId || 0),
-      cuisineName: this.qrRequest.cuisineName || '',
-      cuisines: this.qrRequest.cuisines || [],
-      createdDate: new Date().toISOString(),
-      updatedDate: new Date().toISOString(),
-      createdBy: userId,
-      updatedBy: userId
-    };
-
-    console.log('Submit approval payload:', payload);
-
-    this.isProcessing = true;
-
-    this.scannersettingsService.submitQrApproval(payload).subscribe({
-      next: (res: any) => {
-        this.isProcessing = false;
-
-        const isSuccess = res?.isSuccess === true;
-        const message = res?.message || 'QR request submitted for approval successfully.';
-        const messageType = res?.messageType || (isSuccess ? 'success' : 'warning');
-        const data = res?.data;
-
-        if (isSuccess) {
-          Swal.fire({
-            title: 'Success',
-            text: message,
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-            allowOutsideClick: false
-          }).then(() => {
-            this.router.navigate(['/scanner/listqr']);
-          });
-          return;
-        }
-
-        Swal.fire({
-          title: messageType === 'error' ? 'Error' : 'Warning',
-          text: message,
-          icon: messageType === 'error' ? 'error' : 'warning',
-          confirmButtonText: 'OK',
-          allowOutsideClick: false
-        }).then(() => {
-          if (data?.companyId) {
-            this.router.navigate(['/users/list'], {
-              queryParams: { companyId: data.companyId }
-            });
-          }
-        });
-      },
-      error: (err: any) => {
-        this.isProcessing = false;
-
-        const errorObj = err?.error || {};
-        const message =
-          errorObj?.message ||
-          errorObj?.Message ||
-          'Failed to submit approval request.';
-
-        const data = errorObj?.data || errorObj?.Data;
-        const messageType = errorObj?.messageType || errorObj?.MessageType || 'error';
-
-        Swal.fire({
-          title: messageType === 'warning' ? 'Warning' : 'Error',
-          text: message,
-          icon: messageType === 'warning' ? 'warning' : 'error',
-          confirmButtonText: 'OK',
-          allowOutsideClick: false
-        }).then(() => {
-          if (data?.companyId) {
-            this.router.navigate(['/users/list'], {
-              queryParams: { companyId: data.companyId }
-            });
-          }
-        });
-      }
-    });
+submitForApproval(): void {
+  if (this.isProcessing) return;
+ 
+  if (!this.selectedRequestItem) {
+    Swal.fire('Warning', 'Please select a pending segment.', 'warning');
+    return;
   }
+ 
+  if (!this.isFormValid()) {
+    console.log('Form invalid values:', this.qrRequest);
+    Swal.fire('Warning', this.getInvalidMessage(), 'warning');
+    return;
+  }
+ 
+  const from = new Date(this.qrRequest.qrValidFrom);
+  const till = new Date(this.qrRequest.qrValidTill);
+ 
+  if (!isNaN(from.getTime()) && !isNaN(till.getTime()) && till < from) {
+    Swal.fire('Warning', 'Valid Till must be greater than or equal to Valid From.', 'warning');
+    return;
+  }
+ 
+ const requiredCount = Number(
+  this.qrRequest.noofQR ||
+  this.qrRequest.TotalQty ||
+  0
+);
+ 
+  if (requiredCount <= 0) {
+    Swal.fire('Warning', 'Pending QR Qty should be greater than 0.', 'warning');
+    return;
+  }
+ 
+  const userId = Number(localStorage.getItem('userId') || 1);
+ 
+  const payload = {
+    ...this.qrRequest,
+ 
+    id: 0,
+    requestId: Number(this.qrRequest.requestId || 0),
+    companyId: Number(this.qrRequest.companyId || 0),
+    overrideId: this.normalizeOverrideId(this.qrRequest.overrideId),
+ 
+    noofQR: requiredCount,
+    totalQty: requiredCount,
+ 
+    planType: this.qrRequest.planType || '',
+    cuisineId: Number(this.qrRequest.cuisineId || 0),
+    cuisineName: this.qrRequest.cuisineName || '',
+    cuisines: this.qrRequest.cuisines || this.selectedRequestItem?.cuisines || [],
+ 
+    qrValidFrom: this.qrRequest.qrValidFrom,
+    qrValidTill: this.qrRequest.qrValidTill,
+ 
+    isActive: true,
+    approvalStatus: 0,
+ 
+    createdBy: userId,
+    updatedBy: userId,
+    createdDate: new Date().toISOString(),
+    updatedDate: new Date().toISOString()
+  };
+ 
+  console.log('Submit approval payload:', payload);
+ 
+  this.isProcessing = true;
+ 
+  this.scannersettingsService.submitQrApproval(payload).subscribe({
+    next: (res: any) => {
+      this.isProcessing = false;
+ 
+      const isSuccess = res?.isSuccess === true;
+      const message = res?.message || 'QR request submitted for approval successfully.';
+      const messageType = res?.messageType || (isSuccess ? 'success' : 'warning');
+      const data = res?.data;
+ 
+      if (isSuccess) {
+        Swal.fire({
+          title: 'Success',
+          text: message,
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+          allowOutsideClick: false
+        }).then(() => {
+          this.router.navigate(['/scanner/listqr']);
+        });
+        return;
+      }
+ 
+      Swal.fire({
+        title: messageType === 'error' ? 'Error' : 'Warning',
+        text: message,
+        icon: messageType === 'error' ? 'error' : 'warning',
+        confirmButtonText: 'OK',
+        allowOutsideClick: false
+      }).then(() => {
+        if (data?.companyId) {
+          this.router.navigate(['/users/users-list'], {
+            queryParams: {
+              companyId: data.companyId,
+              planType: data.planType || this.qrRequest.planType || ''
+            }
+          });
+        }
+      });
+    },
+ 
+    error: (err: any) => {
+      this.isProcessing = false;
+ 
+      const errorObj = err?.error || {};
+      const message =
+        errorObj?.message ||
+        errorObj?.Message ||
+        'Failed to submit approval request.';
+ 
+      const data = errorObj?.data || errorObj?.Data;
+      const messageType =
+        errorObj?.messageType ||
+        errorObj?.MessageType ||
+        'error';
+ 
+      Swal.fire({
+        title: messageType === 'warning' ? 'Warning' : 'Error',
+        text: message,
+        icon: messageType === 'warning' ? 'warning' : 'error',
+        confirmButtonText: 'OK',
+        allowOutsideClick: false
+      }).then(() => {
+        if (data?.companyId) {
+          this.router.navigate(['/users/list'], {
+            queryParams: {
+              companyId: data.companyId,
+              planType: data.planType || this.qrRequest.planType || ''
+            }
+          });
+        }
+      });
+    }
+  });
+}
 
   onSubmit(): Observable<any> {
     const firstQr = this.generatedQrList?.length ? this.generatedQrList[0] : null;

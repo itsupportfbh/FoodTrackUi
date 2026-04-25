@@ -70,18 +70,23 @@ export class ScannerService {
     return this.http.post<any>(`${this.apiUrl}/reject-qr-request/${id}`, payload);
   }
 
-  getQrTargetUsers(
-    companyId: number,
-    planType: string,
-    cuisineId: number,
-    count: number
-  ): Observable<any> {
-    const params = new HttpParams()
-      .set('companyId', String(companyId || 0))
-      .set('planType', planType || '')
-      .set('cuisineId', String(cuisineId || 0))
-      .set('count', String(count || 0));
+getQrTargetUsers(
+  companyId: number,
+  planType: string,
+  cuisineIds: number[],
+  count: number
+): Observable<any> {
+  let params = new HttpParams()
+    .set('companyId', String(companyId || 0))
+    .set('planType', planType || 'Basic')
+    .set('count', String(count || 0));
 
-    return this.http.get<any>(`${this.apiUrl}/GetQrTargetUsers`, { params });
-  }
+  cuisineIds
+    .filter(x => Number(x) > 0)
+    .forEach(id => {
+      params = params.append('cuisineIds', String(id));
+    });
+
+  return this.http.get<any>(`${this.apiUrl}/GetQrTargetUsers`, { params });
+}
 }
