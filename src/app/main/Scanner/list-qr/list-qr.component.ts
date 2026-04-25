@@ -152,7 +152,7 @@ export class ListQRComponent implements OnInit, AfterViewInit, AfterViewChecked 
 approveQr(row: any): void {
   Swal.fire({
     title: 'Approve QR Request?',
-    text: `Approve QR for ${row.companyName}?`,
+    text: `Approve QR for ${row.companyName || '-'}?`,
     icon: 'question',
     showCancelButton: true,
     confirmButtonText: 'Yes, Approve',
@@ -167,49 +167,45 @@ approveQr(row: any): void {
       text: 'Please wait while approving the QR request.',
       allowOutsideClick: false,
       allowEscapeKey: false,
-      showConfirmButton: false
-    } as any);
-
-    Swal.showLoading();
+      showConfirmButton: false,
+    
+    });
 
     this.scannerService.approveQrRequest(row.id, this.userId).subscribe({
       next: (res: any) => {
-        Swal.close();
-
-        const response = res?.message || {};
-        const isSuccess = response?.isSuccess === true;
-        const msg = response?.message || 'QR request approved successfully';
-        const data = response?.data || {};
+        const isSuccess = res?.isSuccess === true;
+        const msg = res?.message || '';
+        const data = res?.data || null;
 
         if (isSuccess) {
           Swal.fire({
             title: 'Success',
-            text: msg,
+            text: msg || 'QR request approved successfully',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
             allowOutsideClick: false
+          }).then(() => {
+            this.loadQrList();
           });
 
-          this.loadQrList();
-        } else {
-          Swal.fire({
-            title: 'Warning',
-            text: msg || 'QR cannot be generated',
-            icon: 'warning',
-            confirmButtonText: 'OK'
-          }).then(() => {
-            if (data?.companyId) {
-              this.router.navigate(['users/users-list'], {
-                queryParams: { companyId: data.companyId }
-              });
-            }
-          });
+          return;
         }
+
+        Swal.fire({
+          title: res?.messageType === 'error' ? 'Error' : 'Warning',
+          text: msg || 'QR cannot be generated',
+          icon: res?.messageType === 'error' ? 'error' : 'warning',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          if (data?.companyId) {
+            this.router.navigate(['/users/users-list'], {
+              queryParams: { companyId: data.companyId }
+            });
+          }
+        });
       },
       error: (err: any) => {
-        Swal.close();
-
         Swal.fire({
           title: 'Error',
           text: err?.error?.message || 'Failed to approve QR request',
