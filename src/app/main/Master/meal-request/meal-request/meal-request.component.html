@@ -1,16 +1,16 @@
 <div class="meal-request-page">
   <div class="meal-request-card">
     <div class="card-body">
-   <div class="logo-wrap">
+      <div class="logo-wrap">
         <img src="assets/images/logo/cspllogo.png" alt="CSPL Logo" />
       </div>
+
       <div class="title-section">
-        <!-- <div class="welcome-badge">NORMAL USER</div> -->
         <h1>Start Meal Request</h1>
         <p>Choose your date range and location.</p>
       </div>
 
-      <form (ngSubmit)="onSubmit()">
+      <form #mealForm="ngForm" (ngSubmit)="onSubmit()">
         <div class="form-grid">
           <div class="form-group">
             <label>From Date</label>
@@ -19,6 +19,7 @@
               class="form-control custom-control"
               name="fromDate"
               [(ngModel)]="fromDate"
+              required
             />
           </div>
 
@@ -29,6 +30,7 @@
               class="form-control custom-control"
               name="toDate"
               [(ngModel)]="toDate"
+              required
             />
           </div>
 
@@ -38,22 +40,32 @@
               class="form-control custom-control"
               name="locationId"
               [(ngModel)]="locationId"
+              required
             >
               <option [ngValue]="null">Select Location</option>
               <option *ngFor="let item of locations" [ngValue]="item.id">
-                {{ item.locationName }}
+                {{ item.locationName || item.name }}
               </option>
             </select>
           </div>
         </div>
 
         <div class="button-row">
-          <button type="button" class="btn btn-cancel" (click)="onCancel()">
+          <button
+            type="button"
+            class="btn btn-cancel"
+            (click)="onCancel()"
+            [disabled]="isSubmitting"
+          >
             Cancel
           </button>
 
-          <button type="submit" class="btn btn-submit">
-            Submit
+          <button
+            type="submit"
+            class="btn btn-submit"
+            [disabled]="isSubmitting"
+          >
+            {{ isSubmitting ? 'Submitting...' : 'Submit' }}
           </button>
         </div>
       </form>
