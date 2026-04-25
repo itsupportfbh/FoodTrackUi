@@ -148,7 +148,7 @@
           <thead>
             <tr>
               <th>S.No</th>
-              <th>Session</th>
+             
               <th>Cuisine</th>
               <th>Override Qty</th>
             </tr>
@@ -156,7 +156,7 @@
           <tbody>
             <tr *ngFor="let item of detailRows; let i = index">
               <td>{{ i + 1 }}</td>
-              <td>{{ item.sessionName || '-' }}</td>
+             
               <td>{{ item.cuisineName || item.cuisine || '-' }}</td>
               <td>{{ item.overrideQty || '-' }}</td>
             </tr>

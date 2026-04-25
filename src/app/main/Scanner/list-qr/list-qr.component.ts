@@ -158,40 +158,68 @@ approveQr(row: any): void {
     confirmButtonText: 'Yes, Approve',
     cancelButtonText: 'Cancel'
   }).then((result) => {
-    if (!result.isConfirmed) return;
+    if (!result.isConfirmed) {
+      return;
+    }
 
     Swal.fire({
       title: 'Approving...',
       text: 'Please wait while approving the QR request.',
       allowOutsideClick: false,
-      allowEscapeKey: false
+      allowEscapeKey: false,
+      showConfirmButton: false
     } as any);
 
     Swal.showLoading();
 
     this.scannerService.approveQrRequest(row.id, this.userId).subscribe({
       next: (res: any) => {
-       Swal.fire({
-        title: 'Success',
-        text: res?.message || 'QR request approved successfully',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: 1500,
-        allowOutsideClick: false
-      });
-        this.loadQrList();
+        Swal.close();
+
+        const response = res?.message || {};
+        const isSuccess = response?.isSuccess === true;
+        const msg = response?.message || 'QR request approved successfully';
+        const data = response?.data || {};
+
+        if (isSuccess) {
+          Swal.fire({
+            title: 'Success',
+            text: msg,
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+            allowOutsideClick: false
+          });
+
+          this.loadQrList();
+        } else {
+          Swal.fire({
+            title: 'Warning',
+            text: msg || 'QR cannot be generated',
+            icon: 'warning',
+            confirmButtonText: 'OK'
+          }).then(() => {
+            if (data?.companyId) {
+              this.router.navigate(['users/users-list'], {
+                queryParams: { companyId: data.companyId }
+              });
+            }
+          });
+        }
       },
       error: (err: any) => {
-        Swal.fire(
-          'Error',
-          err?.error?.message || 'Failed to approve QR request',
-          'error'
-        );
+        Swal.close();
+
+        Swal.fire({
+          title: 'Error',
+          text: err?.error?.message || 'Failed to approve QR request',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       }
     });
   });
 }
-
 rejectQr(row: any): void {
   Swal.fire({
     title: 'Reject QR Request',

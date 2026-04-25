@@ -2,38 +2,33 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
-
 import { SaveQrCodeRequestModel } from './qrgenerate/qrgenerate.component';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ScannerService {
-
   private apiUrl = `${environment.apiUrl}/QrCodeRequest`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  // Get Request dropdown
   getRequestDropdown(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/GetRequestIdDropdown`);
   }
 
-  // Generate QR code (backend returns generated QR)
   generateQR(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/GenerateUniqueQrs`, data);
   }
 
-  // Send QR code via email
   sendQrEmail(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/SendQrEmail`, data);
   }
 
-  // Add or update QR image
   addOrUpdateQr(model: SaveQrCodeRequestModel): Observable<any> {
-  return this.http.post<any>(`${this.apiUrl}/AddUpdateQrWithImages`, model);
-}
-getallQR(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/AddUpdateQrWithImages`, model);
+  }
+
+  getallQR(data: any): Observable<any> {
     let params = new HttpParams()
       .set('userId', data.userId?.toString() || '0')
       .set('companyId', data.companyId?.toString() || '0')
@@ -41,41 +36,46 @@ getallQR(data: any): Observable<any> {
 
     return this.http.get<any>(`${this.apiUrl}/GetAllQRList`, { params });
   }
- 
- getQrImageDetailsByRequestId(id: number): Observable<any> {
-  const url = `${this.apiUrl}/GetQrDetailsByRequestId?requestId=${id}`;
-  console.log('DOWNLOAD API URL:', url);
-  return this.http.get<any>(url);
-}
 
+  getQrImageDetailsByRequestId(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/GetQrDetailsByRequestId`, {
+      params: { requestId: id }
+    });
+  }
 
-downloadQrZip(qrCodeRequestId: number): Observable<Blob> {
-  return this.http.get(
-    `${this.apiUrl}/DownloadQrZip`,
-    {
+  downloadQrZip(qrCodeRequestId: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/DownloadQrZip`, {
       params: { qrcoderequestid: String(qrCodeRequestId) },
       responseType: 'blob'
-    }
-  );
-}
-  deleteQR(id: number, userId: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/eleteQR/${id}?userId=${userId}`);
+    });
   }
 
-    // Validate scanned QR code
-    validateScanAsync(UniqueCode: string): Observable<any> {
-    debugger;
+  deleteQR(id: number, userId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/DeleteQR/${id}?userId=${userId}`);
+  }
+
+  validateScanAsync(UniqueCode: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/ValidateScan?UniqueCode=${UniqueCode}`);
   }
+
   submitQrApproval(payload: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/submit-qr-approval`, payload);
-}
+    return this.http.post<any>(`${this.apiUrl}/submit-qr-approval`, payload);
+  }
 
-approveQrRequest(id: number, approvedBy: number): Observable<any> {
-  return this.http.post(`${this.apiUrl}/approve-qr-request/${id}`, approvedBy);
-}
+  approveQrRequest(id: number, approvedBy: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/approve-qr-request/${id}`, approvedBy);
+  }
 
-rejectQrRequest(id: number, payload: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/reject-qr-request/${id}`, payload);
+  rejectQrRequest(id: number, payload: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/reject-qr-request/${id}`, payload);
+  }
+  getQrTargetUsers(companyId: number, planType: string, count: number): Observable<any> {
+  return this.http.get<any>(`${this.apiUrl}/GetQrTargetUsers`, {
+    params: {
+      companyId: String(companyId),
+      planType: planType || '',
+      count: String(count || 0)
+    }
+  });
 }
 }

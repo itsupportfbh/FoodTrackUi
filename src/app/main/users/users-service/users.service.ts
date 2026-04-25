@@ -15,7 +15,7 @@ export interface UserMasterPayload {
   roleId?: number | null;
   username: string;
   email: string;
-  password: string;
+  password1: string;
   planType: string;
   isActive: boolean;
   isDelete: boolean;
