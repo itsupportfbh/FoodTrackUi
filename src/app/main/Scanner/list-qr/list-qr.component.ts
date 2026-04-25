@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, AfterViewInit, AfterViewChecked, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import * as feather from 'feather-icons';
@@ -7,7 +7,8 @@ import { ScannerService } from '../scannerservice';
 @Component({
   selector: 'app-list-qr',
   templateUrl: './list-qr.component.html',
-  styleUrls: ['./list-qr.component.scss']
+  styleUrls: ['./list-qr.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class ListQRComponent implements OnInit, AfterViewInit, AfterViewChecked {
   rows: any[] = [];
@@ -23,6 +24,7 @@ export class ListQRComponent implements OnInit, AfterViewInit, AfterViewChecked 
   loading = false;
 
   currentPage = 1;
+
 
   constructor(
     private router: Router,
@@ -75,7 +77,49 @@ export class ListQRComponent implements OnInit, AfterViewInit, AfterViewChecked 
     }
     return Math.min(this.currentPage * this.selectedOption, this.filteredRows.length);
   }
+onPageSizeChange(): void {
+  this.selectedOption = Number(this.selectedOption) || 10;
 
+  setTimeout(() => {
+    feather.replace();
+  }, 0);
+}
+
+filterRequests(): void {
+  const text = (this.searchText || '').trim().toLowerCase();
+
+  if (!text) {
+    this.filteredRows = [...this.rows];
+
+    setTimeout(() => {
+      feather.replace();
+    }, 0);
+
+    return;
+  }
+
+  this.filteredRows = this.rows.filter((x: any) => {
+    const qtyText = String(x.noofQR ?? x.NoofQR ?? x.noOfQR ?? '')
+      .trim()
+      .toLowerCase();
+
+    return (
+      String(x.id ?? '').toLowerCase().includes(text) ||
+      String(x.requestId ?? '').toLowerCase().includes(text) ||
+      String(x.requestNo ?? '').toLowerCase().includes(text) ||
+      String(x.companyName ?? '').toLowerCase().includes(text) ||
+      String(x.companyEmail ?? '').toLowerCase().includes(text) ||
+      String(x.approvalStatusText ?? '').toLowerCase().includes(text) ||
+      qtyText.includes(text) ||
+      this.displayDate(x.qrValidFrom).toLowerCase().includes(text) ||
+      this.displayDate(x.qrValidTill).toLowerCase().includes(text)
+    );
+  });
+
+  setTimeout(() => {
+    feather.replace();
+  }, 0);
+}
   getCurrentUserData(): void {
     try {
       const currentUserRaw = localStorage.getItem('currentUser');
@@ -156,11 +200,10 @@ approveQr(row: any): void {
     icon: 'question',
     showCancelButton: true,
     confirmButtonText: 'Yes, Approve',
-    cancelButtonText: 'Cancel'
+    cancelButtonText: 'Cancel',
+    allowOutsideClick: false
   }).then((result) => {
-    if (!result.isConfirmed) {
-      return;
-    }
+    if (!result.isConfirmed) return;
 
     Swal.fire({
       title: 'Approving...',
@@ -168,11 +211,13 @@ approveQr(row: any): void {
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
-    
+     
     });
 
     this.scannerService.approveQrRequest(row.id, this.userId).subscribe({
       next: (res: any) => {
+        Swal.close();
+
         const isSuccess = res?.isSuccess === true;
         const msg = res?.message || '';
         const data = res?.data || null;
@@ -188,7 +233,6 @@ approveQr(row: any): void {
           }).then(() => {
             this.loadQrList();
           });
-
           return;
         }
 
@@ -206,6 +250,8 @@ approveQr(row: any): void {
         });
       },
       error: (err: any) => {
+        Swal.close();
+
         Swal.fire({
           title: 'Error',
           text: err?.error?.message || 'Failed to approve QR request',
@@ -340,38 +386,36 @@ private sanitizeFileName(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-  filterRequests(): void {
-    const text = (this.searchText || '').trim().toLowerCase();
+  // filterRequests(): void {
+  //   const text = (this.searchText || '').trim().toLowerCase();
 
-    if (!text) {
-      this.filteredRows = [...this.rows];
-      this.currentPage = 1;
-      return;
-    }
+  //   if (!text) {
+  //     this.filteredRows = [...this.rows];
+  //     this.currentPage = 1;
+  //     return;
+  //   }
 
-    this.filteredRows = this.rows.filter((x: any) => {
-      const qtyText = String(x.noofQR ?? x.NoofQR ?? x.noOfQR ?? '')
-        .trim()
-        .toLowerCase();
+  //   this.filteredRows = this.rows.filter((x: any) => {
+  //     const qtyText = String(x.noofQR ?? x.NoofQR ?? x.noOfQR ?? '')
+  //       .trim()
+  //       .toLowerCase();
 
-      return (
-        String(x.id ?? '').toLowerCase().includes(text) ||
-        String(x.requestId ?? '').toLowerCase().includes(text) ||
-        String(x.requestNo ?? '').toLowerCase().includes(text) ||
-        String(x.companyName ?? '').toLowerCase().includes(text) ||
-        String(x.companyEmail ?? '').toLowerCase().includes(text) ||
-        qtyText.includes(text) ||
-        this.displayDate(x.qrValidFrom).toLowerCase().includes(text) ||
-        this.displayDate(x.qrValidTill).toLowerCase().includes(text)
-      );
-    });
+  //     return (
+  //       String(x.id ?? '').toLowerCase().includes(text) ||
+  //       String(x.requestId ?? '').toLowerCase().includes(text) ||
+  //       String(x.requestNo ?? '').toLowerCase().includes(text) ||
+  //       String(x.companyName ?? '').toLowerCase().includes(text) ||
+  //       String(x.companyEmail ?? '').toLowerCase().includes(text) ||
+  //       qtyText.includes(text) ||
+  //       this.displayDate(x.qrValidFrom).toLowerCase().includes(text) ||
+  //       this.displayDate(x.qrValidTill).toLowerCase().includes(text)
+  //     );
+  //   });
 
-    this.currentPage = 1;
-  }
+  //   this.currentPage = 1;
+  // }
 
-  onPageSizeChange(): void {
-    this.currentPage = 1;
-  }
+  
 
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages) {
