@@ -47,19 +47,36 @@ export class SessionDemandComponent implements OnChanges, AfterViewInit {
     feather.replace();
   }
 
-  bindSessionDemand(): void {
-    const sessions = this.dashboardData?.totalOrdersBySession || [];
-    const totalQty = sessions.reduce((sum: number, item: any) => sum + Number(item.totalQty || 0), 0);
+bindSessionDemand(): void {
+  const sessionRows = this.dashboardData?.totalOrdersBySession || [];
+  const planRows = this.dashboardData?.totalOrdersByPlanType || [];
 
-    let cumulativePercentage = 0;
+  const sourceRows = sessionRows.length
+    ? sessionRows.map((x: any) => ({
+        label: x.sessionName || 'Unknown Session',
+        totalQty: Number(x.totalQty || 0)
+      }))
+    : planRows.map((x: any) => ({
+        label: x.planType || 'Unknown Plan',
+        totalQty: Number(x.totalQty || 0)
+      }));
 
-    this.sessionDemand = sessions.map((item: any, index: number) => {
+  const totalQty = sourceRows.reduce(
+    (sum: number, item: any) => sum + Number(item.totalQty || 0),
+    0
+  );
+
+  let cumulativePercentage = 0;
+
+  this.sessionDemand = sourceRows
+    .filter((item: any) => Number(item.totalQty || 0) > 0)
+    .map((item: any, index: number) => {
       const percentage = totalQty > 0 ? (item.totalQty / totalQty) * 100 : 0;
       const dashLength = (percentage / 100) * this.circumference;
       const gapLength = this.circumference - dashLength;
 
       const mappedItem: SessionDemandItem = {
-        label: item.sessionName,
+        label: item.label,
         count: Number(item.totalQty || 0),
         value: +percentage.toFixed(1),
         color: this.sessionColors[index % this.sessionColors.length],
@@ -71,9 +88,8 @@ export class SessionDemandComponent implements OnChanges, AfterViewInit {
       return mappedItem;
     });
 
-    setTimeout(() => feather.replace(), 0);
-  }
-
+  setTimeout(() => feather.replace(), 0);
+}
   get leftSessionDemand(): SessionDemandItem[] {
     const mid = Math.ceil(this.sessionDemand.length / 2);
     return this.sessionDemand.slice(0, mid);

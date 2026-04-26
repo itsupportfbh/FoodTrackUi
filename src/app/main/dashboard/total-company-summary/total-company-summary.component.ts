@@ -29,44 +29,44 @@ export class TotalCompanySummaryComponent implements OnChanges, AfterViewInit {
   }
 
   bindSummary(): void {
-    debugger
-    const res = this.dashboardData || {};
-    // const totalPrice = this.calculateTotalPrice(res);
-    const totalPrice = Number(res.totalPrice ?? 0);
+  const res = this.dashboardData || {};
+  const totalPrice = Number(res.totalPrice ?? 0);
 
-    this.summaryCards = [
-      {
-        title: 'Companies',
-        value: (res.totalCompanies ?? 0).toString(),
-        icon: 'briefcase',
-        theme: 'primary'
-      },
-      {
-        title: 'Today Orders',
-        value: (res.todayOrderedQty ?? 0).toString(),
-        icon: 'shopping-bag',
-        theme: 'info'
-      },
-      {
-        title: 'Month Orders',
-        value: (res.monthOrderedQty ?? 0).toString(),
-        icon: 'bar-chart-2',
-        theme: 'pink'
-      },
-      {
-        title: 'Total Price',
-        value: `S$ ${totalPrice.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })}`,
-        subtitle: `${Number(res.monthOrderedQty ?? 0).toLocaleString()} qty`,
-        icon: 'dollar-sign',
-        theme: 'success'
-      }
-    ];
+  this.summaryCards = [
+    {
+      title: 'Companies',
+      value: String(res.totalCompanies ?? 0),
+      icon: 'briefcase',
+      theme: 'primary'
+    },
+    {
+      title: 'Today Redeemed',
+      value: String(res.todayRedeemedQty ?? res.todayScans ?? 0),
+      subtitle: `${res.todayOrderedQty ?? 0} ordered today`,
+      icon: 'check-circle',
+      theme: 'info'
+    },
+    {
+      title: 'Month Orders',
+      value: String(res.monthOrderedQty ?? 0),
+      subtitle: `${res.monthPendingQty ?? 0} pending`,
+      icon: 'bar-chart-2',
+      theme: 'pink'
+    },
+    {
+      title: 'Total Price',
+      value: `S$ ${totalPrice.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}`,
+      subtitle: `${Number(res.monthOrderedQty ?? 0).toLocaleString()} qty`,
+      icon: 'dollar-sign',
+      theme: 'success'
+    }
+  ];
 
-    setTimeout(() => feather.replace(), 0);
-  }
+  setTimeout(() => feather.replace(), 0);
+}
 
   private calculateTotalPrice(res: any): number {
     const prices = res?.currentSessionPrices || [];

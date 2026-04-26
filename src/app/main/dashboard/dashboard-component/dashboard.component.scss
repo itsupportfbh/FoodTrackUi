@@ -17,7 +17,7 @@
 
 .filter-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1.4fr 1fr 1fr auto;
   gap: 18px;
   align-items: end;
 }
@@ -48,39 +48,85 @@
   box-shadow: none;
 }
 
-.filter-actions {
+.filter-actions-inline {
   display: flex;
   gap: 10px;
   align-items: end;
-}
-
-.btn-apply {
-  background: #6f3c2f;
-  border: 1px solid #6f3c2f;
-  color: #fff;
   height: 40px;
-  min-width: 100px;
-  border-radius: 8px;
 }
 
-.btn-apply:hover {
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  background: #fff;
+  color: #6f3c2f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn svg,
+.icon-btn i {
+  width: 17px;
+  height: 17px;
+  stroke-width: 2.4;
+}
+
+.apply-icon {
+  background: #6f3c2f;
+  border-color: #6f3c2f;
+  color: #fff;
+}
+
+.apply-icon:hover {
   background: #5a3026;
   border-color: #5a3026;
   color: #fff;
 }
 
-.btn-reset {
+.reset-icon {
   background: #fff;
-  border: 1px solid #ced4da;
+  border-color: #ced4da;
   color: #6c757d;
-  height: 40px;
-  min-width: 100px;
-  border-radius: 8px;
 }
 
-.btn-reset:hover {
+.reset-icon:hover {
   background: #f8f9fa;
-  color: #495057;
+  border-color: #6f3c2f;
+  color: #6f3c2f;
+}
+
+.filter-footer {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.override-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: #fff4e8;
+  border: 1px solid #ffd8ad;
+  color: #9a5518;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.override-badge svg,
+.override-badge i {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.4;
 }
 
 .dashboard-filter-card .ng-select {
@@ -168,6 +214,14 @@
   .filter-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .company-filter {
+    grid-column: span 2;
+  }
+
+  .filter-actions-inline {
+    grid-column: span 2;
+  }
 }
 
 @media (max-width: 576px) {
@@ -175,12 +229,12 @@
     grid-template-columns: 1fr;
   }
 
-  .filter-actions {
-    flex-wrap: wrap;
+  .company-filter,
+  .filter-actions-inline {
+    grid-column: span 1;
   }
 
-  .btn-apply,
-  .btn-reset {
-    width: 100%;
+  .icon-btn {
+    flex: 1;
   }
 }
