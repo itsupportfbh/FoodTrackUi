@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnInit } from '@angular/core';
+import { Component, AfterViewInit, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2';
 import * as feather from 'feather-icons';
@@ -129,7 +129,8 @@ interface GeneratedQrItem {
 @Component({
   selector: 'app-qrgenerate',
   templateUrl: './qrgenerate.component.html',
-  styleUrls: ['./qrgenerate.component.scss']
+  styleUrls: ['./qrgenerate.component.scss'],
+  encapsulation:ViewEncapsulation.None
 })
 export class QRgenerateComponent implements OnInit, AfterViewInit {
   qrForm!: FormGroup;
