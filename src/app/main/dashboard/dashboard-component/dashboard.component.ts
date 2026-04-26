@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import * as feather from 'feather-icons';
 import { DashboardService } from '../dashboard-services/dashboard.service';
 import { SessionService } from 'app/main/Master/session/session.service';
 import { LocationService } from 'app/main/Master/location/location.service';
@@ -26,6 +27,8 @@ export class DashboardComponent implements OnInit {
   locationList: any[] = [];
 
   filters: DashboardFilters = this.createDefaultFilters();
+
+  private filterTimer: any = null;
 
   constructor(
     private dashboardService: DashboardService,
@@ -71,6 +74,14 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  onFilterChange(): void {
+    clearTimeout(this.filterTimer);
+
+    this.filterTimer = setTimeout(() => {
+      this.loadDashboard();
+    }, 300);
+  }
+
   loadDashboard(): void {
     const payload = {
       companyIds: this.filters.companyIds || [],
@@ -83,21 +94,18 @@ export class DashboardComponent implements OnInit {
     this.dashboardService.getDashboardData(payload).subscribe({
       next: (res: any) => {
         this.dashboardData = res;
+        setTimeout(() => feather.replace(), 0);
       },
       error: (err) => {
         console.error('Dashboard load error:', err);
         this.dashboardData = null;
+        setTimeout(() => feather.replace(), 0);
       }
     });
   }
 
-  applyFilters(): void {
-    this.loadDashboard();
-  }
-
   resetFilters(): void {
     this.filters = this.createDefaultFilters();
-
     this.loadDashboard();
   }
 

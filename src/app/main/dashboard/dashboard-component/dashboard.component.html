@@ -1,7 +1,7 @@
 <div class="dashboard-page">
   <div class="dashboard-filter-card">
     <div class="filter-grid">
-      <div class="filter-item">
+      <div class="filter-item company-filter">
         <label>Company</label>
         <ng-select
           [items]="companyList"
@@ -14,57 +14,55 @@
           [hideSelected]="true"
           [searchable]="true"
           [clearable]="true"
-          appendTo="body">
-        </ng-select>
-      </div>
-
-      <div class="filter-item">
-        <label>Session</label>
-        <ng-select
-          [items]="sessionList"
-          bindLabel="sessionName"
-          bindValue="id"
-          placeholder="All Sessions"
-          [(ngModel)]="filters.sessionIds"
-          [multiple]="true"
-          [closeOnSelect]="false"
-          [hideSelected]="true"
-          [searchable]="true"
-          [clearable]="true"
-          appendTo="body">
-        </ng-select>
-      </div>
-
-      <div class="filter-item">
-        <label>Location</label>
-        <ng-select
-          [items]="locationList"
-          bindLabel="locationName"
-          bindValue="id"
-          placeholder="All Locations"
-          [(ngModel)]="filters.locationIds"
-          [multiple]="true"
-          [closeOnSelect]="false"
-          [hideSelected]="true"
-          [searchable]="true"
-          [clearable]="true"
-          appendTo="body">
+          appendTo="body"
+          (change)="onFilterChange()"
+          (clear)="onFilterChange()">
         </ng-select>
       </div>
 
       <div class="filter-item">
         <label>From Date</label>
-        <input type="date" class="form-control" [(ngModel)]="filters.fromDate" />
+        <input
+          type="date"
+          class="form-control"
+          [(ngModel)]="filters.fromDate"
+          (change)="onFilterChange()"
+        />
       </div>
 
       <div class="filter-item">
         <label>To Date</label>
-        <input type="date" class="form-control" [(ngModel)]="filters.toDate" />
+        <input
+          type="date"
+          class="form-control"
+          [(ngModel)]="filters.toDate"
+          (change)="onFilterChange()"
+        />
       </div>
 
-      <div class="filter-actions">
-        <button type="button" class="btn btn-apply" (click)="applyFilters()">Apply</button>
-        <button type="button" class="btn btn-reset" (click)="resetFilters()">Reset</button>
+      <div class="filter-actions-inline">
+        <button
+          type="button"
+          class="icon-btn apply-icon"
+          title="Search"
+          (click)="loadDashboard()">
+          <i data-feather="search"></i>
+        </button>
+
+        <button
+          type="button"
+          class="icon-btn reset-icon"
+          title="Reset"
+          (click)="resetFilters()">
+          <i data-feather="rotate-ccw"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-footer" *ngIf="dashboardData?.isOverrideApplied">
+      <div class="override-badge">
+        <i data-feather="refresh-cw"></i>
+        <span>Override Applied</span>
       </div>
     </div>
   </div>

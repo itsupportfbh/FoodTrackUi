@@ -110,19 +110,27 @@ export class PriceOverviewComponent implements OnChanges {
     return index === -1 ? 999 : index;
   }
 
-  private getFilteredSessionRows(): any[] {
-    const dashboard = this.dashboardData || {};
-    const sessionRows = dashboard.totalOrdersBySession || [];
-    const sessionIds = this.filters?.sessionIds || [];
+private getFilteredSessionRows(): any[] {
+  const dashboard = this.dashboardData || {};
+  const sessionRows = dashboard.totalOrdersBySession || [];
+  const planRows = dashboard.totalOrdersByPlanType || [];
+  const sessionIds = this.filters?.sessionIds || [];
 
+  if (sessionRows.length) {
     if (sessionIds.length) {
       return sessionRows.filter((row: any) =>
         sessionIds.includes(row.sessionId) || sessionIds.includes(row.id)
       );
     }
-
     return sessionRows;
   }
+
+  return planRows.map((x: any, index: number) => ({
+    sessionId: index + 1,
+    sessionName: x.planType,
+    totalQty: x.totalQty
+  }));
+}
 
   bindChartColumns(): void {
     const grouped = this.items.map((item: PriceOverviewItem) => ({
