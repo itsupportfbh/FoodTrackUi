@@ -23,8 +23,7 @@ export class MenuRoleHelper {
           'Reports',
           'qrgenerateList',
           'users',
-          'menu',
-           'meal'
+          'menu'
 
         ]);
 
@@ -37,13 +36,9 @@ export class MenuRoleHelper {
       case 4:
         return this.filterMenus([
          
-          'Request',
-          'Order',
-          'Reports',
-          'qrgenerateList',
-          'users',
-          'menu',
-          'meal'
+
+          'meal',
+          'showqr'
 
         ]);
 

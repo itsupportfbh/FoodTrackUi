@@ -19,6 +19,7 @@
               class="form-control custom-control"
               name="fromDate"
               [(ngModel)]="fromDate"
+              (change)="onFromDateChange()"
               required
             />
           </div>
