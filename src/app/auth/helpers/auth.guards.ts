@@ -63,8 +63,7 @@ export class AuthGuard implements CanActivate {
         cleanUrl.startsWith('/users/users-create') ||
            cleanUrl.startsWith('/menu/menu') ||
                 cleanUrl.startsWith('/scanner/qrgenerate') ||
-                cleanUrl.startsWith('/scanner/listqr') ||
-                cleanUrl.startsWith('/meal/meal-request')
+                cleanUrl.startsWith('/scanner/listqr') 
       );
     }
 
@@ -74,17 +73,18 @@ export class AuthGuard implements CanActivate {
 
       if (roleId === 4) {
       return (
-        isDashboardRoute ||
-        cleanUrl.startsWith('requestoverride/Request-override-list') ||
-        cleanUrl.startsWith('/catering/request') ||
-        cleanUrl.startsWith('/requestoverride/request-override') ||
-        cleanUrl.startsWith('/catering/reports') ||
-        cleanUrl.startsWith('/users/users-list') ||
-        cleanUrl.startsWith('/users/users-create') ||
-        cleanUrl.startsWith('/menu/menu') ||
-        cleanUrl.startsWith('/scanner/qrgenerate') ||
-        cleanUrl.startsWith('/scanner/listqr') ||
-        cleanUrl.startsWith('/meal/meal-request')
+        // isDashboardRoute ||
+        // cleanUrl.startsWith('requestoverride/Request-override-list') ||
+        // cleanUrl.startsWith('/catering/request') ||
+        // cleanUrl.startsWith('/requestoverride/request-override') ||
+        // cleanUrl.startsWith('/catering/reports') ||
+        // cleanUrl.startsWith('/users/users-list') ||
+        // cleanUrl.startsWith('/users/users-create') ||
+        // cleanUrl.startsWith('/menu/menu') ||
+        // cleanUrl.startsWith('/scanner/qrgenerate') ||
+        // cleanUrl.startsWith('/scanner/listqr') ||
+        cleanUrl.startsWith('/meal/meal-request') ||
+         cleanUrl.startsWith('/meal/show-qr')
       );
     }
     return false;

@@ -8,6 +8,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { CoreSidebarModule } from '@core/components';
+import { ShowQrComponent } from './show-qr/show-qr.component';
 
 const routes = [
       {
@@ -15,12 +16,18 @@ const routes = [
     component: MealRequestComponent,
     data: { animation: 'mealrequest' }
   },
+        {
+    path: 'show-qr',
+    component: ShowQrComponent,
+    data: { animation: 'showqr' }
+  },
 ]
 
 
 @NgModule({
   declarations: [
-    MealRequestComponent
+    MealRequestComponent,
+    ShowQrComponent
   ],
   imports: [
     CommonModule,

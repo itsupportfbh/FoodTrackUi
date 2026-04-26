@@ -28,4 +28,10 @@ export class MealRequestService {
   deleteMealRequest(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/DeleteMealRequest/${id}`);
   }
+
+    ShowQr(companyId: number, userId: number): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/ShowQr?companyId=${companyId}&userId=${userId}`
+    );
+  }
 }

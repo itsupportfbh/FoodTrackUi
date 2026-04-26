@@ -78,7 +78,7 @@ public downloadingMonthlyPdf = false;
     }
 
     if (roleId === 4) {
-      return '/catering/request';
+      return '/meal/meal-request';
     }
     return '/';
   }

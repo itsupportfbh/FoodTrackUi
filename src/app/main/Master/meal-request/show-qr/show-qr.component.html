@@ -1,0 +1,43 @@
+<div class="show-qr-page">
+  <div class="qr-card">
+    <div class="qr-header">
+      <div>
+        <h2>My QR Code</h2>
+        <p>Show this QR code at the scanner counter.</p>
+      </div>
+
+      <button class="refresh-btn" type="button" (click)="loadQr()">
+        Refresh
+      </button>
+    </div>
+
+    <div class="loading-box" *ngIf="loading">
+      Loading QR...
+    </div>
+
+    <div class="empty-box" *ngIf="!loading && qrList.length === 0">
+      No QR code assigned for you.
+    </div>
+
+    <div class="qr-grid" *ngIf="!loading && qrList.length > 0">
+      <div class="qr-item" *ngFor="let item of qrList">
+        <div class="plan-badge">
+          {{ item.planType }}
+        </div>
+
+        <div class="qr-image-box">
+          <img
+            [src]="item.imageSrc"
+            alt="QR Code"
+            class="qr-image"
+          />
+        </div>
+
+        <div class="qr-info">
+          <div class="qr-label">Plan Type</div>
+          <div class="qr-value">{{ item.planType }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
