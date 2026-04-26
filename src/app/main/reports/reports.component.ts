@@ -263,7 +263,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
         ? (this.defaultCompanyName || this.getNames(this.companyObjs, 'All Companies'))
         : this.getNames(this.companyObjs, 'All Companies');
 
-    const sessionText = this.getNames(this.sessionObjs, 'All Sessions');
+    const planTypeText = this.getNames(this.planTypeObjs, 'All Plan Types');
     const cuisineText = this.getNames(this.cuisineObjs, 'All Cuisines');
     const locationText = this.getNames(this.locationObjs, 'All Locations');
     const fromDateText = this.formatDateOnly(this.filter.fromDate);
@@ -302,7 +302,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
             <td>${index + 1}</td>
             <td>${this.escapeHtml(row.companyName || '')}</td>
             <td>${this.formatDateOnly(row.reportDate)}</td>
-            <td>${this.escapeHtml(row.sessionName || '')}</td>
+            <td>${this.escapeHtml(row.planType || '')}</td>
             <td>${this.escapeHtml(row.cuisineName || '')}</td>
             <td>${this.escapeHtml(row.locationName || '')}</td>
             <td class="text-right">${Number(row.count || 0)}</td>
@@ -483,8 +483,8 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
               <div class="filter-value">${this.escapeHtml(toDateText)}</div>
             </div>
             <div class="filter-item">
-              <div class="filter-label">Session</div>
-              <div class="filter-value">${this.escapeHtml(sessionText)}</div>
+              <div class="filter-label">Plan Type</div>
+              <div class="filter-value">${this.escapeHtml(planTypeText)}</div>
             </div>
             <div class="filter-item">
               <div class="filter-label">Cuisine</div>
@@ -499,7 +499,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
 
         <div class="summary-section">
           <div class="summary-head">
-            <h3>Session & Cuisine Totals</h3>
+            <h3>Plan Type & Cuisine Totals</h3>
           </div>
           <div class="summary-grid">
             ${sessionCuisineCardsHtml}
@@ -512,7 +512,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
               <th>S.No</th>
               <th>Company</th>
               <th>Date</th>
-              <th>Session</th>
+              <th>Plan Type</th>
               <th>Cuisine</th>
               <th>Location</th>
               <th class="text-right">Count</th>
