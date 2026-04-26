@@ -675,7 +675,7 @@ submitForApproval(): void {
         allowOutsideClick: false
       }).then(() => {
         if (data?.companyId) {
-          this.router.navigate(['/users/list'], {
+          this.router.navigate(['/users/users-list'], {
             queryParams: {
               companyId: data.companyId,
               planType: data.planType || this.qrRequest.planType || ''

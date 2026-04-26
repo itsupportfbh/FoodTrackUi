@@ -99,6 +99,7 @@ filterRequests(): void {
   }
 
   this.filteredRows = this.rows.filter((x: any) => {
+    debugger
     const qtyText = String(x.noofQR ?? x.NoofQR ?? x.noOfQR ?? '')
       .trim()
       .toLowerCase();
@@ -109,6 +110,7 @@ filterRequests(): void {
       String(x.requestNo ?? '').toLowerCase().includes(text) ||
       String(x.companyName ?? '').toLowerCase().includes(text) ||
       String(x.companyEmail ?? '').toLowerCase().includes(text) ||
+      String(x.planType ?? '').toLowerCase().includes(text) ||
       String(x.approvalStatusText ?? '').toLowerCase().includes(text) ||
       qtyText.includes(text) ||
       this.displayDate(x.qrValidFrom).toLowerCase().includes(text) ||
@@ -173,7 +175,8 @@ filterRequests(): void {
   approvedBy: item.approvedBy,
   approvedDate: item.approvedDate,
   qrImageBase64: item.qrImageBase64 || null,
-  qrImages: Array.isArray(item.qrImages) ? item.qrImages : []
+  qrImages: Array.isArray(item.qrImages) ? item.qrImages : [],
+  planType: item.planType || '',
 }));
 
         this.filteredRows = [...this.rows];
@@ -205,14 +208,33 @@ approveQr(row: any): void {
   }).then((result) => {
     if (!result.isConfirmed) return;
 
-    Swal.fire({
-      title: 'Approving...',
-      text: 'Please wait while approving the QR request.',
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      showConfirmButton: false,
-     
-    });
+Swal.fire({
+  title: 'Approving...',
+  html: `
+    <div style="padding: 10px 0 4px;">
+      <div style="
+        width: 42px;
+        height: 42px;
+        margin: 0 auto 18px;
+        border: 4px solid #eee;
+        border-top: 4px solid #6F3C2F;
+        border-radius: 50%;
+        animation: swalSpin 0.8s linear infinite;
+      "></div>
+      <div>Please wait while approving the QR request.</div>
+    </div>
+
+    <style>
+      @keyframes swalSpin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  `,
+  allowOutsideClick: false,
+  allowEscapeKey: false,
+  showConfirmButton: false
+} as any);
 
     this.scannerService.approveQrRequest(row.id, this.userId).subscribe({
       next: (res: any) => {
