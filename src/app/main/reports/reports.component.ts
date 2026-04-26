@@ -134,20 +134,26 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
     });
   }
   removeSelectedItem(
-    listName: 'companyObjs' | 'sessionObjs' | 'cuisineObjs' | 'locationObjs' | 'planTypeObjs',
-    item: any,
-    event: MouseEvent
-  ): void {
-    event.preventDefault();
-    event.stopPropagation();
+  listName: 'companyObjs' | 'sessionObjs' | 'cuisineObjs' | 'locationObjs' | 'planTypeObjs',
+  item: any,
+  event: MouseEvent
+): void {
+  event.preventDefault();
+  event.stopPropagation();
 
-    const currentList = this[listName] as any[];
-    if (!Array.isArray(currentList)) return;
+  const currentList = this[listName] as any[];
+  if (!Array.isArray(currentList)) return;
 
-    this[listName] = currentList.filter(
-      (x: any) => Number(x?.id) !== Number(item?.id)
-    ) as never[];
-  }
+  this[listName] = currentList.filter((x: any) => {
+    if (listName === 'planTypeObjs') {
+      return String(x?.id) !== String(item?.id);
+    }
+
+    return Number(x?.id) !== Number(item?.id);
+  }) as never[];
+
+  setTimeout(() => feather.replace());
+}
 
   private getSelectedIds(list: any[]): number[] | null {
     if (!list || list.length === 0) return null;
@@ -554,40 +560,40 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
   }
 
   private buildSessionCuisineTotals(): void {
-    const grouped: any = {};
+  const grouped: any = {};
 
-    (this.rows || []).forEach((row: any) => {
-      const session = row.sessionName || 'Unknown Session';
-      const cuisine = row.cuisineName || 'Unknown Cuisine';
-      const count = Number(row.count || 0);
+  (this.rows || []).forEach((row: any) => {
+    const planType = row.planType || 'Basic';
+    const cuisine = row.cuisineName || 'Unknown Cuisine';
+    const count = Number(row.count || 0);
 
-      if (!grouped[session]) {
-        grouped[session] = {
-          sessionName: session,
-          totalQty: 0,
-          items: {}
-        };
-      }
-
-      if (!grouped[session].items[cuisine]) {
-        grouped[session].items[cuisine] = 0;
-      }
-
-      grouped[session].items[cuisine] += count;
-      grouped[session].totalQty += count;
-    });
-
-    this.sessionCuisineTotals = Object.values(grouped).map((sessionGroup: any) => {
-      return {
-        sessionName: sessionGroup.sessionName,
-        totalQty: sessionGroup.totalQty,
-        cuisines: Object.keys(sessionGroup.items).map((cuisineName: string) => ({
-          cuisineName,
-          totalQty: sessionGroup.items[cuisineName]
-        }))
+    if (!grouped[planType]) {
+      grouped[planType] = {
+        sessionName: planType,
+        totalQty: 0,
+        items: {}
       };
-    });
-  }
+    }
+
+    if (!grouped[planType].items[cuisine]) {
+      grouped[planType].items[cuisine] = 0;
+    }
+
+    grouped[planType].items[cuisine] += count;
+    grouped[planType].totalQty += count;
+  });
+
+  this.sessionCuisineTotals = Object.values(grouped).map((planGroup: any) => {
+    return {
+      sessionName: planGroup.sessionName,
+      totalQty: planGroup.totalQty,
+      cuisines: Object.keys(planGroup.items).map((cuisineName: string) => ({
+        cuisineName,
+        totalQty: planGroup.items[cuisineName]
+      }))
+    };
+  });
+}
 
   downloadExcel(): void {
     if (!this.rows || this.rows.length === 0) {
