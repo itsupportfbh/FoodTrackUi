@@ -55,6 +55,14 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
     body: 'Please find the attached report.'
   };
 
+  planTypes: any[] = [
+  { id: 'Basic', name: 'Basic' },
+  { id: 'Standard', name: 'Standard' },
+  { id: 'Premium', name: 'Premium' }
+  ];
+
+  planTypeObjs: any[] = [];
+
   constructor(
     private reportService: ReportService,
     private sanitizer: DomSanitizer
@@ -126,7 +134,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
     });
   }
   removeSelectedItem(
-    listName: 'companyObjs' | 'sessionObjs' | 'cuisineObjs' | 'locationObjs',
+    listName: 'companyObjs' | 'sessionObjs' | 'cuisineObjs' | 'locationObjs' | 'planTypeObjs',
     item: any,
     event: MouseEvent
   ): void {
@@ -197,6 +205,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
     this.sessionObjs = [];
     this.cuisineObjs = [];
     this.locationObjs = [];
+    this.planTypeObjs = [];
 
     if (this.roleId === 1) {
       this.companyObjs = [];
@@ -698,7 +707,10 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
       toDate: this.filter.toDate || null,
 
       companyIds,
-      sessionIds: this.getSelectedIds(this.sessionObjs),
+       planTypes: this.planTypeObjs?.length
+        ? this.planTypeObjs.map((x: any) => x.id)
+        : null,
+      sessionIds: null,
       cuisineIds: this.getSelectedIds(this.cuisineObjs),
       locationIds: this.getSelectedIds(this.locationObjs),
 

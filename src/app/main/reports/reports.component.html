@@ -80,38 +80,35 @@
 
         <!-- Row 2 -->
         <div class="filter-grid filter-grid-bottom">
-          <div class="form-group">
-            <label>Session</label>
-            <ng-select
-              class="report-ng-select"
-              [ngClass]="{ 'has-selection': sessionObjs?.length }"
-              [items]="sessions"
-              bindLabel="name"
-              [(ngModel)]="sessionObjs"
-              name="sessionObjs"
-              [multiple]="true"
-              [closeOnSelect]="false"
-              [hideSelected]="true"
-              [clearable]="true"
-              [searchable]="true"
-              [searchWhileComposing]="true"
-              [clearSearchOnAdd]="true"
-              [clearOnBackspace]="true"
-              appendTo="body"
-              placeholder="All sessions">
+         <div class="form-group">
+          <label>Plan Type</label>
+          <ng-select
+            class="report-ng-select"
+            [ngClass]="{ 'has-selection': planTypeObjs?.length }"
+            [items]="planTypes"
+            bindLabel="name"
+            [(ngModel)]="planTypeObjs"
+            name="planTypeObjs"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [hideSelected]="true"
+            [clearable]="true"
+            [searchable]="true"
+            appendTo="body"
+            placeholder="All plan types">
 
-              <ng-template ng-multi-label-tmp let-items="items">
-                <div class="multi-chip-wrap" *ngIf="items?.length">
-                  <span class="multi-chip" *ngFor="let item of items">
-                    <span class="multi-chip-text">{{ item?.name }}</span>
-                    <span
-                      class="multi-chip-remove"
-                      (mousedown)="removeSelectedItem('sessionObjs', item, $event)">×</span>
-                  </span>
-                </div>
-              </ng-template>
-            </ng-select>
-          </div>
+            <ng-template ng-multi-label-tmp let-items="items">
+              <div class="multi-chip-wrap" *ngIf="items?.length">
+                <span class="multi-chip" *ngFor="let item of items">
+                  <span class="multi-chip-text">{{ item?.name }}</span>
+                  <span
+                    class="multi-chip-remove"
+                    (mousedown)="removeSelectedItem('planTypeObjs', item, $event)">×</span>
+                </span>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
 
           <div class="form-group">
             <label>Cuisine</label>
@@ -263,7 +260,7 @@
             <tr>
               <th>Company</th>
               <th>Date</th>
-              <th>Session</th>
+              <th>Plan Type</th>
               <th>Cuisine</th>
               <th>Location</th>
               <th class="text-right">Count</th>
@@ -275,7 +272,7 @@
             <tr *ngFor="let row of rows">
               <td>{{ row.companyName }}</td>
               <td>{{ row.reportDate | date:'dd-MM-yyyy' }}</td>
-              <td>{{ row.sessionName }}</td>
+              <td>{{ row.planType }}</td>
               <td>{{ row.cuisineName }}</td>
               <td>{{ row.locationName }}</td>
               <td class="text-right font-weight-bold">{{ row.count }}</td>
