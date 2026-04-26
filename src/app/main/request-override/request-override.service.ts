@@ -11,14 +11,24 @@ export class RequestOverrideService {
 
   constructor(private http: HttpClient) {}
 
-  getScreen(requestHeaderId: number, fromDate: string, toDate: string): Observable<any> {
-    const params = new HttpParams()
-      .set('requestHeaderId', requestHeaderId)
-      .set('fromDate', fromDate)
-      .set('toDate', toDate);
+getScreen(
+  requestHeaderId: number,
+  fromDate: string,
+  toDate: string,
+  requestOverrideId?: number   // 👈 ADD
+): Observable<any> {
 
-    return this.http.get<any>(`${this.apiUrl}/GetScreenData`, { params });
+  let params = new HttpParams()
+    .set('requestHeaderId', requestHeaderId)
+    .set('fromDate', fromDate)
+    .set('toDate', toDate);
+
+  if (requestOverrideId) {
+    params = params.set('requestOverrideId', requestOverrideId.toString());
   }
+
+  return this.http.get<any>(`${this.apiUrl}/GetScreenData`, { params });
+}
 
   save(payload: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/Save`, payload);

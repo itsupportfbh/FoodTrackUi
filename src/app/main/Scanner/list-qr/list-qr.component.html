@@ -67,13 +67,21 @@
         </ng-template>
       </ngx-datatable-column>
 
-      <ngx-datatable-column name="PlanType" prop="planType" [width]="220">
-        <ng-template ngx-datatable-cell-template let-row="row">
-          <span class="text-truncate d-block" [title]="row.planType || '-'">
-            {{ row.planType || '-' }}
-          </span>
-        </ng-template>
-      </ngx-datatable-column>
+     <ngx-datatable-column name="Plan Type" prop="planType" [width]="150">
+  <ng-template ngx-datatable-cell-template let-row="row">
+    <span
+      class="plan-badge"
+      [ngClass]="{
+        'plan-basic': (row.planType || '').toLowerCase() === 'basic',
+        'plan-standard': (row.planType || '').toLowerCase() === 'standard',
+        'plan-premium': (row.planType || '').toLowerCase() === 'premium'
+      }"
+      [title]="row.planType || '-'"
+    >
+      {{ row.planType || '-' }}
+    </span>
+  </ng-template>
+</ngx-datatable-column>
 
       <ngx-datatable-column name="QR VALID FROM" prop="qrValidFrom" [width]="160">
         <ng-template ngx-datatable-cell-template let-row="row">
