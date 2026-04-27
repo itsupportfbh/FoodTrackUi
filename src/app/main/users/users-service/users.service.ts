@@ -70,7 +70,7 @@ export class UsersService {
     return this.http.post<any>(`${this.apiUrl}/BulkUploadUsers`, formData);
   }
 
-  getCuisines(): Observable<any> {
-  return this.http.get<any>(`${environment.apiUrl}/Cuisine/GetCuisines`);
+  getCuisines(companyID : number): Observable<any> {
+  return this.http.get<any>(`${environment.apiUrl}/UserMaster/GetAllCuisine?companyId=${companyID}`);
 }
 }

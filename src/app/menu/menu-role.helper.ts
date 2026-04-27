@@ -17,25 +17,27 @@ export class MenuRoleHelper {
 
       case 2:
         return this.filterMenus([
-         
+
           'Request',
           'Order',
           'Reports',
           'qrgenerateList',
           'users',
-          'menu'
+          'menu',
+          'meal',
+          'showqr'
 
         ]);
 
       case 3:
         return this.filterMenus([
-           
+
           'Scanner'
         ]);
 
       case 4:
         return this.filterMenus([
-         
+
 
           'meal',
           'showqr'

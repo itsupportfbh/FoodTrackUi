@@ -15,7 +15,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private _router: Router,
     private _authenticationService: AuthenticationService
-  ) {}
+  ) { }
 
   private getStoredUser(): any {
     const currentUser =
@@ -48,7 +48,7 @@ export class AuthGuard implements CanActivate {
         cleanUrl.startsWith('/scanner/qrgenerate') ||
         cleanUrl.startsWith('/users/users-list') ||
         cleanUrl.startsWith('/users/users-create') ||
-          cleanUrl.startsWith('/menu/menu')
+        cleanUrl.startsWith('/menu/menu')
       );
     }
 
@@ -61,9 +61,11 @@ export class AuthGuard implements CanActivate {
         cleanUrl.startsWith('/catering/reports') ||
         cleanUrl.startsWith('/users/users-list') ||
         cleanUrl.startsWith('/users/users-create') ||
-           cleanUrl.startsWith('/menu/menu') ||
-                cleanUrl.startsWith('/scanner/qrgenerate') ||
-                cleanUrl.startsWith('/scanner/listqr') 
+        cleanUrl.startsWith('/menu/menu') ||
+        cleanUrl.startsWith('/scanner/qrgenerate') ||
+        cleanUrl.startsWith('/scanner/listqr') ||
+        cleanUrl.startsWith('/meal/meal-request') ||
+        cleanUrl.startsWith('/meal/show-qr')
       );
     }
 
@@ -71,7 +73,7 @@ export class AuthGuard implements CanActivate {
       return cleanUrl.startsWith('/scanner/scanner');
     }
 
-      if (roleId === 4) {
+    if (roleId === 4) {
       return (
         // isDashboardRoute ||
         // cleanUrl.startsWith('requestoverride/Request-override-list') ||
@@ -84,7 +86,7 @@ export class AuthGuard implements CanActivate {
         // cleanUrl.startsWith('/scanner/qrgenerate') ||
         // cleanUrl.startsWith('/scanner/listqr') ||
         cleanUrl.startsWith('/meal/meal-request') ||
-         cleanUrl.startsWith('/meal/show-qr')
+        cleanUrl.startsWith('/meal/show-qr')
       );
     }
     return false;
