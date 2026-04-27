@@ -522,14 +522,20 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
           </thead>
           <tbody>
             ${rowsHtml}
-            <tr>
-              <td colspan="8" class="text-right" style="font-weight:700; color:#6f3c2f;">
-                Grand Total (S$)
-              </td>
-              <td class="text-right" style="font-weight:700; color:#6f3c2f;">
-                ${this.getGrandTotalAmount().toFixed(2)}
-              </td>
-            </tr>
+       <tr>
+        <td colspan="6" class="text-right" style="font-weight:700; color:#6f3c2f;">
+          Total Count
+        </td>
+        <td class="text-right" style="font-weight:700; color:#6f3c2f;">
+          ${this.getGrandTotalCount()}
+        </td>
+        <td class="text-right" style="font-weight:700; color:#6f3c2f;">
+          Grand Total (S$)
+        </td>
+        <td colspan="2" class="text-right" style="font-weight:700; color:#6f3c2f;">
+          ${this.getGrandTotalAmount().toFixed(2)}
+        </td>
+      </tr>
           </tbody>
         </table>
       </body>
@@ -783,5 +789,8 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
   }
   getGrandTotalAmount(): number {
     return this.rows.reduce((sum: number, x: any) => sum + Number(x.totalAmount || 0), 0);
+  }
+    getGrandTotalCount(): number {
+    return this.rows.reduce((sum: number, x: any) => sum + Number(x.count || 0), 0);
   }
 }

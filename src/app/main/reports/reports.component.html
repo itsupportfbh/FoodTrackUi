@@ -279,8 +279,14 @@
               <td class="text-right font-weight-bold">{{ row.rate | number:'1.2-2' }}</td>
       <td class="text-right font-weight-bold">{{ row.totalAmount | number:'1.2-2' }}</td>
             </tr>
-              <tr *ngIf="rows.length > 0" class="grand-total-row">
-              <td colspan="7" class="text-right font-weight-bold">
+            <tr *ngIf="rows.length > 0" class="grand-total-row">
+              <td colspan="5" class="text-right font-weight-bold">
+                Total Count
+              </td>
+              <td class="text-right font-weight-bold">
+                {{ getGrandTotalCount() }}
+              </td>
+              <td class="text-right font-weight-bold">
                 Grand Total (S$)
               </td>
               <td class="text-right font-weight-bold">
