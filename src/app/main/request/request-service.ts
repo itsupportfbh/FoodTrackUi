@@ -55,4 +55,10 @@ getDefaultPlanRates(): Observable<any> {
   return this.http.get<any>(`${environment.apiUrl}/CuisinePrice/GetDefaultPlanRates`);
 }
 
+getLockedPlanTypes(requestId: number): Observable<any> {
+  return this.http.get<any>(
+    `${environment.apiUrl}/QrCodeRequest/GetLockedPlanTypes?requestId=${requestId}`
+  );
+}
+
 }
