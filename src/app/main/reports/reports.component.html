@@ -176,7 +176,29 @@
             </ng-select>
           </div>
         </div>
+<div class="report-type-row">
+  <label class="report-type-label">Report Type</label>
 
+  <label class="report-radio">
+    <input
+      type="radio"
+      name="reportType"
+      value="Detailed"
+      [(ngModel)]="reportType"
+    />
+    <span>Detailed</span>
+  </label>
+
+  <label class="report-radio">
+    <input
+      type="radio"
+      name="reportType"
+      value="Summary"
+      [(ngModel)]="reportType"
+    />
+    <span>Summary</span>
+  </label>
+</div>
         <div class="action-row compact-action-row">
           <button type="button" class="btn btn-primary action-btn" (click)="loadReport(true)">
             <i data-feather="search" class="mr-50"></i>
@@ -256,48 +278,74 @@
 
       <div class="table-responsive report-table-wrap">
         <table class="table report-table mb-0">
-          <thead>
-            <tr>
-              <th>Company</th>
-              <th>Date</th>
-              <th>Plan Type</th>
-              <th>Cuisine</th>
-              <th>Location</th>
-              <th class="text-right">Count</th>
-              <th class="text-right">Rate (S$)</th>
-              <th class="text-right">Total (S$)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let row of rows">
-              <td>{{ row.companyName }}</td>
-              <td>{{ row.reportDate | date:'dd-MM-yyyy' }}</td>
-              <td>{{ row.planType }}</td>
-              <td>{{ row.cuisineName }}</td>
-              <td>{{ row.locationName }}</td>
-              <td class="text-right font-weight-bold">{{ row.count }}</td>
-              <td class="text-right font-weight-bold">{{ row.rate | number:'1.2-2' }}</td>
-      <td class="text-right font-weight-bold">{{ row.totalAmount | number:'1.2-2' }}</td>
-            </tr>
-            <tr *ngIf="rows.length > 0" class="grand-total-row">
-              <td colspan="5" class="text-right font-weight-bold">
-                Total Count
-              </td>
-              <td class="text-right font-weight-bold">
-                {{ getGrandTotalCount() }}
-              </td>
-              <td class="text-right font-weight-bold">
-                Grand Total (S$)
-              </td>
-              <td class="text-right font-weight-bold">
-                {{ getGrandTotalAmount() | number:'1.2-2' }}
-              </td>
-            </tr>
-            
-            <tr *ngIf="rows.length === 0">
-              <td colspan="8" class="text-center text-muted py-3">No data available</td>
-            </tr>
-          </tbody>
+         <thead>
+  <tr *ngIf="reportType === 'Detailed'">
+    <th>Company</th>
+    <th>Date</th>
+    <th>Plan Type</th>
+    <th>Cuisine</th>
+    <th>Location</th>
+    <th class="text-right">Count</th>
+    <th class="text-right">Rate (S$)</th>
+    <th class="text-right">Total (S$)</th>
+  </tr>
+
+  <tr *ngIf="reportType === 'Summary'">
+    <th>Company</th>
+    <th>Plan Type</th>
+    <th>Cuisine</th>
+    <th>Location</th>
+    <th class="text-right">Count</th>
+    <th class="text-right">Total (S$)</th>
+  </tr>
+</thead>
+
+<tbody>
+  <ng-container *ngIf="rows.length > 0">
+
+    <tr *ngFor="let row of rows">
+      <ng-container *ngIf="reportType === 'Detailed'">
+        <td>{{ row.companyName }}</td>
+        <td>{{ row.reportDate | date:'dd-MM-yyyy' }}</td>
+        <td>{{ row.planType }}</td>
+        <td>{{ row.cuisineName }}</td>
+        <td>{{ row.locationName }}</td>
+        <td class="text-right font-weight-bold">{{ row.count }}</td>
+        <td class="text-right font-weight-bold">{{ row.rate | number:'1.2-2' }}</td>
+        <td class="text-right font-weight-bold">{{ row.totalAmount | number:'1.2-2' }}</td>
+      </ng-container>
+
+      <ng-container *ngIf="reportType === 'Summary'">
+        <td>{{ row.companyName }}</td>
+        <td>{{ row.planType }}</td>
+        <td>{{ row.cuisineName }}</td>
+        <td>{{ row.locationName }}</td>
+        <td class="text-right font-weight-bold">{{ row.count }}</td>
+        <td class="text-right font-weight-bold">{{ row.totalAmount | number:'1.2-2' }}</td>
+      </ng-container>
+    </tr>
+
+    <tr class="grand-total-row" *ngIf="reportType === 'Detailed'">
+      <td colspan="5" class="text-right font-weight-bold">Total Count</td>
+      <td class="text-right font-weight-bold">{{ getGrandTotalCount() }}</td>
+      <td class="text-right font-weight-bold">Grand Total (S$)</td>
+      <td class="text-right font-weight-bold">{{ getGrandTotalAmount() | number:'1.2-2' }}</td>
+    </tr>
+
+    <tr class="grand-total-row" *ngIf="reportType === 'Summary'">
+      <td colspan="4" class="text-right font-weight-bold">Total Count</td>
+      <td class="text-right font-weight-bold">{{ getGrandTotalCount() }}</td>
+      <td class="text-right font-weight-bold">{{ getGrandTotalAmount() | number:'1.2-2' }}</td>
+    </tr>
+
+  </ng-container>
+
+  <tr *ngIf="rows.length === 0">
+    <td [attr.colspan]="reportType === 'Detailed' ? 8 : 6" class="text-center text-muted py-3">
+      No data available
+    </td>
+  </tr>
+</tbody>
         </table>
       </div>
     </div>
