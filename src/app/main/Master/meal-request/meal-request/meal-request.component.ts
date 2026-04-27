@@ -191,7 +191,7 @@ export class MealRequestComponent implements OnInit {
 
 
   gotoshowqr(){
-    this.router.navigate(['/master/priceLists']);
+    this.router.navigate(['/meal/show-qr']);
   }
   resetToToday(): void {
     const today = this.getTodayDateString();

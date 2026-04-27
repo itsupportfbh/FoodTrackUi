@@ -86,19 +86,31 @@ export class CreateUsersComponent implements OnInit, OnChanges {
     }
   }
   loadCuisineList(): void {
-  this._usersService.getCuisines().subscribe({
+     const companyId = Number(this.companyId  || 0);
+
+  if (companyId <= 0) {
+    this.cuisineList = [];
+    return;
+  }
+  this._usersService.getCuisines(companyId).subscribe({
     next: (res: any) => {
       this.cuisineList = (res?.data || res || [])
+      
+      
         .filter((x: any) => x.isActive === true || x.isActive === 1)
         .map((x: any) => ({
           id: Number(x.id),
           cuisineName: x.cuisineName || x.name || ''
         }));
+
     },
+    
     error: () => {
       this.cuisineList = [];
     }
   });
+  console.log(this.cuisineList);
+  
 }
 
   get passwordMismatch(): boolean {
@@ -114,6 +126,9 @@ export class CreateUsersComponent implements OnInit, OnChanges {
       localStorage.getItem('roleId') ||
       localStorage.getItem('RoleId') ||
       localStorage.getItem('roleID');
+
+      console.log(  localStorage.getItem('roleId'),  localStorage.getItem('RoleId'), localStorage.getItem('roleID'));
+      
 
     const companyIdFromStorage =
       localStorage.getItem('companyId') ||
@@ -273,7 +288,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
           this.companyName = user.companyName || '';
           this.filterRolesForLoggedInUser();
         } else {
-          this.roleId = 4;
+           this.roleId = user.roleId ? Number(user.roleId) : 4;
           this.companyId = this.loginCompanyId || user.companyId || null;
           this.selectedCompanyId = this.loginCompanyId || user.companyId || null;
           this.companyName = this.loginCompanyName || user.companyName || '';
@@ -353,129 +368,140 @@ export class CreateUsersComponent implements OnInit, OnChanges {
     }
   }
 
-  submit(form: any): void {
-    if (!form.valid) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Please fill all required fields'
-      });
-      return;
-    }
+ submit(form: any): void {
+  debugger
+  if (!form.valid) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Fields',
+      text: 'Please fill all required fields'
+    });
+    return;
+  }
 
-    if (!this.planType) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Plan Type is required'
-      });
-      return;
-    }
-    if (!this.cuisineId) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Cuisine is required'
-      });
-      return;
-    }
-    if (this.passwordMismatch) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Password and Confirm Password must match'
-      });
-      return;
-    }
+  if (!this.planType) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Fields',
+      text: 'Plan Type is required'
+    });
+    return;
+  }
 
-    const finalCompanyId = this.getFinalCompanyId();
+  if (!this.cuisineId) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Fields',
+      text: 'Cuisine is required'
+    });
+    return;
+  }
 
-    if (!finalCompanyId || finalCompanyId <= 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Company is required'
-      });
-      return;
-    }
+  if (this.passwordMismatch) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Fields',
+      text: 'Password and Confirm Password must match'
+    });
+    return;
+  }
 
-    if (!this.isEditMode && !this.password) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Password is required'
-      });
-      return;
-    }
+  const finalCompanyId = this.getFinalCompanyId();
 
-    const finalRoleId = this.isSuperAdmin ? this.roleId : 4;
+  if (!finalCompanyId || finalCompanyId <= 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Fields',
+      text: 'Company is required'
+    });
+    return;
+  }
 
-    if (!finalRoleId || finalRoleId <= 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Role is required'
-      });
-      return;
-    }
+  if (!this.isEditMode && !this.password) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Fields',
+      text: 'Password is required'
+    });
+    return;
+  }
 
-    const payload: UserMasterPayload = {
-      id: this.id || undefined,
-      companyId: finalCompanyId,
-      roleId: finalRoleId,
-      username: this.username ? this.username.trim() : '',
-      email: this.email ? this.email.trim() : '',
-      password: this.password ? this.password.trim() : '',
-      planType: this.planType,
-      cuisineId: this.cuisineId,
-      isActive: this.isActive,
-      isDelete: this.isDelete,
-      createdBy: this.loginUserId || 1,
-      updatedBy: this.loginUserId || 1
-    };
+  // IMPORTANT:
+  // SuperAdmin -> selected role pass
+  // Admin create -> role 4 pass
+  // Admin update -> existing/loaded roleId pass
+  const finalRoleId = this.isSuperAdmin
+    ? Number(this.roleId || 0)
+    : this.isEditMode
+      ? Number(this.roleId || 4)
+      : 4;
 
-    this.isSubmitting = true;
+  if (!finalRoleId || finalRoleId <= 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Fields',
+      text: 'Role is required'
+    });
+    return;
+  }
 
-    const request$ = this.isEditMode
-      ? this._usersService.updateUser(payload)
-      : this._usersService.createUser(payload);
+  const payload: UserMasterPayload = {
+    id: this.id || undefined,
+    companyId: finalCompanyId,
+    roleId: finalRoleId,
+    username: this.username ? this.username.trim() : '',
+    email: this.email ? this.email.trim() : '',
+    password: this.password ? this.password.trim() : '',
+    planType: this.planType,
+    cuisineId: this.cuisineId,
+    isActive: this.isActive,
+    isDelete: this.isDelete,
+    createdBy: this.loginUserId || 1,
+    updatedBy: this.loginUserId || 1
+  };
 
-    request$.subscribe({
-      next: (res: any) => {
-        this.isSubmitting = false;
+  this.isSubmitting = true;
 
-        if (res?.status || res?.isSuccess) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            showConfirmButton: false,
-            timer: 1500,
-            text: res?.message || (this.isEditMode ? 'User updated successfully' : 'User created successfully')
-          });
+  const request$ = this.isEditMode
+    ? this._usersService.updateUser(payload)
+    : this._usersService.createUser(payload);
 
-          this.userSaved.emit();
-          form.resetForm();
-          this.prepareCreateDefaults();
-          this.toggleSidebar('new-user-sidebar');
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: res?.message || (this.isEditMode ? 'Failed to update user' : 'Failed to create user')
-          });
-        }
-      },
-      error: (err: HttpErrorResponse) => {
-        this.isSubmitting = false;
+  request$.subscribe({
+    next: (res: any) => {
+      this.isSubmitting = false;
 
+      if (res?.status || res?.isSuccess) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          showConfirmButton: false,
+          timer: 1500,
+          text: res?.message || (this.isEditMode ? 'User updated successfully' : 'User created successfully')
+        });
+
+        this.userSaved.emit();
+        form.resetForm();
+        this.prepareCreateDefaults();
+        this.toggleSidebar('new-user-sidebar');
+      } else {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: err?.error?.message || (this.isEditMode ? 'Failed to update user' : 'Failed to create user')
+          text: res?.message || (this.isEditMode ? 'Failed to update user' : 'Failed to create user')
         });
       }
-    });
-  }
+    },
+    error: (err: HttpErrorResponse) => {
+      this.isSubmitting = false;
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err?.error?.message || (this.isEditMode ? 'Failed to update user' : 'Failed to create user')
+      });
+    }
+  });
+}
 
   resetFormState(form?: any): void {
     if (form) {
