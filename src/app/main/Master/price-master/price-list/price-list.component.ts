@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, ViewEncapsulation } from '@angular/core';
 import { CuisinePriceService } from '../cuisine-price.service';
 import Swal from 'sweetalert2';
 import * as feather from 'feather-icons';
@@ -15,6 +15,7 @@ interface PriceListRow {
   rate: number;
   effectiveFrom: string;
   isCurrent: boolean;
+  actionType?: string;
 }
 
 interface PlanCard {
@@ -23,6 +24,7 @@ interface PlanCard {
   perDay: number;
   monthly: number;
   effectiveFromDisplay: string;
+  isFuture: boolean;
 }
 
 @Component({
@@ -31,7 +33,7 @@ interface PlanCard {
   styleUrls: ['./price-list.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class PriceListComponent implements OnInit {
+export class PriceListComponent implements OnInit, AfterViewChecked {
   loading = false;
 
   summary: any = null;
@@ -55,20 +57,21 @@ export class PriceListComponent implements OnInit {
 
     this.priceService.getPriceList().subscribe({
       next: (res: any) => {
-        const rawRows: PriceListRow[] = (res || [])
-          .map((item: any) => ({
-            id: Number(item.id || 0),
-            priceId: Number(item.priceId || 0),
-            companyId: Number(item.companyId || 0),
-            companyName: item.companyName || '',
-            sessionId: Number(item.sessionId || 0),
-            sessionName: item.sessionName || '',
-            planType: item.planType || '',
-            rate: Number(item.rate || 0),
-            effectiveFrom: item.effectiveFrom,
-            isCurrent: !!item.isCurrent
-          }))
-          .filter((item: PriceListRow) => item.isCurrent);
+        const data = res?.data || res || [];
+
+        const rawRows: PriceListRow[] = data.map((item: any) => ({
+          id: Number(item.id || 0),
+          priceId: Number(item.priceId || 0),
+          companyId: Number(item.companyId || 0),
+          companyName: item.companyName || '',
+          sessionId: Number(item.sessionId || 0),
+          sessionName: item.sessionName || '',
+          planType: item.planType || '',
+          rate: Number(item.rate || 0),
+          effectiveFrom: item.effectiveFrom,
+          isCurrent: item.isCurrent === true,
+          actionType: item.actionType || ''
+        }));
 
         this.buildView(rawRows);
         this.loading = false;
@@ -121,7 +124,11 @@ export class PriceListComponent implements OnInit {
     const orderedPlans = ['Basic', 'Standard', 'Premium'];
 
     this.planCards = orderedPlans
-      .filter(plan => normalizedRows.some(x => this.normalizePlanType(x.planType) === this.normalizePlanType(plan)))
+      .filter(plan =>
+        normalizedRows.some(x =>
+          this.normalizePlanType(x.planType) === this.normalizePlanType(plan)
+        )
+      )
       .map(plan => {
         const planRows = normalizedRows.filter(
           x => this.normalizePlanType(x.planType) === this.normalizePlanType(plan)
@@ -155,10 +162,17 @@ export class PriceListComponent implements OnInit {
           uniqueDisplayRows.map(x => x.displaySessionName)
         );
 
-        const perDay = uniqueDisplayRows.reduce((sum, item) => sum + Number(item.rate || 0), 0);
+        const perDay = uniqueDisplayRows.reduce(
+          (sum, item) => sum + Number(item.rate || 0),
+          0
+        );
 
         const effectiveFrom = this.getEarliestDate(
           uniqueDisplayRows.map(x => x.effectiveFrom).filter(Boolean)
+        );
+
+        const isFuture = uniqueDisplayRows.some(
+          x => x.isCurrent === false || x.actionType === 'FUTURE'
         );
 
         return {
@@ -166,7 +180,8 @@ export class PriceListComponent implements OnInit {
           sessionNames: orderedSessionNames.join(', '),
           perDay,
           monthly: perDay * 30,
-          effectiveFromDisplay: effectiveFrom ? this.formatDate(effectiveFrom) : '-'
+          effectiveFromDisplay: effectiveFrom ? this.formatDate(effectiveFrom) : '-',
+          isFuture
         };
       });
   }
@@ -184,10 +199,16 @@ export class PriceListComponent implements OnInit {
   }
 
   formatDate(value: string): string {
+    if (!value) return '-';
+
     const d = new Date(value);
+
+    if (isNaN(d.getTime())) return '-';
+
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
+
     return `${day}-${month}-${year}`;
   }
 
@@ -236,9 +257,7 @@ export class PriceListComponent implements OnInit {
     let earliest: string | null = null;
 
     values.forEach(value => {
-      if (!value) {
-        return;
-      }
+      if (!value) return;
 
       if (!earliest) {
         earliest = value;
@@ -275,8 +294,12 @@ export class PriceListComponent implements OnInit {
     const order = ['Basic', 'Standard', 'Premium'];
 
     return [...plans].sort((a, b) => {
-      const ai = order.findIndex(x => this.normalizePlanType(x) === this.normalizePlanType(a));
-      const bi = order.findIndex(x => this.normalizePlanType(x) === this.normalizePlanType(b));
+      const ai = order.findIndex(
+        x => this.normalizePlanType(x) === this.normalizePlanType(a)
+      );
+      const bi = order.findIndex(
+        x => this.normalizePlanType(x) === this.normalizePlanType(b)
+      );
 
       if (ai === -1 && bi === -1) return a.localeCompare(b);
       if (ai === -1) return 1;
