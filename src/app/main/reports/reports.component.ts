@@ -62,6 +62,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
   ];
 
   planTypeObjs: any[] = [];
+  reportType: 'Detailed' | 'Summary' = 'Detailed';
 
   constructor(
     private reportService: ReportService,
@@ -268,6 +269,9 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
     const locationText = this.getNames(this.locationObjs, 'All Locations');
     const fromDateText = this.formatDateOnly(this.filter.fromDate);
     const toDateText = this.formatDateOnly(this.filter.toDate);
+    const reportTypeText = this.reportType === 'Summary'
+  ? 'Summary Report'
+  : 'Detailed Report';
 
     const sessionCuisineCardsHtml = (this.sessionCuisineTotals || [])
       .map(
@@ -296,22 +300,93 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
       .join('');
 
     const rowsHtml = (this.rows || [])
-      .map(
-        (row: any, index: number) => `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${this.escapeHtml(row.companyName || '')}</td>
-            <td>${this.formatDateOnly(row.reportDate)}</td>
-            <td>${this.escapeHtml(row.planType || '')}</td>
-            <td>${this.escapeHtml(row.cuisineName || '')}</td>
-            <td>${this.escapeHtml(row.locationName || '')}</td>
-            <td class="text-right">${Number(row.count || 0)}</td>
-            <td class="text-right">${Number(row.rate || 0).toFixed(2)}</td>
-            <td class="text-right">${Number(row.totalAmount || 0).toFixed(2)}</td>
-          </tr>
-        `
-      )
-      .join('');
+  .map((row: any, index: number) => {
+    if (this.reportType === 'Summary') {
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${this.escapeHtml(row.companyName || '')}</td>
+          <td>${this.escapeHtml(row.planType || '')}</td>
+          <td>${this.escapeHtml(row.cuisineName || '')}</td>
+          <td>${this.escapeHtml(row.locationName || '')}</td>
+          <td class="text-right">${Number(row.count || 0)}</td>
+          <td class="text-right">${Number(row.totalAmount || 0).toFixed(2)}</td>
+        </tr>
+      `;
+    }
+
+    return `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${this.escapeHtml(row.companyName || '')}</td>
+        <td>${this.formatDateOnly(row.reportDate)}</td>
+        <td>${this.escapeHtml(row.planType || '')}</td>
+        <td>${this.escapeHtml(row.cuisineName || '')}</td>
+        <td>${this.escapeHtml(row.locationName || '')}</td>
+        <td class="text-right">${Number(row.count || 0)}</td>
+        <td class="text-right">${Number(row.rate || 0).toFixed(2)}</td>
+        <td class="text-right">${Number(row.totalAmount || 0).toFixed(2)}</td>
+      </tr>
+    `;
+  })
+  .join('');
+
+  const tableHeadHtml = this.reportType === 'Summary'
+  ? `
+    <tr>
+      <th>S.No</th>
+      <th>Company</th>
+      <th>Plan Type</th>
+      <th>Cuisine</th>
+      <th>Location</th>
+      <th class="text-right">Count</th>
+      <th class="text-right">Total (S$)</th>
+    </tr>
+  `
+  : `
+    <tr>
+      <th>S.No</th>
+      <th>Company</th>
+      <th>Date</th>
+      <th>Plan Type</th>
+      <th>Cuisine</th>
+      <th>Location</th>
+      <th class="text-right">Count</th>
+      <th class="text-right">Rate (S$)</th>
+      <th class="text-right">Total (S$)</th>
+    </tr>
+  `;
+
+const totalRowHtml = this.reportType === 'Summary'
+  ? `
+    <tr>
+      <td colspan="5" class="text-right" style="font-weight:700; color:#6f3c2f;">
+        Total Count
+      </td>
+      <td class="text-right" style="font-weight:700; color:#6f3c2f;">
+        ${this.getGrandTotalCount()}
+      </td>
+      <td class="text-right" style="font-weight:700; color:#6f3c2f;">
+        ${this.getGrandTotalAmount().toFixed(2)}
+      </td>
+    </tr>
+  `
+  : `
+    <tr>
+      <td colspan="6" class="text-right" style="font-weight:700; color:#6f3c2f;">
+        Total Count
+      </td>
+      <td class="text-right" style="font-weight:700; color:#6f3c2f;">
+        ${this.getGrandTotalCount()}
+      </td>
+      <td class="text-right" style="font-weight:700; color:#6f3c2f;">
+        Grand Total (S$)
+      </td>
+      <td class="text-right" style="font-weight:700; color:#6f3c2f;">
+        ${this.getGrandTotalAmount().toFixed(2)}
+      </td>
+    </tr>
+  `;
 
     return `
       <!DOCTYPE html>
@@ -464,8 +539,8 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
       </head>
       <body>
         <div class="report-header">
-          <h1 class="report-title">Report By Dates</h1>
-          <p class="report-subtitle">Company-wise food request report</p>
+          <h1 class="report-title">Report By Dates - ${reportTypeText}</h1>
+<p class="report-subtitle">Company-wise food request ${reportTypeText.toLowerCase()}</p>
         </div>
 
         <div class="filter-box">
@@ -494,6 +569,10 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
               <div class="filter-label">Location</div>
               <div class="filter-value">${this.escapeHtml(locationText)}</div>
             </div>
+            <div class="filter-item">
+              <div class="filter-label">Report Type</div>
+              <div class="filter-value">${this.escapeHtml(reportTypeText)}</div>
+            </div>
           </div>
         </div>
 
@@ -507,36 +586,13 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
         </div>
 
         <table>
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Company</th>
-              <th>Date</th>
-              <th>Plan Type</th>
-              <th>Cuisine</th>
-              <th>Location</th>
-              <th class="text-right">Count</th>
-              <th class="text-right">Rate (S$)</th>
-              <th class="text-right">Total (S$)</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHtml}
-       <tr>
-        <td colspan="6" class="text-right" style="font-weight:700; color:#6f3c2f;">
-          Total Count
-        </td>
-        <td class="text-right" style="font-weight:700; color:#6f3c2f;">
-          ${this.getGrandTotalCount()}
-        </td>
-        <td class="text-right" style="font-weight:700; color:#6f3c2f;">
-          Grand Total (S$)
-        </td>
-        <td colspan="2" class="text-right" style="font-weight:700; color:#6f3c2f;">
-          ${this.getGrandTotalAmount().toFixed(2)}
-        </td>
-      </tr>
-          </tbody>
+       <thead>
+  ${tableHeadHtml}
+</thead>
+<tbody>
+  ${rowsHtml}
+  ${totalRowHtml}
+</tbody>
         </table>
       </body>
       </html>
@@ -644,7 +700,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
 
     this.emailForm = {
       toEmail: '',
-      subject: 'CSPL Food Track Report | Date-wise Summary',
+      subject: 'CSPL Food Track Report ',
       body: [
         'Dear Sir/Madam,',
         '',
@@ -717,7 +773,7 @@ export class ReportsComponent implements OnInit, AfterViewInit, AfterViewChecked
       userId: this.userId,
       fromDate: this.filter.fromDate || null,
       toDate: this.filter.toDate || null,
-
+      reportType: this.reportType,
       companyIds,
        planTypes: this.planTypeObjs?.length
         ? this.planTypeObjs.map((x: any) => x.id)

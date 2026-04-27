@@ -695,3 +695,34 @@
     transform: translateY(0) scale(1);
   }
 }
+.report-type-row {
+  margin-top: 40px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.report-type-label {
+  margin-bottom: 0;
+  font-size: 13px;
+  font-weight: 500;
+  
+}
+
+.report-radio {
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  
+  cursor: pointer;
+}
+
+.report-radio input {
+  width: 16px;
+  height: 16px;
+  
+}
