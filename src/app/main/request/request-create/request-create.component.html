@@ -64,125 +64,151 @@
           />
         </div>
       </div>
+
       <div class="plan-section-wrapper">
-  <div class="form-group plan-selection-group">
-  <label>Select Plan <span class="text-danger">*</span></label>
+        <div class="form-group plan-selection-group">
+          <label>Select Plan <span class="text-danger">*</span></label>
 
-  <div class="plan-checkbox-row">
-    <label class="plan-checkbox-option" *ngFor="let plan of plans">
-      <input
-        type="checkbox"
-        [value]="plan"
-        (change)="onPlanToggle(plan, $event)"
-        [checked]="selectedPlans.includes(plan)"
-      />
-      <span>{{ plan }}</span>
-    </label>
-  </div>
-</div>
+          <div class="plan-checkbox-row">
+            <label
+              class="plan-checkbox-option"
+              *ngFor="let plan of plans"
+              [class.locked-plan]="isEditMode && isPlanLocked(plan)"
+            >
+              <input
+                type="checkbox"
+                [value]="plan"
+                (change)="onPlanToggle(plan, $event)"
+                [checked]="selectedPlans.includes(plan)"
+                [disabled]="isEditMode && isPlanLocked(plan)"
+              />
+              <span>{{ plan }}</span>
 
-  <div class="plan-rate-preview-card" *ngIf="planRateCards && planRateCards.length > 0">
-    <div class="plan-rate-preview-header">
-      <h6 class="mb-0">Plan Rate Details</h6>
-      <small class="text-muted">User can check plan before placing order</small>
-    </div>
+              <small
+                *ngIf="isEditMode && isPlanLocked(plan)"
+                class="text-danger ml-50"
+              >
+                Locked
+              </small>
+            </label>
+          </div>
 
-    <div class="plan-rate-grid">
-      <div
-        class="plan-rate-item"
-        *ngFor="let plan of planRateCards"
-        [class.active]="selectedPlans.includes(plan.planType)"
-      >
-        <div class="plan-rate-title" [ngClass]="plan.planType.toLowerCase()">
-          {{ plan.planType }}
+          <small *ngIf="isEditMode && lockedPlanTypes.length > 0" class="text-danger d-block mt-50">
+            QR Pending / Approved plan cannot be edited. Super Admin reject pannina mattum edit enable agum.
+          </small>
         </div>
 
-        <div class="plan-rate-line" *ngFor="let rate of plan.sessionRates">
-          <span class="session-name">{{ rate.sessionName }}</span>
-          <span class="session-rate">S$ {{ rate.rate | number:'1.2-2' }}</span>
-        </div>
-        <div class="plan-rate-line total-line">
-          <span>Per Day</span>
-          <span>S$ {{ getPreviewPerDay(plan) | number:'1.2-2' }}</span>
-        </div>
+        <div class="plan-rate-preview-card" *ngIf="planRateCards && planRateCards.length > 0">
+          <div class="plan-rate-preview-header">
+            <h6 class="mb-0">Plan Rate Details</h6>
+            <small class="text-muted">User can check plan before placing order</small>
+          </div>
 
-        <div class="plan-rate-line total-line">
-          <span>Monthly Price</span>
-          <span>S$ {{ getPreviewMonthly(plan) | number:'1.2-2' }}</span>
-        </div>
+          <div class="plan-rate-grid">
+            <div
+              class="plan-rate-item"
+              *ngFor="let plan of planRateCards"
+              [class.active]="selectedPlans.includes(plan.planType)"
+            >
+              <div class="plan-rate-title" [ngClass]="plan.planType.toLowerCase()">
+                {{ plan.planType }}
+              </div>
 
-        <div class="plan-rate-line total-line">
-          <span>Effective From</span>
-          <span>{{ toDisplayDate(plan.effectiveFrom) }}</span>
+              <div class="plan-rate-line" *ngFor="let rate of plan.sessionRates">
+                <span class="session-name">{{ rate.sessionName }}</span>
+                <span class="session-rate">S$ {{ rate.rate | number:'1.2-2' }}</span>
+              </div>
+
+              <div class="plan-rate-line total-line">
+                <span>Per Day</span>
+                <span>S$ {{ getPreviewPerDay(plan) | number:'1.2-2' }}</span>
+              </div>
+
+              <div class="plan-rate-line total-line">
+                <span>Monthly Price</span>
+                <span>S$ {{ getPreviewMonthly(plan) | number:'1.2-2' }}</span>
+              </div>
+
+              <div class="plan-rate-line total-line">
+                <span>Effective From</span>
+                <span>{{ toDisplayDate(plan.effectiveFrom) }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
 
-    <div class="accordion-wrapper">
-  <div class="session-accordion" *ngFor="let group of planGroups; let gi = index">
-    <button
-      type="button"
-      class="accordion-header"
-      (click)="toggleAccordion(group)"
-    >
-      <div class="accordion-title-wrap">
-        <span class="accordion-title">{{ group.planType }}</span>
-        <span class="accordion-count">{{ group.lines.length }} cuisines</span>
+      <div class="accordion-wrapper">
+        <div class="session-accordion" *ngFor="let group of planGroups; let gi = index">
+          <button
+            type="button"
+            class="accordion-header"
+            (click)="toggleAccordion(group)"
+          >
+            <div class="accordion-title-wrap">
+              <span class="accordion-title">{{ group.planType }}</span>
+              <span class="accordion-count">{{ group.lines.length }} cuisines</span>
+
+              <span
+                *ngIf="isEditMode && isPlanLocked(group.planType)"
+                class="badge badge-warning ml-1"
+              >
+                QR Pending / Approved - Edit Disabled
+              </span>
+            </div>
+
+            <span class="accordion-icon" [class.open]="group.isOpen">
+              <i data-feather="chevron-down"></i>
+            </span>
+          </button>
+
+          <div class="accordion-body" *ngIf="group.isOpen">
+            <div class="table-responsive create-table-wrap">
+              <table class="table create-line-table mb-0">
+                <thead>
+                  <tr>
+                    <th class="cuisine-col">Cuisine</th>
+                    <th class="qty-col">Qty</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let line of group.lines; let li = index">
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm create-input readonly-input"
+                        [ngModel]="line.cuisineName"
+                        [name]="'cuisine_' + gi + '_' + li"
+                        readonly
+                      />
+                    </td>
+
+                    <td>
+                      <input
+                        type="number"
+                        min="0"
+                        class="form-control form-control-sm create-input"
+                        [(ngModel)]="line.qty"
+                        [name]="'qty_' + gi + '_' + li"
+                        (input)="onLineChange()"
+                        placeholder="Enter qty"
+                        [disabled]="isEditMode && isPlanLocked(group.planType)"
+                      />
+                    </td>
+                  </tr>
+
+                  <tr *ngIf="!group.lines || group.lines.length === 0">
+                    <td colspan="2" class="text-center text-muted py-2">
+                      No cuisines available
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <span class="accordion-icon" [class.open]="group.isOpen">
-        <i data-feather="chevron-down"></i>
-      </span>
-    </button>
-
-    <div class="accordion-body" *ngIf="group.isOpen">
-      <div class="table-responsive create-table-wrap">
-        <table class="table create-line-table mb-0">
-          <thead>
-            <tr>
-              <th class="cuisine-col">Cuisine</th>
-              <th class="qty-col">Qty</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr *ngFor="let line of group.lines; let li = index">
-              <td>
-                <input
-                  type="text"
-                  class="form-control form-control-sm create-input readonly-input"
-                  [ngModel]="line.cuisineName"
-                  [name]="'cuisine_' + gi + '_' + li"
-                  readonly
-                />
-              </td>
-
-              <td>
-                <input
-                  type="number"
-                  min="0"
-                  class="form-control form-control-sm create-input"
-                  [(ngModel)]="line.qty"
-                  [name]="'qty_' + gi + '_' + li"
-                  (input)="onLineChange()"
-                  placeholder="Enter qty"
-                />
-              </td>
-            </tr>
-
-            <tr *ngIf="!group.lines || group.lines.length === 0">
-              <td colspan="2" class="text-center text-muted py-2">
-                No cuisines available
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
 
       <div class="form-actions">
         <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()">
