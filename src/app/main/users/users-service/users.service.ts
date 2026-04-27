@@ -60,11 +60,12 @@ export class UsersService {
     return this.http.get<ApiResponse<any>>(`${this.apiUrl}/GetRoles`);
   }
 
-  downloadUserTemplate(): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/DownloadUserTemplate`, {
-      responseType: 'blob'
-    });
-  }
+downloadUserTemplate(companyId: number): Observable<Blob> {
+  return this.http.get(
+    `${environment.apiUrl}/UserMaster/DownloadUserTemplate?companyId=${companyId}`,
+    { responseType: 'blob' }
+  );
+}
 
   bulkUploadUsers(formData: FormData): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/BulkUploadUsers`, formData);

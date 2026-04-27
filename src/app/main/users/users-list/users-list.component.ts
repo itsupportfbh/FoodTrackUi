@@ -52,36 +52,45 @@ export class UsersListComponent implements OnInit {
     }, 0);
   }
 
-  loadCurrentUser(): void {
-    const currentUserRaw = localStorage.getItem('currentUser');
+loadCurrentUser(): void {
+  const currentUserRaw =
+    localStorage.getItem('currentUser') ||
+    sessionStorage.getItem('currentUser');
 
-    let currentUser: any = null;
+  let currentUser: any = null;
 
-    try {
-      currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : null;
-    } catch {
-      currentUser = null;
-    }
-
-    this.currentUserId = Number(
-      localStorage.getItem('id') ||
-        localStorage.getItem('userId') ||
-        currentUser?.id ||
-        0
-    );
-
-    this.currentRoleId = Number(
-      localStorage.getItem('roleId') ||
-        currentUser?.roleId ||
-        0
-    );
-
-    this.currentCompanyId = Number(
-      localStorage.getItem('companyId') ||
-        currentUser?.companyId ||
-        0
-    );
+  try {
+    currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : null;
+  } catch {
+    currentUser = null;
   }
+
+  this.currentUserId = Number(
+    localStorage.getItem('id') ||
+      localStorage.getItem('userId') ||
+      currentUser?.id ||
+      currentUser?.Id ||
+      0
+  );
+
+  this.currentRoleId = Number(
+    localStorage.getItem('roleId') ||
+      localStorage.getItem('RoleId') ||
+      currentUser?.roleId ||
+      currentUser?.RoleId ||
+      0
+  );
+
+  this.currentCompanyId = Number(
+    localStorage.getItem('companyId') ||
+      localStorage.getItem('CompanyId') ||
+      currentUser?.companyId ||
+      currentUser?.CompanyId ||
+      0
+  );
+
+  console.log('Template CompanyId:', this.currentCompanyId);
+}
 
   getAllUsers(): void {
     this.loading = true;
@@ -192,28 +201,30 @@ export class UsersListComponent implements OnInit {
     XLSX.writeFile(workbook, 'User_List.xlsx');
   }
 
-  downloadUserTemplate(): void {
-    this._usersService.downloadUserTemplate().subscribe({
-      next: (res: Blob) => {
-        const blob = new Blob([res], {
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        });
+downloadUserTemplate(): void {
+  console.log('currentCompanyId before download:', this.currentCompanyId);
 
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+  this._usersService.downloadUserTemplate(this.currentCompanyId).subscribe({
+    next: (res: Blob) => {
+      const blob = new Blob([res], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
 
-        a.href = url;
-        a.download = 'User_Template.xlsx';
-        a.click();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
 
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => {
-        Swal.fire('Error', 'Template download failed', 'error');
-      }
-    });
-  }
+      a.href = url;
+      a.download = 'User_Template.xlsx';
+      a.click();
 
+      window.URL.revokeObjectURL(url);
+    },
+    error: (err) => {
+      console.error('download error:', err);
+      Swal.fire('Error', err?.error?.message || 'Template download failed', 'error');
+    }
+  });
+}
   openBulkUploadModal(): void {
     this.selectedBulkFile = null;
     this.showBulkUploadModal = true;
