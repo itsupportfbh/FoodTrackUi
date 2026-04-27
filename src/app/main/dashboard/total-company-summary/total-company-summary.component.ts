@@ -6,7 +6,7 @@ interface SummaryCard {
   value: string;
   subtitle?: string;
   icon: string;
-  theme: 'primary' | 'info' | 'pink' | 'success';
+  theme: 'primary' | 'info' | 'pink' | 'success' | 'warning' | 'purple';
 }
 
 @Component({
@@ -28,38 +28,45 @@ export class TotalCompanySummaryComponent implements OnChanges, AfterViewInit {
     feather.replace();
   }
 
-  bindSummary(): void {
+bindSummary(): void {
   const res = this.dashboardData || {};
+
+  const totalCompanies = Number(res.totalCompanies ?? 0);
+  const totalOrders = Number(res.totalOrders ?? 0);
+  const approvedQty = Number(res.monthOrderedQty ?? res.totalQRCodes ?? 0);
+  const redeemedQty = Number(res.monthRedeemedQty ?? res.todayScans ?? 0);
+  const pendingQty = Number(res.monthPendingQty ?? Math.max(0, approvedQty - redeemedQty));
   const totalPrice = Number(res.totalPrice ?? 0);
 
   this.summaryCards = [
     {
       title: 'Companies',
-      value: String(res.totalCompanies ?? 0),
+      value: String(totalCompanies),
+      subtitle: 'active companies',
       icon: 'briefcase',
       theme: 'primary'
     },
     {
-      title: 'Today Redeemed',
-      value: String(res.todayRedeemedQty ?? res.todayScans ?? 0),
-      subtitle: `${res.todayOrderedQty ?? 0} ordered today`,
-      icon: 'check-circle',
+      title: 'Total Orders',
+      value: String(totalOrders),
+      subtitle: `${approvedQty} approved QR`,
+      icon: 'file-text',
       theme: 'info'
     },
     {
-      title: 'Month Orders',
-      value: String(res.monthOrderedQty ?? 0),
-      subtitle: `${res.monthPendingQty ?? 0} pending`,
-      icon: 'bar-chart-2',
+      title: 'Approved QR',
+      value: String(approvedQty),
+      subtitle: `${redeemedQty} redeemed · ${pendingQty} pending`,
+      icon: 'check-square',
       theme: 'pink'
     },
     {
-      title: 'Total Price',
+      title: 'Revenue',
       value: `S$ ${totalPrice.toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       })}`,
-      subtitle: `${Number(res.monthOrderedQty ?? 0).toLocaleString()} qty`,
+      subtitle: `${approvedQty} qty`,
       icon: 'dollar-sign',
       theme: 'success'
     }

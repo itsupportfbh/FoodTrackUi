@@ -47,63 +47,44 @@ export class PriceOverviewComponent implements OnChanges {
   }
 
   loadPriceOverview(): void {
-    this.loading = true;
+  this.loading = true;
 
-    const dashboard = this.dashboardData || {};
-    const sessionRows = this.getFilteredSessionRows();
+  const dashboard = this.dashboardData || {};
+  const breakdown = dashboard.sessionPriceBreakdown || [];
 
-    // backend final total
-    this.totalPrice = Number(dashboard.totalPrice || 0);
+  const computedRows: PriceOverviewItem[] = breakdown
+    .map((row: any) => {
+      const planType = String(row.planType || row.sessionName || '').trim();
+      const qty = Number(row.qty || row.totalQty || 0);
+      const totalPrice = Number(row.totalPrice || 0);
 
-   const breakdown = dashboard.sessionPriceBreakdown || [];
+      return {
+        label: planType,
+        sessionId: 0,
+        session: planType,
+        qty,
+        totalPrice,
+        percent: 0
+      };
+    })
+    .filter((item: PriceOverviewItem) => item.qty > 0)
+    .sort((a: PriceOverviewItem, b: PriceOverviewItem) => b.qty - a.qty);
 
-   const computedRows: PriceOverviewItem[] = sessionRows
-      .map((row: any) => {
-        const sessionName = String(row.sessionName || row.label || '').trim();
-        const sessionId = Number(row.sessionId || row.id || 0);
-        const qty = Number(row.totalQty || row.qty || 0);
+  this.totalQty = computedRows.reduce((sum, item) => sum + item.qty, 0);
+  this.totalPrice = Number(dashboard.totalPrice || 0);
 
-        // match backend session total
-        const match = breakdown.find(
-          (b: any) =>
-            b.sessionId === sessionId ||
-            String(b.sessionName || '').toLowerCase() === sessionName.toLowerCase()
-        );
+  const totalQtyValue = this.totalQty > 0 ? this.totalQty : 1;
 
-        return {
-          label: sessionName,
-          sessionId,
-          session: sessionName,
-          qty,
-          totalPrice: Number(match?.totalPrice || 0),
-          percent: 0
-        };
-      }).filter((item: PriceOverviewItem) => item.qty > 0)
-          .sort((a: PriceOverviewItem, b: PriceOverviewItem) => {
-            const aIndex = this.getSessionOrder(a.session);
-            const bIndex = this.getSessionOrder(b.session);
+  this.allItems = computedRows.map((item: PriceOverviewItem) => ({
+    ...item,
+    percent: Math.max(18, Math.round((item.qty / totalQtyValue) * 100))
+  }));
 
-            if (aIndex !== bIndex) {
-              return aIndex - bIndex;
-            }
+  this.items = [...this.allItems];
 
-            return b.qty - a.qty;
-          });
-
-    this.totalQty = computedRows.reduce((sum, item) => sum + item.qty, 0);
-
-    const totalQtyValue = this.totalQty > 0 ? this.totalQty : 1;
-
-    this.allItems = computedRows.map((item: PriceOverviewItem) => ({
-      ...item,
-      percent: Math.max(18, Math.round((item.qty / totalQtyValue) * 100))
-    }));
-
-    this.items = [...this.allItems];
-
-    this.bindChartColumns();
-    this.loading = false;
-  }
+  this.bindChartColumns();
+  this.loading = false;
+}
 
   private getSessionOrder(sessionName: string): number {
     const index = this.sessionDisplayOrder.indexOf(String(sessionName || '').trim().toLowerCase());

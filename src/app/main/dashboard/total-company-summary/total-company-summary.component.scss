@@ -5,11 +5,29 @@
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 0.75rem;
   margin-bottom: 0;
 }
+.summary-card.theme-warning {
+  --card-bg-start: #fff8ed;
+  --card-bg-end: #fdebd0;
+  --card-border: #f4d7a9;
+  --card-title: #9a6a22;
+  --card-value: #4a3410;
+  --card-icon-start: #d99020;
+  --card-icon-end: #f0b45a;
+}
 
+.summary-card.theme-purple {
+  --card-bg-start: #f5f1ff;
+  --card-bg-end: #e8defd;
+  --card-border: #d9c9f5;
+  --card-title: #7155a0;
+  --card-value: #352457;
+  --card-icon-start: #7455b8;
+  --card-icon-end: #9a7bd8;
+}
 .summary-card {
   --card-bg-start: #f8f3ed;
   --card-bg-end: #f3e7de;
