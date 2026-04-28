@@ -31,9 +31,13 @@
             placeholder="Search"
           />
 
-          <button type="button" class="btn btn-primary add-btn" (click)="openCreate()">
-            Generate QR
-          </button>
+       <button
+  *ngIf="roleId === 2"
+  type="button"
+  class="btn btn-primary add-btn"
+  (click)="openCreate()">
+  Generate QR
+</button>
         </div>
       </div>
     </div>
