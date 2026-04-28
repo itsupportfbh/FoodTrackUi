@@ -39,7 +39,11 @@ export class ListQRComponent implements OnInit, AfterViewInit, AfterViewChecked 
   ngAfterViewInit(): void {
     feather.replace();
   }
-
+onDatatablePageChange(): void {
+  setTimeout(() => {
+    feather.replace();
+  }, 0);
+}
   ngAfterViewChecked(): void {
     feather.replace();
   }

@@ -1,171 +1,198 @@
-<div class="request-list-page">
-  <div class="card request-list-card">
-    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-      <h4 class="card-title mb-0">QR</h4>
-    </div>
+<div class="company-master-page">
+  <div class="company-page-content">
+    <div class="content-wrapper container-xxl p-0">
+      <div class="content-body">
+        <section class="users-list-wrapper">
+          <div class="card">
+            <h4
+              class="card-text"
+              style="margin-left:0.85rem;margin-top:0.75rem;font-size:1.25rem;font-weight:600;color:#6F3C2F;"
+            >
+              QR List
+            </h4>
 
-    <div class="card-body">
-      <div class="list-toolbar d-flex justify-content-between align-items-center flex-wrap">
-        <label class="d-flex align-items-center mb-1 mb-md-0 text-muted">
-          <span class="mr-50">Show</span>
-          <select
-            [(ngModel)]="selectedOption"
-            (change)="onPageSizeChange()"
-            class="form-control form-control-sm mx-50 entries-select"
-          >
-            <option [ngValue]="10">10</option>
-            <option [ngValue]="25">25</option>
-            <option [ngValue]="50">50</option>
-            <option [ngValue]="100">100</option>
-          </select>
-          <span class="ml-50">entries</span>
-        </label>
+            <div class="row">
+              <div class="col-md-4 col-12">
+                <div class="d-flex justify-content-between align-items-center m-1">
+                  <label class="d-flex align-items-center">
+                    Show
+                    <select
+                      class="form-control mx-25"
+                      [(ngModel)]="selectedOption"
+                      name="selectedOption"
+                      (change)="onPageSizeChange()"
+                    >
+                      <option [ngValue]="10">10</option>
+                      <option [ngValue]="25">25</option>
+                      <option [ngValue]="50">50</option>
+                      <option [ngValue]="100">100</option>
+                    </select>
+                    entries
+                  </label>
+                </div>
+              </div>
 
-        <div class="d-flex align-items-center flex-wrap right-tools">
-          <label class="mb-0 mr-50 text-muted">Search:</label>
-          <input
-            type="text"
-            class="form-control search-input mr-1"
-            [(ngModel)]="searchText"
-            (input)="filterRequests()"
-            placeholder="Search"
-          />
+              <div class="col-md-8 col-12 d-flex justify-content-start justify-content-md-end">
+                <div class="d-flex align-items-center justify-content-end pr-1 pb-1 pb-md-0 flex-wrap">
+                  <label class="d-flex align-items-center ml-1 ml-md-0 mb-0">
+                    Search:
+                    <input
+                      type="search"
+                      class="form-control ml-25"
+                      [(ngModel)]="searchText"
+                      name="searchText"
+                      (input)="filterRequests()"
+                    />
+                  </label>
 
-       <button
-  *ngIf="roleId === 2"
-  type="button"
-  class="btn btn-primary add-btn"
-  (click)="openCreate()">
-  Generate QR
-</button>
-        </div>
+                  <button
+                    *ngIf="roleId === 2"
+                    type="button"
+                    class="btn btn-primary ml-1"
+                    rippleEffect
+                    (click)="openCreate()"
+                  >
+                    <i data-feather="plus" class="d-sm-none d-inline-block mr-0 mr-sm-1"></i>
+                    <span class="d-none d-sm-inline-block">Generate QR</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <ngx-datatable
+              class="bootstrap core-bootstrap"
+              [rows]="filteredRows"
+              [rowHeight]="50"
+              [columnMode]="'force'"
+              [headerHeight]="50"
+              [footerHeight]="50"
+              [limit]="selectedOption"
+              [loadingIndicator]="loading"
+              [scrollbarH]="false"
+              [messages]="{
+                emptyMessage: 'No data available',
+                totalMessage: 'total'
+              }"
+              (page)="onDatatablePageChange()"
+            >
+              <ngx-datatable-column name="REQUEST NO" prop="requestNo" [width]="170">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  <span class="font-weight-bold d-block">
+                    {{ row.requestNo || '-' }}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="COMPANY" prop="companyName" [width]="220">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  <span
+                    [title]="row.companyName || '-'"
+                  >
+                    {{
+                      row.companyName?.length > 20
+                        ? (row.companyName | slice:0:20) + '...'
+                        : row.companyName || '-'
+                    }}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="PLAN TYPE" prop="planType" [width]="140">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  <div
+                    class="badge badge-pill"
+                    [ngClass]="{
+                      'badge-light-success': (row.planType || '').toLowerCase() === 'basic',
+                      'badge-light-primary': (row.planType || '').toLowerCase() === 'standard',
+                      'badge-light-warning': (row.planType || '').toLowerCase() === 'premium'
+                    }"
+                  >
+                    {{ row.planType || '-' }}
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="QR VALID FROM" prop="qrValidFrom" [width]="150">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  {{ displayDate(row.qrValidFrom) }}
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="QR VALID TILL" prop="qrValidTill" [width]="150">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  {{ displayDate(row.qrValidTill) }}
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="NO OF QR" prop="noofQR" [width]="120">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  {{ row.noofQR || 0 }}
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="STATUS" prop="approvalStatus" [width]="130">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  <div
+                    class="badge badge-pill"
+                    [ngClass]="{
+                      'badge-light-warning': row.approvalStatus === 0,
+                      'badge-light-success': row.approvalStatus === 1,
+                      'badge-light-danger': row.approvalStatus === 2
+                    }"
+                  >
+                    {{
+                      row.approvalStatus === 0 ? 'Pending' :
+                      row.approvalStatus === 1 ? 'Approved' :
+                      row.approvalStatus === 2 ? 'Rejected' : '-'
+                    }}
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="ACTIONS" [width]="170" [sortable]="false">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  <div class="d-flex align-items-center justify-content-center">
+
+                    <button
+                      *ngIf="roleId === 1 && row.approvalStatus === 0"
+                      type="button"
+                      class="btn btn-outline-success p-0 d-flex align-items-center justify-content-center"
+                      style="width: 28px; height: 28px;"
+                      (click)="approveQr(row)"
+                      title="Approve"
+                    >
+                      <i data-feather="check" style="width: 14px; height: 14px;"></i>
+                    </button>
+
+                    <button
+                      *ngIf="roleId === 1 && row.approvalStatus === 0"
+                      type="button"
+                      class="btn btn-outline-danger p-0 d-flex align-items-center justify-content-center ml-1"
+                      style="width: 28px; height: 28px;"
+                      (click)="rejectQr(row)"
+                      title="Reject"
+                    >
+                      <i data-feather="x" style="width: 14px; height: 14px;"></i>
+                    </button>
+
+                    <button
+                      *ngIf="row.approvalStatus === 1"
+                      type="button"
+                      class="btn btn-outline-primary p-0 d-flex align-items-center justify-content-center ml-1"
+                      style="width: 28px; height: 28px;"
+                      (click)="downloadFile(row)"
+                      title="Download"
+                    >
+                      <i data-feather="download" style="width: 14px; height: 14px;"></i>
+                    </button>
+
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+            </ngx-datatable>
+          </div>
+        </section>
       </div>
     </div>
-
-    <ngx-datatable
-      class="bootstrap core-bootstrap request-ngx-table"
-      [rows]="filteredRows"
-      [columnMode]="'force'"
-      [headerHeight]="50"
-      [footerHeight]="55"
-      [rowHeight]="'auto'"
-      [limit]="selectedOption"
-      [loadingIndicator]="loading"
-      [scrollbarH]="false"
-      [messages]="{
-        emptyMessage: 'No data available',
-        totalMessage: 'records'
-      }"
-    >
-      <ngx-datatable-column name="REQUEST NO" prop="requestNo" [width]="160">
-        <ng-template ngx-datatable-cell-template let-row="row">
-          <span class="request-no">{{ row.requestNo || '-' }}</span>
-        </ng-template>
-      </ngx-datatable-column>
-
-      <ngx-datatable-column name="COMPANY" prop="companyName" [width]="180">
-        <ng-template ngx-datatable-cell-template let-row="row">
-          <span [title]="row.companyName || '-'">
-            {{ row.companyName || '-' }}
-          </span>
-        </ng-template>
-      </ngx-datatable-column>
-
-     <ngx-datatable-column name="Plan Type" prop="planType" [width]="150">
-  <ng-template ngx-datatable-cell-template let-row="row">
-    <span
-      class="plan-badge"
-      [ngClass]="{
-        'plan-basic': (row.planType || '').toLowerCase() === 'basic',
-        'plan-standard': (row.planType || '').toLowerCase() === 'standard',
-        'plan-premium': (row.planType || '').toLowerCase() === 'premium'
-      }"
-      [title]="row.planType || '-'"
-    >
-      {{ row.planType || '-' }}
-    </span>
-  </ng-template>
-</ngx-datatable-column>
-
-      <ngx-datatable-column name="QR VALID FROM" prop="qrValidFrom" [width]="160">
-        <ng-template ngx-datatable-cell-template let-row="row">
-          {{ displayDate(row.qrValidFrom) }}
-        </ng-template>
-      </ngx-datatable-column>
-
-      <ngx-datatable-column name="QR VALID TILL" prop="qrValidTill" [width]="160">
-        <ng-template ngx-datatable-cell-template let-row="row">
-          {{ displayDate(row.qrValidTill) }}
-        </ng-template>
-      </ngx-datatable-column>
-
-      <ngx-datatable-column name="NO OF QR" prop="noofQR" [width]="120">
-        <ng-template ngx-datatable-cell-template let-row="row">
-          {{ row.noofQR || 0 }}
-        </ng-template>
-      </ngx-datatable-column>
-
-      <ngx-datatable-column name="STATUS" prop="approvalStatus" [width]="130">
-        <ng-template ngx-datatable-cell-template let-row="row">
-          <span
-            class="badge"
-            [ngClass]="{
-              'badge-warning': row.approvalStatus === 0,
-              'badge-success': row.approvalStatus === 1,
-              'badge-danger': row.approvalStatus === 2
-            }"
-          >
-            {{
-              row.approvalStatus === 0 ? 'Pending' :
-              row.approvalStatus === 1 ? 'Approved' :
-              row.approvalStatus === 2 ? 'Rejected' : '-'
-            }}
-          </span>
-        </ng-template>
-      </ngx-datatable-column>
-
-      <ngx-datatable-column
-        name="ACTION"
-        [sortable]="false"
-        [canAutoResize]="false"
-        [width]="150"
-        headerClass="text-center"
-        cellClass="text-center"
-      >
-        <ng-template ngx-datatable-cell-template let-row="row">
-          <div class="action-btn-group justify-content-center">
-            <button
-              *ngIf="roleId === 1 && row.approvalStatus === 0"
-              type="button"
-              class="btn icon-action-btn approve-btn"
-              (click)="approveQr(row)"
-              title="Approve"
-            >
-              <i data-feather="check"></i>
-            </button>
-
-            <button
-              *ngIf="roleId === 1 && row.approvalStatus === 0"
-              type="button"
-              class="btn icon-action-btn reject-btn"
-              (click)="rejectQr(row)"
-              title="Reject"
-            >
-              <i data-feather="x"></i>
-            </button>
-
-            <button
-              *ngIf="row.approvalStatus === 1"
-              type="button"
-              class="btn icon-action-btn download-btn"
-              (click)="downloadFile(row)"
-              title="Download"
-            >
-              <i data-feather="download"></i>
-            </button>
-          </div>
-        </ng-template>
-      </ngx-datatable-column>
-    </ngx-datatable>
   </div>
 </div>
