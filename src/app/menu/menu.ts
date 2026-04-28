@@ -125,7 +125,7 @@ export const menu: CoreMenu[] = [
     title: 'Menu',
     translate: 'MENU.SAMPLE',
     type: 'item',
-    icon: 'user-plus',
+    icon: 'book-open',
     url: 'menu/menu'
   },
       {
@@ -133,7 +133,7 @@ export const menu: CoreMenu[] = [
     title: 'Meal',
     translate: 'MENU.SAMPLE',
     type: 'item',
-    icon: 'user-plus',
+    icon: 'coffee',
     url: 'meal/meal-request'
   },
         {
@@ -141,7 +141,7 @@ export const menu: CoreMenu[] = [
     title: 'Show-QR',
     translate: 'MENU.SAMPLE',
     type: 'item',
-    icon: 'user-plus',
+    icon: 'grid',
     url: 'meal/show-qr'
   }
 ];

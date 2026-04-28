@@ -37,6 +37,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private currentMenuKey = '';
   private readonly maskedRouteStorageKey = 'foodtrack_internal_route';
 
+private readonly lastRouteStorageKey = 'foodtrack_last_route';
+
   constructor(
     @Inject(DOCUMENT) private document: any,
     private _title: Title,
@@ -171,43 +173,63 @@ export class AppComponent implements OnInit, OnDestroy {
     this._title.setTitle(this.coreConfig?.app?.appTitle || 'FoodTrack');
   }
 
-  private restoreMaskedRoute(): void {
-    const currentVisiblePath = this._location.path() || '/';
-    const savedInternalRoute = sessionStorage.getItem(this.maskedRouteStorageKey);
+private restoreMaskedRoute(): void {
+  const savedInternalRoute =
+    localStorage.getItem('last_valid_url') ||
+    sessionStorage.getItem(this.maskedRouteStorageKey);
 
-    if (
-      (currentVisiblePath === '' || currentVisiblePath === '/') &&
-      savedInternalRoute &&
-      savedInternalRoute !== '/'
-    ) {
+  if (savedInternalRoute && savedInternalRoute !== '/') {
+    setTimeout(() => {
+      if (this._router.url === '/' || this._router.url === '/dashboard') {
+        this._router.navigateByUrl(savedInternalRoute, { replaceUrl: true });
+      }
+    }, 0);
+  }
+}
+
+private maskBrowserUrl(): void {
+  window.addEventListener('popstate', (event: PopStateEvent) => {
+    const internalUrl =
+      event.state?.internalUrl ||
+      sessionStorage.getItem(this.maskedRouteStorageKey) ||
+      localStorage.getItem('last_valid_url');
+
+    if (internalUrl && internalUrl !== '/' && internalUrl !== this._router.url) {
       setTimeout(() => {
-        if (this._router.url === '/' || this._router.url === '') {
-          this._router.navigateByUrl(savedInternalRoute, { replaceUrl: true });
-        }
-      });
+        this._router.navigateByUrl(internalUrl, { replaceUrl: true });
+      }, 0);
     }
-  }
+  });
 
-  private maskBrowserUrl(): void {
-    this._router.events
-      .pipe(
-        filter(event => event instanceof NavigationEnd),
-        takeUntil(this._unsubscribeAll)
-      )
-      .subscribe((event: NavigationEnd) => {
-        const actualUrl = event.urlAfterRedirects || event.url;
+  this._router.events
+    .pipe(
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this._unsubscribeAll)
+    )
+    .subscribe((event: NavigationEnd) => {
+      const actualUrl = event.urlAfterRedirects || event.url;
 
-        if (actualUrl && actualUrl !== '/') {
-          sessionStorage.setItem(this.maskedRouteStorageKey, actualUrl);
-        } else {
-          sessionStorage.removeItem(this.maskedRouteStorageKey);
-        }
+      if (
+        actualUrl &&
+        actualUrl !== '/' &&
+        !actualUrl.includes('/dashboard') &&
+        !actualUrl.includes('/pages/authentication/login-v2') &&
+        !actualUrl.includes('/pages/miscellaneous/error') &&
+        !actualUrl.includes('/error')
+      ) {
+        sessionStorage.setItem(this.maskedRouteStorageKey, actualUrl);
+        localStorage.setItem('last_valid_url', actualUrl);
+      }
 
-        if (this._location.path() !== '/') {
-          this._location.replaceState('/');
-        }
-      });
-  }
+      if (actualUrl && actualUrl !== '/') {
+        window.history.replaceState(
+          { internalUrl: actualUrl },
+          '',
+          '/'
+        );
+      }
+    });
+}
 
   private loadMenuByRole(): void {
     const roleId = this._authenticationService.getRoleId();
