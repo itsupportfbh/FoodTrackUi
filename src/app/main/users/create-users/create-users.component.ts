@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserMasterPayload, UsersService } from '../users-service/users.service';
 import { CateringService } from 'app/main/services/catering.service';
+import { CuisineService } from 'app/main/Master/cuisine/cuisine-service';
 
 @Component({
   selector: 'app-create-users',
@@ -59,19 +60,26 @@ export class CreateUsersComponent implements OnInit, OnChanges {
   public allRoleList: Array<any> = [];
   public cuisineId: number | null = null;
   public cuisineList: Array<any> = [];
+  SuperAdmincuisineList: any;
 
   constructor(
     private _coreSidebarService: CoreSidebarService,
     private _usersService: UsersService,
-    private _companyService: CateringService
+    private _companyService: CateringService,
+    private _cuisineService : CuisineService
   ) {}
 
   ngOnInit(): void {
+    debugger
     this.loadLoginContext();
     this.prepareCreateDefaults();
     this.loadCompanyList();
     this.loadRoles();
+   if (this.loginRoleId === 1) {
+    this.loadSuperAdmincuisineList();
+  } else {
     this.loadCuisineList();
+  }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -86,7 +94,8 @@ export class CreateUsersComponent implements OnInit, OnChanges {
     }
   }
   loadCuisineList(): void {
-     const companyId = Number(this.companyId  || 0);
+    debugger
+     const companyId = Number(this.loginCompanyId  || 0);
 
   if (companyId <= 0) {
     this.cuisineList = [];
@@ -113,6 +122,22 @@ export class CreateUsersComponent implements OnInit, OnChanges {
   
 }
 
+loadSuperAdmincuisineList(): void {
+  this._cuisineService.getAllCuisine().subscribe({
+    next: (res: any) => {
+      this.cuisineList = (res?.data || res || [])
+        .filter((x: any) => x.isActive === true || x.isActive === 1)
+        .map((x: any) => ({
+          id: Number(x.id),
+          cuisineName: x.cuisineName || x.name || ''
+        }));
+    },
+    error: () => {
+      this.cuisineList = [];
+    }
+  });
+}
+
   get passwordMismatch(): boolean {
     if (this.isEditMode && !this.password && !this.confirmPassword) {
       return false;
@@ -122,6 +147,7 @@ export class CreateUsersComponent implements OnInit, OnChanges {
   }
 
   loadLoginContext(): void {
+    debugger
     const roleIdFromStorage =
       localStorage.getItem('roleId') ||
       localStorage.getItem('RoleId') ||
