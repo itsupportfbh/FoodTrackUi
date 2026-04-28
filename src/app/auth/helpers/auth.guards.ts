@@ -7,6 +7,7 @@ import {
   UrlTree
 } from '@angular/router';
 import { AuthenticationService } from 'app/auth/service';
+import { TabSessionService } from 'app/services/tab-session.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,8 @@ import { AuthenticationService } from 'app/auth/service';
 export class AuthGuard implements CanActivate {
   constructor(
     private _router: Router,
-    private _authenticationService: AuthenticationService
+    private _authenticationService: AuthenticationService,
+      private tabSessionService: TabSessionService
   ) { }
 
   private getStoredUser(): any {
@@ -54,7 +56,6 @@ export class AuthGuard implements CanActivate {
 
     if (roleId === 2) {
       return (
-        isDashboardRoute ||
         cleanUrl.startsWith('requestoverride/Request-override-list') ||
         cleanUrl.startsWith('/catering/request') ||
         cleanUrl.startsWith('/requestoverride/request-override') ||
@@ -96,6 +97,9 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean | UrlTree {
+      if (this.tabSessionService.isDuplicateBlocked()) {
+    return this._router.createUrlTree(['/pages/authentication/login-v2']);
+  }
     const currentUser = this._authenticationService.currentUserValue;
     const storedUser = this.getStoredUser();
     const token =
