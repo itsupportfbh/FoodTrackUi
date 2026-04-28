@@ -333,9 +333,9 @@
     </tr>
 
     <tr class="grand-total-row" *ngIf="reportType === 'Summary'">
-      <td colspan="4" class="text-right font-weight-bold">Total Count</td>
+      <td colspan="4" class="text-right font-weight-bold">Grand Total</td>
       <td class="text-right font-weight-bold">{{ getGrandTotalCount() }}</td>
-      <td class="text-right font-weight-bold">{{ getGrandTotalAmount() | number:'1.2-2' }}</td>
+      <td class="text-right font-weight-bold">S$ {{ getGrandTotalAmount() | number:'1.2-2' }}</td>
     </tr>
 
   </ng-container>

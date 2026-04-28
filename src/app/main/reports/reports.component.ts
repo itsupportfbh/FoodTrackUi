@@ -361,13 +361,13 @@ const totalRowHtml = this.reportType === 'Summary'
   ? `
     <tr>
       <td colspan="5" class="text-right" style="font-weight:700; color:#6f3c2f;">
-        Total Count
+        Grand Total 
       </td>
       <td class="text-right" style="font-weight:700; color:#6f3c2f;">
         ${this.getGrandTotalCount()}
       </td>
       <td class="text-right" style="font-weight:700; color:#6f3c2f;">
-        ${this.getGrandTotalAmount().toFixed(2)}
+        S$ ${this.getGrandTotalAmount().toFixed(2)}
       </td>
     </tr>
   `
