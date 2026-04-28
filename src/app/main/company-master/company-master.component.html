@@ -69,17 +69,18 @@
               </div>
             </div>
 
-            <ngx-datatable
-              [rows]="rows"
-              [rowHeight]="50"
-              class="bootstrap core-bootstrap"
-              [limit]="pageLimit"
-              [columnMode]="ColumnMode.force"
-              [headerHeight]="50"
-              [footerHeight]="showPagination ? 50 : 0"
-              [scrollbarH]="false"
-              [externalPaging]="false"
-            >
+          <ngx-datatable
+  [rows]="rows"
+  [rowHeight]="50"
+  class="bootstrap core-bootstrap"
+  [limit]="pageLimit"
+  [columnMode]="ColumnMode.force"
+  [headerHeight]="50"
+  [footerHeight]="showPagination ? 50 : 0"
+  [scrollbarH]="false"
+  [externalPaging]="false"
+  (page)="onDatatablePageChange()"
+>
               <ngx-datatable-column name="Company Name" prop="companyName" [width]="220">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   <div class="d-flex align-items-center company-cell-wrap">

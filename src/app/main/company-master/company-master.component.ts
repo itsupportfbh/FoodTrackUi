@@ -62,7 +62,11 @@ export class CompanyMasterComponent implements OnInit {
   ngOnInit(): void {
     this.loadCompanies();
   }
-
+onDatatablePageChange(): void {
+  setTimeout(() => {
+    feather.replace();
+  }, 0);
+}
   loadCompanies(): void {
     this.companyService.getCompanies().subscribe({
       next: (res: any) => {
@@ -95,9 +99,13 @@ export class CompanyMasterComponent implements OnInit {
     });
   }
 
-  onPageSizeChange(): void {
-    this.updatePaging();
-  }
+onPageSizeChange(): void {
+  this.updatePaging();
+
+  setTimeout(() => {
+    feather.replace();
+  }, 0);
+}
 
   private updatePaging(): void {
     if (this.selectedOption === 'all') {
@@ -117,9 +125,8 @@ export class CompanyMasterComponent implements OnInit {
       'Contact Person': item.contactPerson || '',
       'Email': item.email || '',
       'Contact No': item.contactNo || '',
-      'Address Line 1': item.addressLine1 || '',
-      'Address Line 2': item.addressLine2 || '',
-      'City': item.city || '',
+      'Address': item.addressLine1 || '',
+     'City': item.city || '',
       'State': item.stateName || '',
       'Postal Code': item.postalCode || '',
       'Status': item.isActive ? 'Active' : 'Inactive'
@@ -320,22 +327,26 @@ toggleCompanyStatus(row: any): void {
   });
 }
 
-  filterUpdate(event: any): void {
-    const val = (event.target.value || '').toLowerCase();
+filterUpdate(event: any): void {
+  const val = (event.target.value || '').toLowerCase();
 
-    const temp = this.tempRows.filter(
-      (d: any) =>
-        (d.companyCode || '').toLowerCase().includes(val) ||
-        (d.companyName || '').toLowerCase().includes(val) ||
-        (d.contactPerson || '').toLowerCase().includes(val) ||
-        (d.email || '').toLowerCase().includes(val) ||
-        (d.contactNo || '').toLowerCase().includes(val) ||
-        !val
-    );
+  const temp = this.tempRows.filter(
+    (d: any) =>
+      (d.companyCode || '').toLowerCase().includes(val) ||
+      (d.companyName || '').toLowerCase().includes(val) ||
+      (d.contactPerson || '').toLowerCase().includes(val) ||
+      (d.email || '').toLowerCase().includes(val) ||
+      (d.contactNo || '').toLowerCase().includes(val) ||
+      !val
+  );
 
-    this.rows = temp;
-    this.updatePaging();
-  }
+  this.rows = temp;
+  this.updatePaging();
+
+  setTimeout(() => {
+    feather.replace();
+  }, 0);
+}
 
   applyFilter(): void {
     let data = [...this.tempRows];
