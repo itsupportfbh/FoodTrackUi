@@ -195,7 +195,7 @@ public downloadingMonthlyPdf = false;
         if (response?.success && response?.data) {
           this.handleRememberMe(email, password);
           this.setAuthDataToLocalStorage(response.data, email);
-
+this._tabSessionService.clearDuplicateBlockedFlag();
           this._tabSessionService.activateCurrentTab();
 
           const roleId = Number(

@@ -131,12 +131,22 @@ export class TabSessionService {
       this.heartbeatTimer = null;
     }
   }
+private handleDuplicateTab(): void {
+  sessionStorage.setItem(this.DUPLICATE_BLOCKED_KEY, 'true');
 
-  private handleDuplicateTab(): void {
-    sessionStorage.setItem(this.DUPLICATE_BLOCKED_KEY, 'true');
-    this.router.navigateByUrl('/pages/authentication/login-v2');
-  }
+  // duplicate tab la login force panna auth data clear
+  // localStorage.removeItem('currentUser');
+  // localStorage.removeItem('token');
+  // localStorage.removeItem('role');
 
+  // sessionStorage.removeItem('currentUser');
+  // sessionStorage.removeItem('token');
+  // sessionStorage.removeItem('role');
+
+  this.stopHeartbeat();
+
+  this.router.navigateByUrl('/pages/authentication/login-v2');
+}
   private registerUnload(ownerId: string): void {
     window.onbeforeunload = () => {
       const existingLock = this.getLock();
