@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { LocationService } from '../../location/location.service';
-import Swal from 'sweetalert2';
-import { MealRequestService } from '../meal-request-service/meal-request.service';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
+
+import { LocationService } from '../../location/location.service';
+import { MealRequestService } from '../meal-request-service/meal-request.service';
 
 @Component({
   selector: 'app-meal-request',
@@ -14,10 +15,15 @@ export class MealRequestComponent implements OnInit {
   toDate = '';
   locationId: number | null = null;
 
+  allowedFromDate = '';
+  allowedToDate = '';
+
   locations: any[] = [];
   existingMealRequests: any[] = [];
 
   isSubmitting = false;
+  isMealAllowed = false;
+  eligibilityMessage = '';
 
   currentUser: any;
   companyId = 0;
@@ -26,18 +32,12 @@ export class MealRequestComponent implements OnInit {
   constructor(
     private _locationService: LocationService,
     private _mealRequestService: MealRequestService,
-        private router: Router
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadCurrentUser();
-
-    const today = this.getTodayDateString();
-    this.fromDate = today;
-    this.toDate = today;
-
-    this.loadLocation();
-    this.loadExistingMealRequests();
+    this.checkMealEligibility();
   }
 
   loadCurrentUser(): void {
@@ -45,29 +45,114 @@ export class MealRequestComponent implements OnInit {
       localStorage.getItem('currentUser') ||
       sessionStorage.getItem('currentUser');
 
-    if (storedUser) {
+    if (!storedUser) {
+      this.companyId = 0;
+      this.userId = 0;
+      return;
+    }
+
+    try {
       this.currentUser = JSON.parse(storedUser);
 
       this.companyId = Number(
         this.currentUser.companyId ||
-        this.currentUser.CompanyId ||
-        0
+          this.currentUser.CompanyId ||
+          this.currentUser.orgId ||
+          this.currentUser.OrgId ||
+          0
       );
 
       this.userId = Number(
         this.currentUser.id ||
-        this.currentUser.Id ||
-        this.currentUser.userId ||
-        this.currentUser.UserId ||
-        0
+          this.currentUser.Id ||
+          this.currentUser.userId ||
+          this.currentUser.UserId ||
+          0
       );
+    } catch {
+      this.companyId = 0;
+      this.userId = 0;
     }
+  }
+
+  checkMealEligibility(): void {
+    if (!this.companyId || !this.userId) {
+      this.isMealAllowed = false;
+      this.eligibilityMessage = 'Login user details not found. Please login again.';
+      this.disableFormValues();
+      return;
+    }
+
+    this._mealRequestService
+      .checkMealRequestEligibility(this.companyId, this.userId)
+      .subscribe({
+        next: (res: any) => {
+          const data = res?.data;
+
+          this.isMealAllowed =
+            res?.status === true &&
+            (data?.isAllowed === true || data?.IsAllowed === true);
+
+          if (!this.isMealAllowed) {
+            this.eligibilityMessage =
+              res?.message ||
+              data?.message ||
+              data?.Message ||
+              'No order found for your account. You cannot select a meal location.';
+
+            this.disableFormValues();
+
+            Swal.fire({
+              icon: 'warning',
+              title: 'Warning',
+              text: this.eligibilityMessage,
+              confirmButtonText: 'OK'
+            });
+
+            return;
+          }
+
+          this.eligibilityMessage = '';
+
+          this.allowedFromDate = this.formatDateOnly(
+            data?.minFromDate || data?.MinFromDate
+          );
+
+          this.allowedToDate = this.formatDateOnly(
+            data?.maxToDate || data?.MaxToDate
+          );
+
+          const today = this.getTodayDateString();
+
+          if (
+            this.allowedFromDate &&
+            this.allowedToDate &&
+            today >= this.allowedFromDate &&
+            today <= this.allowedToDate
+          ) {
+            this.fromDate = today;
+            this.toDate = today;
+          } else {
+            this.fromDate = this.allowedFromDate;
+            this.toDate = this.allowedFromDate;
+          }
+
+          this.loadLocation();
+          this.loadExistingMealRequests();
+        },
+        error: () => {
+          this.isMealAllowed = false;
+          this.eligibilityMessage = 'Unable to check meal order details.';
+          this.disableFormValues();
+          Swal.fire('Error', this.eligibilityMessage, 'error');
+        }
+      });
   }
 
   loadLocation(): void {
     this._locationService.getLocation().subscribe({
       next: (res: any) => {
-        this.locations = res?.data || [];
+        this.locations = res?.data || res?.result || res || [];
       },
       error: () => {
         this.locations = [];
@@ -81,17 +166,17 @@ export class MealRequestComponent implements OnInit {
       return;
     }
 
-    this._mealRequestService.getAllMealRequests(this.companyId, this.userId).subscribe({
-      next: (res: any) => {
-        this.existingMealRequests = res?.data || res || [];
-
-        // page load aagumbodhu current date ku location auto bind
-        this.bindLocationByDate(this.fromDate);
-      },
-      error: () => {
-        this.existingMealRequests = [];
-      }
-    });
+    this._mealRequestService
+      .getAllMealRequests(this.companyId, this.userId)
+      .subscribe({
+        next: (res: any) => {
+          this.existingMealRequests = res?.data || res?.result || res || [];
+          this.bindLocationByDate(this.fromDate);
+        },
+        error: () => {
+          this.existingMealRequests = [];
+        }
+      });
   }
 
   onFromDateChange(): void {
@@ -99,15 +184,55 @@ export class MealRequestComponent implements OnInit {
       return;
     }
 
-    if (!this.toDate) {
+    if (this.allowedFromDate && this.fromDate < this.allowedFromDate) {
+      Swal.fire(
+        'Warning',
+        `From Date should not be before ${this.allowedFromDate}.`,
+        'warning'
+      );
+      this.fromDate = this.allowedFromDate;
+    }
+
+    if (this.allowedToDate && this.fromDate > this.allowedToDate) {
+      Swal.fire(
+        'Warning',
+        `From Date should not be after ${this.allowedToDate}.`,
+        'warning'
+      );
+      this.fromDate = this.allowedToDate;
+    }
+
+    if (!this.toDate || this.toDate < this.fromDate) {
       this.toDate = this.fromDate;
     }
 
     this.bindLocationByDate(this.fromDate);
   }
 
+  onToDateChange(): void {
+    if (!this.toDate) {
+      return;
+    }
+
+    if (this.toDate < this.fromDate) {
+      Swal.fire('Warning', 'To Date should not be before From Date.', 'warning');
+      this.toDate = this.fromDate;
+      return;
+    }
+
+    if (this.allowedToDate && this.toDate > this.allowedToDate) {
+      Swal.fire(
+        'Warning',
+        `To Date should not be after ${this.allowedToDate}.`,
+        'warning'
+      );
+      this.toDate = this.allowedToDate;
+    }
+  }
+
   bindLocationByDate(dateValue: string): void {
     if (!dateValue || !this.existingMealRequests.length) {
+      this.locationId = null;
       return;
     }
 
@@ -122,8 +247,7 @@ export class MealRequestComponent implements OnInit {
 
     if (matchedRequest) {
       this.locationId = Number(
-        matchedRequest.locationId ||
-        matchedRequest.LocationId
+        matchedRequest.locationId || matchedRequest.LocationId
       );
     } else {
       this.locationId = null;
@@ -131,18 +255,52 @@ export class MealRequestComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.fromDate || !this.toDate || !this.locationId) {
-      Swal.fire('Warning', 'Please select From Date, To Date and Location.', 'warning');
+    if (!this.isMealAllowed) {
+      Swal.fire(
+        'Warning',
+        this.eligibilityMessage || 'Ungaluku order podala.',
+        'warning'
+      );
       return;
     }
 
-    if (new Date(this.fromDate) > new Date(this.toDate)) {
-      Swal.fire('Warning', 'From Date should not be greater than To Date.', 'warning');
+    if (!this.fromDate || !this.toDate || !this.locationId) {
+      Swal.fire(
+        'Warning',
+        'Please select From Date, To Date and Location.',
+        'warning'
+      );
+      return;
+    }
+
+    if (this.fromDate > this.toDate) {
+      Swal.fire(
+        'Warning',
+        'From Date should not be greater than To Date.',
+        'warning'
+      );
+      return;
+    }
+
+    if (
+      this.allowedFromDate &&
+      this.allowedToDate &&
+      (this.fromDate < this.allowedFromDate || this.toDate > this.allowedToDate)
+    ) {
+      Swal.fire(
+        'Warning',
+        `Date should be between ${this.allowedFromDate} and ${this.allowedToDate}.`,
+        'warning'
+      );
       return;
     }
 
     if (!this.companyId || !this.userId) {
-      Swal.fire('Error', 'Login user details not found. Please login again.', 'error');
+      Swal.fire(
+        'Error',
+        'Login user details not found. Please login again.',
+        'error'
+      );
       return;
     }
 
@@ -164,13 +322,21 @@ export class MealRequestComponent implements OnInit {
         this.isSubmitting = false;
 
         if (res?.status === true) {
-          Swal.fire('Success', res.message || 'Meal request saved successfully.', 'success');
+          Swal.fire(
+            'Success',
+            res.message || 'Meal request saved successfully.',
+            'success'
+          );
 
           this.loadExistingMealRequests();
-          this.resetToToday();
+          this.resetToAllowedDate();
           this.gotoshowqr();
         } else {
-          Swal.fire('Warning', res?.message || 'Unable to save meal request.', 'warning');
+          Swal.fire(
+            'Warning',
+            res?.message || 'Unable to save meal request.',
+            'warning'
+          );
         }
       },
       error: (err: any) => {
@@ -178,7 +344,8 @@ export class MealRequestComponent implements OnInit {
 
         Swal.fire(
           'Error',
-          err?.error?.message || 'Something went wrong while saving meal request.',
+          err?.error?.message ||
+            'Something went wrong while saving meal request.',
           'error'
         );
       }
@@ -186,18 +353,43 @@ export class MealRequestComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.resetToToday();
+    if (!this.isMealAllowed) {
+      return;
+    }
+
+    this.resetToAllowedDate();
   }
 
-
-  gotoshowqr(){
-    this.router.navigate(['/meal/show-qr']);
-  }
-  resetToToday(): void {
+  resetToAllowedDate(): void {
     const today = this.getTodayDateString();
-    this.fromDate = today;
-    this.toDate = today;
-    this.bindLocationByDate(today);
+
+    if (
+      this.allowedFromDate &&
+      this.allowedToDate &&
+      today >= this.allowedFromDate &&
+      today <= this.allowedToDate
+    ) {
+      this.fromDate = today;
+      this.toDate = today;
+    } else {
+      this.fromDate = this.allowedFromDate;
+      this.toDate = this.allowedFromDate;
+    }
+
+    this.bindLocationByDate(this.fromDate);
+  }
+
+  disableFormValues(): void {
+    this.fromDate = '';
+    this.toDate = '';
+    this.locationId = null;
+    this.locations = [];
+    this.allowedFromDate = '';
+    this.allowedToDate = '';
+  }
+
+  gotoshowqr(): void {
+    this.router.navigate(['/meal/show-qr']);
   }
 
   getTodayDateString(): string {
@@ -205,6 +397,19 @@ export class MealRequestComponent implements OnInit {
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
+
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  formatDateOnly(value: any): string {
+    if (!value) {
+      return '';
+    }
+
+    const date = new Date(value);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
 
     return `${yyyy}-${mm}-${dd}`;
   }

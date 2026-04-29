@@ -34,4 +34,10 @@ export class MealRequestService {
       `${this.apiUrl}/ShowQr?companyId=${companyId}&userId=${userId}`
     );
   }
+
+checkMealRequestEligibility(companyId: number, userId: number): Observable<any> {
+  return this.http.get<any>(
+    `${this.apiUrl}/CheckMealRequestEligibility?companyId=${companyId}&userId=${userId}`
+  );
+}
 }

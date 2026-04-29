@@ -10,6 +10,10 @@
         <p>Choose your date range and location.</p>
       </div>
 
+      <div class="alert alert-warning" *ngIf="!isMealAllowed && eligibilityMessage">
+        {{ eligibilityMessage }}
+      </div>
+
       <form #mealForm="ngForm" (ngSubmit)="onSubmit()">
         <div class="form-grid">
           <div class="form-group">
@@ -19,7 +23,10 @@
               class="form-control custom-control"
               name="fromDate"
               [(ngModel)]="fromDate"
+              [min]="allowedFromDate"
+              [max]="allowedToDate"
               (change)="onFromDateChange()"
+              [disabled]="!isMealAllowed || isSubmitting"
               required
             />
           </div>
@@ -31,6 +38,10 @@
               class="form-control custom-control"
               name="toDate"
               [(ngModel)]="toDate"
+              [min]="fromDate || allowedFromDate"
+              [max]="allowedToDate"
+              (change)="onToDateChange()"
+              [disabled]="!isMealAllowed || isSubmitting"
               required
             />
           </div>
@@ -41,11 +52,12 @@
               class="form-control custom-control"
               name="locationId"
               [(ngModel)]="locationId"
+              [disabled]="!isMealAllowed || isSubmitting"
               required
             >
               <option [ngValue]="null">Select Location</option>
-              <option *ngFor="let item of locations" [ngValue]="item.id">
-                {{ item.locationName || item.name }}
+              <option *ngFor="let item of locations" [ngValue]="item.id || item.Id">
+                {{ item.locationName || item.LocationName || item.name || item.Name }}
               </option>
             </select>
           </div>
@@ -64,7 +76,7 @@
           <button
             type="submit"
             class="btn btn-submit"
-            [disabled]="isSubmitting"
+            [disabled]="!isMealAllowed || isSubmitting"
           >
             {{ isSubmitting ? 'Submitting...' : 'Submit' }}
           </button>
