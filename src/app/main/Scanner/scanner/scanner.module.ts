@@ -8,6 +8,8 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { QRgenerateComponent } from '../qrgenerate/qrgenerate.component';
 import { ListQRComponent } from '../list-qr/list-qr.component';
 import { ScannerComponent } from './scanner.component';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+
 
 const routes = [
   {
@@ -38,7 +40,8 @@ const routes = [
     FormsModule,
     QRCodeModule,
     NgxDatatableModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    NgbTooltipModule
   ]
 })
 export class ScannerModule {}

@@ -75,27 +75,46 @@
               }"
               (page)="onDatatablePageChange()"
             >
-              <ngx-datatable-column name="REQUEST NO" prop="requestNo" [width]="170">
-                <ng-template ngx-datatable-cell-template let-row="row">
-                  <span class="font-weight-bold d-block">
-                    {{ row.requestNo || '-' }}
-                  </span>
-                </ng-template>
-              </ngx-datatable-column>
+    <ngx-datatable-column name="REQUEST NO" prop="requestNo" [width]="220">
+  <ng-template ngx-datatable-cell-template let-value="value">
+    <span
+      class="request-no-text font-weight-bold"
+      [ngbTooltip]="value?.length > 15 ? requestNoTooltip : ''"
+      container="body"
+      placement="auto"
+      tooltipClass="modern-grid-tooltip"
+    >
+      {{ value?.length > 30 ? (value | slice:0:30) + '...' : value || '-' }}
+    </span>
 
-              <ngx-datatable-column name="COMPANY" prop="companyName" [width]="220">
-                <ng-template ngx-datatable-cell-template let-row="row">
-                  <span
-                    [title]="row.companyName || '-'"
-                  >
-                    {{
-                      row.companyName?.length > 20
-                        ? (row.companyName | slice:0:20) + '...'
-                        : row.companyName || '-'
-                    }}
-                  </span>
-                </ng-template>
-              </ngx-datatable-column>
+    <ng-template #requestNoTooltip>
+      <div class="tooltip-card">
+        <div class="tooltip-title">Request No</div>
+        <div class="tooltip-value">{{ value }}</div>
+      </div>
+    </ng-template>
+  </ng-template>
+</ngx-datatable-column>
+
+<ngx-datatable-column name="COMPANY" prop="companyName" [width]="220">
+  <ng-template ngx-datatable-cell-template let-value="value">
+    <span
+      class="company-text"
+      [ngbTooltip]="value?.length > 15 ? companyTooltip : ''"
+      placement="top"
+      tooltipClass="modern-grid-tooltip"
+    >
+      {{ value?.length > 15 ? (value | slice:0:15) + '...' : value || '-' }}
+    </span>
+
+    <ng-template #companyTooltip>
+      <div class="tooltip-card">
+        <div class="tooltip-title">Company</div>
+        <div class="tooltip-value">{{ value }}</div>
+      </div>
+    </ng-template>
+  </ng-template>
+</ngx-datatable-column>
 
               <ngx-datatable-column name="PLAN TYPE" prop="planType" [width]="140">
                 <ng-template ngx-datatable-cell-template let-row="row">

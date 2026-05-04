@@ -315,3 +315,58 @@
   background: #f8d7da;
   border-color: #f5c2c7;
 }
+.request-no-text,
+.company-text {
+  display: inline-block;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+::ng-deep .modern-grid-tooltip .tooltip-inner {
+  background: #ffffff !important;
+  color: #4b4b4b !important;
+  border: 1px solid #e6e8f0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 8px 24px rgba(31, 41, 55, 0.12) !important;
+  padding: 0 !important;
+  max-width: 320px !important;
+  text-align: left !important;
+  overflow: hidden !important;
+}
+
+::ng-deep .modern-grid-tooltip .tooltip-arrow::before,
+::ng-deep .modern-grid-tooltip .arrow::before {
+  border-top-color: #ffffff !important;
+  border-bottom-color: #ffffff !important;
+  border-left-color: #ffffff !important;
+  border-right-color: #ffffff !important;
+}
+
+::ng-deep .modern-grid-tooltip .tooltip-card {
+  min-width: 220px !important;
+  background: #ffffff !important;
+}
+
+::ng-deep .modern-grid-tooltip .tooltip-title {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px !important;
+  padding: 10px 14px !important;
+  background: linear-gradient(135deg, #6f3c2f, #d4765e) !important;
+}
+
+::ng-deep .modern-grid-tooltip .tooltip-value {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #4b4b4b !important;
+  background: #ffffff !important;
+  padding: 12px 14px !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+}
