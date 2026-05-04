@@ -413,16 +413,21 @@ export class RequestCreateComponent implements OnInit, AfterViewInit, AfterViewC
   onFromDateChange(): void {
     this.updateToDateMax();
 
-    if (this.model.toDate) {
-      if (this.model.fromDate && this.model.toDate < this.model.fromDate) {
-        this.model.toDate = '';
-        return;
-      }
+    // if (this.model.toDate) {
+    //   if (this.model.fromDate && this.model.toDate < this.model.fromDate) {
+    //     this.model.toDate = '';
+    //     return;
+    //   }
 
-      if (this.toDateMax && this.model.toDate > this.toDateMax) {
+    //   if (this.toDateMax && this.model.toDate > this.toDateMax) {
+    //     this.model.toDate = this.toDateMax;
+    //   }
+    // }
+      if (this.model.fromDate) {
         this.model.toDate = this.toDateMax;
       }
-    }
+
+      this.checkDateOverlap();
   }
 
   private updateToDateMax(): void {
